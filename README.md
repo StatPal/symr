@@ -9,4 +9,4 @@ Locations:
 * The data location: ./data/ZHRTS1.nii
 * The optimiser location: ./optim_cpp_solver/
 
-* [ ] Check. 
+* Check. 
