@@ -1,7 +1,10 @@
-# Synthetic_MRI_1
+# Synthetic MRI 1
 
-The file to be executed: 
+Very primitive situation in github - may contain errors.
 
-The data location: 
+**This code needs Eigen - a C++ library header files**. The header files location must be in the PATH, or should be added in time of compilation. 
 
-The optimiser location:
+Locations: 
+* The file to be executed: ./TRY_EIGEN_CODE/scheme_new_EM_5_numerical_cholesky.cpp
+* The data location: ./data/ZHRTS1.nii
+* The optimiser location: ./optim_cpp_solver/
