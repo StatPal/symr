@@ -1,10 +1,12 @@
 /*
 *
 * See this:
-g++ scheme_new_EM_5_numerical_cholesky.cpp -o test -I /usr/include/eigen3 -O3
+g++ scheme_new_EM_5_numerical_cholesky.cpp -o test -I /usr/include/eigen3 -O3 --std=c++17
 g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_numerical -I ~/MRI/Headers -O3 -std=c++11
+* 
 *
 ./test ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
+./test ../data/ZHRTS1.nii ../data/Dummy_sd.txt 0
 ./scheme_new_EM_5_numerical ../data/ZHRTS1.nii ../data/Dummy_sd.txt 0 > scheme_new_EM_5_numerical.txt
 */
 
@@ -18,6 +20,9 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 #include "../optim_cpp_solver/include/cppoptlib/boundedproblem.h"
 #include "../optim_cpp_solver/include/cppoptlib/solver/lbfgsbsolver.h"
 
+
+//Subrata 
+// Make it --std=c++11 -- remove bessel std::cyl_bessel_i - do later
 
 
 //Subrata -- do Cholesky 
