@@ -10,7 +10,7 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-
+./test ../data/new_phantom.nii ../data/Dummy_sd.txt 0
 
 */
 

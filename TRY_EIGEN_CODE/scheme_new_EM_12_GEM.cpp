@@ -13,6 +13,8 @@ g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/GEM_12_no_grad.cpp -o GEM_12_no_grad -I ~/MRI/
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
+./test ../data/new_phantom.nii ../data/Dummy_sd.txt 0
+
 
 
 
