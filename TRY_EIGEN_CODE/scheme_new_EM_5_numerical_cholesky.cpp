@@ -1,13 +1,17 @@
-/*
+/**
 *
 * See this:
-g++ scheme_new_EM_5_numerical_cholesky.cpp -o test -I /usr/include/eigen3 -O3 --std=c++17
+g++ scheme_new_EM_5_numerical_cholesky.cpp -o test -I /usr/include/eigen3 -O3
 g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_numerical -I ~/MRI/Headers -O3 -std=c++11
-* 
 *
 ./test ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
-./test ../data/ZHRTS1.nii ../data/Dummy_sd.txt 0
 ./scheme_new_EM_5_numerical ../data/ZHRTS1.nii ../data/Dummy_sd.txt 0 > scheme_new_EM_5_numerical.txt
+
+
+./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+
+
+
 */
 
 
@@ -16,17 +20,13 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 #include "Read_files_2.hpp"
 #include "Init_value_6_numerical.hpp"
 
-#include "../optim_cpp_solver/include/cppoptlib/meta.h"
-#include "../optim_cpp_solver/include/cppoptlib/boundedproblem.h"
-#include "../optim_cpp_solver/include/cppoptlib/solver/lbfgsbsolver.h"
+#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 
-//Subrata 
-// Make it --std=c++11 -- remove bessel std::cyl_bessel_i - do later
 
-
-//Subrata -- do Cholesky 
-// -- in all proper places -- 
+//Subrata -- do Cholesky -- done
 // In gradient also!!
 
 
@@ -34,11 +34,10 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 // Subrata - correct it. 
 
 // Check sign of grad - is there opposite sign in MRF part ?
-// Because, Psi_inv(0,0) increases with iterations - and objective function worsens
+// Because, Psi_inv(0,0) increases with iterations - and objective function worsens?
 
 
 // [[Rcpp::plugins(cpp11)]]
-// [[Rcpp::depends(RcppArmadillo)]]
 
 //using namespace Rcpp;
 
@@ -58,10 +57,12 @@ const Matrix_eig G((Matrix_eig(6,9) <<
 
 /*
 Penalised Negative log likelihood -- to be minimised
+Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
+No change for cholesky inside the function
 */
-double l_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
+double l_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
               Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, 
-              int n_x, int n_y, int n_z){	// nx3, 3 or 2, mx1...
+              int n_x, int n_y, int n_z){
 
 	Matrix_eig v = v_mat(W, TE, TR);
 	int m = v.cols();
@@ -86,17 +87,18 @@ double l_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 	
 	return -likeli_sum;
 }
-// No change for cholesky inside the function
+
 
 /*
 * Negative Penalised Q function - to be minimised
 */
-double Q_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
+double Q_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
               Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, Matrix_eig W_old,
               int n_x, int n_y, int n_z){	// nx3, 3 or 2, mx1...
 	
 	Debug2("Calculation of Q starts:");
 	check_nan(W);
+	//show_head(W);
 	Matrix_eig v = v_mat(W, TE, TR);
 	Matrix_eig v_old = v_mat(W_old, TE, TR); 
 	int m = v.cols();
@@ -113,9 +115,7 @@ double Q_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 	for(int i = 0; i < n; ++i) {
 		for(int j = 0; j < m; ++j) {
 			tmp2 = r(i,j)*v_old(i,j)/SQ(sigma(j));
-			//if(std::isnan(tmp2)){Debug1("r(i,j): " << r(i,j) << " v_old:" << v_old(i,j) << " sigma^2: " << SQ(sigma(j)));}
 			tmp3 = besselI1_I0(tmp2);				// Mistake --Subrata  --corrected
-			//if(std::isnan(tmp3)){Debug1("tmp3:" << tmp3);}
 			likeli_sum += v(i,j)*(- 0.5*v(i,j) + r(i,j)*tmp3)/SQ(sigma(j));
 		}
 	}
@@ -126,20 +126,9 @@ double Q_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 	
 	/*MRF part:*/
 	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	if(std::isnan(tmp)){
-		Debug0("nan at tmp part");
-	}
 	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
-	
-	if(std::isnan(log_det_3(Psi_inv))){
-		Debug0("nan at log_det_3: Psi_inv:\n"<< Psi_inv << "\nDet:" << log_det_3(Psi_inv));
-	}
-	Debug1("Psi_inv: \n" << Psi_inv);
-	Debug1("beta: " << beta.transpose());
-	
-	if(std::isnan(likeli_sum)){
-		Debug0("nan after MRF part");
-	}
+	if(std::isnan(likeli_sum))
+		Debug0("nan after MRF part");								/// Subrata -- problem.
 	
 	check_nan(W);
 	Debug2(" - Q function calculated: " << -likeli_sum);
@@ -160,7 +149,7 @@ double Q_star(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 /*
 * Negative Gradient of Penalised Q function
 */
-Vector_eig Q_grad_vec(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta, 
+Vector_eig Q_grad_vec(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta, 
                    Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, Matrix_eig W_old,
                    int n_x, int n_y, int n_z){
 	
@@ -178,8 +167,8 @@ Vector_eig Q_grad_vec(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 	Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;
 	
 	/* W - grad part*/
-	for(int i = 0; i < n; ++i){
-		for(int k = 0; k < 3; ++k){
+	for(int i = 0; i < n; ++i) {
+		for(int k = 0; k < 3; ++k) {
 			temp = 0.;									// Missed this -- correct this.
 			for(int j = 0; j < m ; ++j){
 				tmp2 = r(i,j)/SQ(sigma(j));
@@ -192,7 +181,7 @@ Vector_eig Q_grad_vec(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta,
 	Debug2("Grad rice part calculated.\n");
 	
 	/* Other - grad part*/
-	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3f_eig::Identity(3, 3)) - W.transpose()*Gamma_inv*W);
+	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Gamma_inv*W);
 	
 	Matrix_eig temp_mat = W * Psi_inv;
 	double beta_x_grad = 1.5*sp_log_inv_specific(beta, n_x, n_y, n_z, 0) - 0.5*(W.transpose()*Kron_Sparse_eig(J_n(n_x), I_n(n_y*n_z))*temp_mat).trace();
@@ -250,21 +239,35 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		
 		//W
 		Matrix_eig W = Matrix_eig::Zero(n, 3);
-		W.col(0) = all_param.segment(0, n);
-		W.col(1) = all_param.segment(n, n);
+		W.col(0) = all_param.segment(  0, n);
+		W.col(1) = all_param.segment(  n, n);
 		W.col(2) = all_param.segment(2*n,n);
-		check_bounds(W, lb, ub);
+		check_bounds(W, lb, ub);			// I guess not working - take a look later
+		
+		//show_head(W, 2);					// What is happening!
+		//show_head_vec(all_param, 10, 1);
+		//Debug1("lb:");
+		//show_head_vec(lb.segment(  0, n), 10, 0);
+		//show_head_vec(lb.segment(  n, n), 10, 0);
+		//show_head_vec(lb.segment(2*n, n), 10, 1);
+		//Debug1("ub:");
+		//show_head_vec(ub.segment(  0, n), 10, 0);
+		//show_head_vec(ub.segment(  n, n), 10, 0);
+		//show_head_vec(ub.segment(2*n, n), 10, 1);
+		//Debug1("Bound check 1");
+		
 		
 		//Psi
 		Vector_eig temp_L = all_param.segment(3*n, 6);
-		Matrix3f_eig L_mat = to_L_mat(temp_L);
-		Matrix3f_eig Psi_inv = from_Cholesky(L_mat);
+		Matrix3d_eig L_mat = to_L_mat(temp_L);
+		Matrix3d_eig Psi_inv = from_Cholesky(L_mat);
 		
 		//beta
 		Vector_eig beta = Vector_eig::Zero(3);
 		beta(0) = all_param(3*n+6); beta(1) = all_param(3*n+7); beta(2) = beta_z;
 		
-		double temp_val = Q_star(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z);
+		
+		double temp_val = Q_star(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z);				// Bug
 		double temp_lik = l_star(W, Psi_inv, beta, TE, TR, sigma, r, n_x, n_y, n_z);
 		Debug1("- Q fn:" << temp_val);
 		Debug1("- log Likelihood: " << temp_lik);
@@ -281,7 +284,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		} else if( diff_val < 0.0){
 			Debug1("Increase, bad, difference: " << diff_val);
 		}
-		Debug1("Diff in likelihood: "<< diff_lik);
+		Debug1("Diff in likelihood: "<< diff_lik << "\n");
 		Debug2("Previous val:"<< prev_val << "; current_val:" << temp_val);
 		
 		prev_val = temp_val;
@@ -295,9 +298,11 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 			current_best_val = temp_val;
 		}
 		
-		Debug1("Computation of values done!");
+		Debug2("Computation of values done!");
 		return (temp_val);
 	}
+
+
 
 	void gradient(const TVector &all_param, TVector &Y) {
 	
@@ -314,8 +319,8 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		
 		//Psi
 		Vector_eig temp_L = all_param.segment(3*n, 6);
-		Matrix3f_eig L_mat = to_L_mat(temp_L);
-		Matrix3f_eig Psi_inv = from_Cholesky(L_mat);
+		Matrix3d_eig L_mat = to_L_mat(temp_L);
+		Matrix3d_eig Psi_inv = from_Cholesky(L_mat);
 		
 		//beta
 		Vector_eig beta = Vector_eig::Zero(3);
@@ -328,33 +333,40 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		Y.segment(3*n, 6) = to_grad_Cholesky(temp_L)*chain;		//check transpose
 		
 		check_nan_vec(Y);
-		Debug1("Computation of grad done!\n");
+		Debug2("Computation of grad done!\n");
 		Debug2("grad: " << Y.transpose() << "\n" );
 	}
+
 };
 
 
-void EM_solve(Matrix_eig &W_init, Matrix3f_eig &Psi_inv, Vector_eig &beta, 
-                Vector_eig TE_example, Vector_eig TR_example, Matrix_eig r, 
-                int n_x, int n_y, int n_z, Vector_eig sigma, int maxiter = 20, double abs_diff = 1e-6, int verbose = 0){
+void EM_solve(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
+                Vector_eig TE_example, Vector_eig TR_example, Vector_eig sigma, Matrix_eig r, 
+                int n_x, int n_y, int n_z, double TE_scale, double TR_scale, int maxiter = 20, double abs_diff = 1e-6, int verbose = 0){
 
 	int n = n_x * n_y * n_z;	double old_val = 0.0;	int bad_count_n_o = 0, bad_count_o = 0;
 	Vector_eig r2 = Vector_eig::Ones(3);
-	EM_opt<float> f(r2);
+	EM_opt<double> f(r2);
 	Vector_eig lb(3*n+6+1+1), ub(3*n+6+1+1); 
-	lb = Vector_eig::Zero(3*n+6+1+1, 1); 	ub = Vector_eig::Ones(3*n+6+1+1, 1);	ub.segment(0, n) *= 255;
 	
 	
+	//Bounds:
+	lb = Vector_eig::Zero(3*n+6+1+1, 1); 	ub = Vector_eig::Ones(3*n+6+1+1, 1);
+	
+	lb.segment(  n, n) *= exp(-1/(0.01*TR_scale));
+	lb.segment(2*n, n) *= exp(-1/(0.001*TE_scale));
+	ub.segment(  0, n) *= 450;				//not 255
+	ub.segment(  n, n) *= exp(-1/(4.0*TR_scale));
+	ub.segment(2*n, n) *= exp(-1/(0.2*TE_scale));
 	
 	
-	// Bound on Cholesky etc:
+	// Bound on Cholesky etc: (Why 255 btw? - Forgot)
 	ub.segment(3*n, 6+1+1) *= 255;
 	lb.segment(3*n, 6+1+1) = -255*Vector_eig::Ones(6+1+1);
 	lb(3*n) = 1e-5; lb(3*n+3) = 1e-5;lb(3*n+5) = 1e-5;	lb(3*n+6) = 1e-5;lb(3*n+7) = 1e-5;
 	
 	//ub.segment(3*n, 6+1+1) *= 15;		// Get's sqaured
 	//lb.segment(3*n, 6+1+1) = 0.00001*Vector_eig::Ones(6);
-	
 	
 	
 	f.r = r;	f.TE = TE_example;		f.TR = TR_example;
@@ -366,17 +378,19 @@ void EM_solve(Matrix_eig &W_init, Matrix3f_eig &Psi_inv, Vector_eig &beta,
 	f.ub = ub; 		f.lb = lb;
 	
 	double beta_x = 0.1, beta_y = 0.1, beta_z = 0.1;			// beta_z -- ??
-	Psi_inv = Eigen::Matrix3f::Identity()*1.1;	// 1.1 is just for test of ub
+	Psi_inv = Eigen::Matrix3d::Identity()*1.1;	// 1.1 is just for test of ub
+	
 	
 	Matrix_eig W_old = W_init;
 	f.W_old = W_old;
 	Vector_eig param_new = to_param_vec(W_init, Psi_inv, beta_x, beta_y);		//W_init.row(i);
 	Vector_eig param_old = param_new;
 	Debug0 ("f(x) at first: \n");
-	Debug0(f.value(param_new));
+	Debug0(f.value(param_new));					// Bug?
 	
 	int iter = 0;
 	double best_val;
+	
 	
 	// EM loop - M step//
 	while(iter < maxiter){
@@ -390,11 +404,11 @@ void EM_solve(Matrix_eig &W_init, Matrix3f_eig &Psi_inv, Vector_eig &beta,
 		old_val = f.value(param_old);
 		
 		// Track the best:
-		float current_best_val = 1.0e+15;
+		double current_best_val = 1.0e+15;
 		
 		
 		//Solve:
-		cppoptlib::LbfgsbSolver<EM_opt<float>> solver;
+		cppoptlib::LbfgsbSolver<EM_opt<double>> solver;
 		solver.minimize(f, param_new);
 		Debug1("Solved for this iteration!\n");
 		
@@ -435,7 +449,7 @@ void EM_solve(Matrix_eig &W_init, Matrix3f_eig &Psi_inv, Vector_eig &beta,
 	
 	//Psi
 	Vector_eig temp_L = param_new.segment(3*n, 6);
-	Matrix3f_eig L_mat = to_L_mat(temp_L);
+	Matrix3d_eig L_mat = to_L_mat(temp_L);
 	Psi_inv = from_Cholesky(L_mat);
 	
 	//beta
@@ -446,61 +460,6 @@ void EM_solve(Matrix_eig &W_init, Matrix3f_eig &Psi_inv, Vector_eig &beta,
 // abs -- done
 
 
-
-/***************************************************
-**************** Information Matrix ****************
-****************************************************/
-
-
-SpMat Hessian_mat_without_MRF(Matrix_eig W, Matrix3f_eig Psi_inv, Vector_eig beta, 
-                   Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, 
-                   int n_x, int n_y, int n_z){
-	
-	auto time_1_hess = std::chrono::high_resolution_clock::now();
-	Debug1("Hessian calculation started without MRF");
-	Matrix_eig v = v_mat(W, TE, TR);
-	int n = n_x * n_y * n_z;	//n
-	int m = v.cols();			//m
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
-	SpMat W_hess(3*n, 3*n);
-	W_hess.reserve( VectorXi::Constant(3*n, 9) );		// Reserve 9 non-zero's per column
-	Debug1("Hessian calculation allocated");
-	
-	// W - grad part//
-	int i = 0, k = 0, k1 = 0, j = 0;
-	Vector_eig temp_vec(3);
-	for(i = 0; i < n; ++i) {
-		temp_vec = W.row(i);
-		
-		for(k = 0; k < 3; ++k) {
-			for(k1 = 0; k1 < 3; ++k1) {
-				temp = 0.;									// Missed this -- correct this.
-				for(j = 0; j < m ; ++j) {
-					tmp2 = r(i,j)/SQ(sigma(j));
-					tmp3 = -v(i,j)/SQ(sigma(j)) + tmp2*besselI1_I0(tmp2*v(i,j));
-					temp += tmp3* simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(temp_vec, TE, TR, j, k, k1);
-					
-					tmp2 *= v(i,j);
-					tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					tmp2 /= v(i,j);
-					tmp4 = -1/SQ(sigma(j)) + 0.5*SQ(tmp2)*tmp3;
-					temp += tmp4 * simple_dee_v_ij_dee_W_ik(temp_vec, TE, TR, j, k) * simple_dee_v_ij_dee_W_ik(temp_vec, TE, TR, j, k1);
-				}
-				W_hess.insert(i+k*n, i+k1*n) = temp;
-			}
-		}
-	}
-	
-	W_hess.makeCompressed();
-	
-	auto time_2_hess = std::chrono::high_resolution_clock::now();
-	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
-	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
-	Debug0("Hessian calculated without MRF");
-	
-	return(W_hess);	//3nx3n
-}
 
 
 
@@ -518,8 +477,30 @@ int main(int argc, char * argv[]) {
 	data_file = argv[1]; 	sd_file = argv[2]; 	char will_write = *(argv[3])-48;		// Converted from ascii
 	short our_dim[8];
 
-	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+//	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+//	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+
+
+	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
+	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
+	
+	double TE_scale = 1.01/TE_example.minCoeff();
+	double TR_scale = 1.01/TR_example.minCoeff();
+	TE_example *= TE_scale;
+	TR_example *= TR_scale;
+	
+	/*
+	Vector_eig lb(3), ub(3);
+	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
+	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
+	*/
+	
+	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
+	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
+
+
+
+
 
 
 	// Test:
@@ -527,27 +508,84 @@ int main(int argc, char * argv[]) {
 	Matrix_eig r = Preprocess_data(data_file, our_dim, will_write);
 	Debug2("Preprocessing done");
 	
-	int do_least_sq = 0;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
-	if(do_least_sq){
-		Debug0("Doing least sq estimate!");
+	
+	// Divide into train and test:
+	
+	//std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	//std::vector<int> test_ind{11};
+	
+	std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	std::vector<int> test_ind{16, 17};
+	
+	Eigen::MatrixXd train(r.rows(), train_ind.size());
+	Vector_eig TE_train(train_ind.size()), TR_train(train_ind.size());
+	short our_dim_train[8];
+	for(int i = 0; i < train_ind.size(); ++i){
+		train.col(i) = r.col(train_ind[i]);
+		TE_train[i] = TE_example(train_ind[i]);
+		TR_train[i] = TR_example(train_ind[i]);
 	}
-	Matrix_eig W_init = Init_val(r, TE_example, TR_example, our_dim, do_least_sq, will_write);
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim[i];
+	}
+	our_dim_train[4] = (short)train_ind.size();		//our_dim[0] = 3 or 4
+	
+	Matrix_eig test(r.rows(), test_ind.size());
+	Vector_eig TE_test(test_ind.size()), TR_test(test_ind.size());
+	for(int i = 0; i < test_ind.size(); ++i){
+		test.col(i) = r.col(test_ind[i]);
+		TE_test[i] = TE_example(test_ind[i]);
+		TR_test[i] = TR_example(test_ind[i]);
+	}
+	
+	
+	
+	// Temp result: Performance on the Init W: 
+	Matrix_eig W_1st = Matrix_eig::Ones(our_dim_train[1]*our_dim_train[2]*our_dim_train[3], 3);
+	W_1st.col(0) = train.rowwise().mean().transpose();
+	W_1st.col(1) *= W1_init;
+	W_1st.col(2) *= W2_init;
+	for(int i = 0; i < train.rows(); ++i){
+		if(W_1st(i, 0)>450){
+			W_1st(i, 0) = 425.0;
+		}
+	}
+	Matrix_eig perf_1 = Performance_test(W_1st, test, TE_test, TR_test);
+	std::cout << "Performances over images: " << perf_1.transpose() << "\n";
+	
+	
+	
+	
+	
+	// Least Sq:
+	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
+	Matrix_eig W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
+	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
 	Debug2("W initial done");
 	check_nan(W_init);
 	show_head(W_init);
+	Matrix_eig perf = Performance_test(W_init, test, TE_test, TR_test);
+	std::cout << "Performances over images: " << perf.transpose() << "\n";
 	
+	
+	
+	
+	// Likelihood Based:
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
 	Debug0("sigma: " << sigma.transpose());
 
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
-	Eigen::Matrix3f Psi_inv_init = Eigen::Matrix3f::Identity();
+	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
 	Vector_eig beta_init = Vector_eig::Zero(3);
-	EM_solve(W_init, Psi_inv_init, beta_init, TE_example, TR_example, r, our_dim[1], our_dim[2], our_dim[3], sigma);
+	EM_solve(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, train, 
+	         our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale);
 	show_head(W_init);
+	
+	perf = Performance_test(W_init, test, TE_test, TR_test);
+	std::cout << "Performances over images: " << perf.transpose() << "\n";
 
 
-
-	Hessian_mat_without_MRF(W_init, Psi_inv_init, beta_init, TE_example,TR_example, sigma, r, our_dim[1], our_dim[2], our_dim[3]);
+	//Hessian_mat_without_MRF(W_init, Psi_inv_init, beta_init, TE_example,TR_example, sigma, r, our_dim[1], our_dim[2], our_dim[3]);
 
 	return 0;
 }

@@ -35,7 +35,7 @@ g++ Read_files_2.hpp -I /usr/include/eigen3 -O3
  * 
 ****************************************************/
 template<typename T>
-Eigen::MatrixXf read_data(char* const data_file, short dim[8], float& vox_offset, char will_write = 0){
+Eigen::MatrixXd read_data(char* const data_file, short dim[8], float& vox_offset, char will_write = 0){
 
 	std::ifstream infile(data_file, std::ios::binary);
 	if (infile.fail()) {
@@ -49,7 +49,7 @@ Eigen::MatrixXf read_data(char* const data_file, short dim[8], float& vox_offset
 	std::cout << "Reading " << num_voxels << " voxels" << std::endl;
 
 
-	Eigen::MatrixXf img_mat;
+	Eigen::MatrixXd img_mat;
 	
 	for (int i = 0; i < dim[7]; i++)
 	{
@@ -57,7 +57,7 @@ Eigen::MatrixXf read_data(char* const data_file, short dim[8], float& vox_offset
 		{
 			for (int k = 0; k < dim[5]; k++)
 			{
-				img_mat = Eigen::MatrixXf::Zero(n, dim[4]);
+				img_mat = Eigen::MatrixXd::Zero(n, dim[4]);
 				for (int l = 0; l < dim[4]; l++)
 				{
 					std::vector<T> data(n, 0);
@@ -102,7 +102,7 @@ Eigen::MatrixXf read_data(char* const data_file, short dim[8], float& vox_offset
  * and https://answers.opencv.org/question/179162/how-can-i-load-4d-medical-image-of-type-nifti/
  * 
 ****************************************************/
-Eigen::MatrixXf Read_nift1(char* const data_file, short our_dim[8], char will_write = 0)
+Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_write = 0)
 {
 	//ifstream infile("../example.nii", std::ios::binary);
 	std::ifstream infile(data_file, std::ios::binary);

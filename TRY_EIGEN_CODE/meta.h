@@ -51,9 +51,9 @@ struct Options{
 
 const double EPS=2.2204e-016;
 
-typedef Eigen::MatrixXf Matrix_eig;
-typedef Eigen::VectorXf Vector_eig;
-typedef Eigen::VectorXf::Scalar Scalar_eig;
+typedef Eigen::MatrixXd Matrix_eig;
+typedef Eigen::VectorXd Vector_eig;
+typedef Eigen::VectorXd::Scalar Scalar_eig;
 
 typedef Eigen::Map<Matrix_eig> ViewMatrix;
 typedef Eigen::Map<Vector_eig> ViewVector;
@@ -61,8 +61,8 @@ typedef Eigen::Map<Vector_eig> ViewVector;
 typedef const Eigen::Map<const Matrix_eig> ReadMatrix;
 typedef const Eigen::Map<const Vector_eig> ReadVector;
 
-typedef std::function<double(const Eigen::VectorXf &x)> FunctionOracleType;
-typedef std::function<void(const Eigen::VectorXf &x, Eigen::VectorXf &gradient)> GradientOracleType;
+typedef std::function<double(const Eigen::VectorXd &x)> FunctionOracleType;
+typedef std::function<void(const Eigen::VectorXd &x, Eigen::VectorXd &gradient)> GradientOracleType;
 
 #define INF HUGE_VAL
 #define Assert(x,m) if (!(x)) { throw (std::runtime_error(m)); }
