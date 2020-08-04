@@ -18,7 +18,8 @@ Locations:
 * The file to be executed for EM: ./TRY_EIGEN_CODE/scheme_new_EM_5_numerical_cholesky.cpp
 * The data: ./data/ZHRTS1.nii
 
-        ./data/new_phantom.nii (see * for any 2D file)
+	OR
+	    ./data/new_phantom.nii (see * for any 2D file)
 * The optimizer location: ./CppNumericalSolvers
 * The old optimiser location: ./optim_cpp_solver/
 
