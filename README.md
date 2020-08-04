@@ -19,7 +19,8 @@ Locations:
 * The data: ./data/ZHRTS1.nii
 
 	OR
-	    ./data/new_phantom.nii (see * for any 2D file)
+	    ./data/new_phantom.nii
+  (see `*' for any 2D file)
 * The optimizer location: ./CppNumericalSolvers
 * The old optimiser location: ./optim_cpp_solver/
 
