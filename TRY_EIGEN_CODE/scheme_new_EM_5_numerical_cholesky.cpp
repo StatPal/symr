@@ -12,6 +12,20 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 
 ./test ../data/new_phantom.nii ../data/Dummy_sd.txt 0
 
+
+//Subrata -- do Cholesky -- done
+// In gradient also!!
+
+
+// There is negative in l_star() - But not in grad vector
+// Subrata - correct it. 
+
+// Check sign of grad - is there opposite sign in MRF part ?
+// Because, Psi_inv(0,0) increases with iterations - and objective function worsens?
+
+
+Needs more comments - Change 
+
 */
 
 
@@ -26,15 +40,6 @@ g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_n
 
 
 
-//Subrata -- do Cholesky -- done
-// In gradient also!!
-
-
-// There is negative in l_star() - But not in grad vector
-// Subrata - correct it. 
-
-// Check sign of grad - is there opposite sign in MRF part ?
-// Because, Psi_inv(0,0) increases with iterations - and objective function worsens?
 
 
 // [[Rcpp::plugins(cpp11)]]
