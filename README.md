@@ -5,9 +5,9 @@ Very primitive situation in git - may contain errors.
 Revised version.
 
 
-**This code needs [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) - a C++ library header files**. 
-The header files location must be in the PATH, or should be added in time of compilation.
-Th optimizer also uses Eigen, and can be found [here](https://github.com/PatWie/CppNumericalSolvers)
+**This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
+The header files location must be with the proper PATH, or PATH should be added in time of compilation.
+Th optimizer also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
 
 Locations:
 * The file to be executed for ECM: ./TRY_EIGEN_CODE/scheme_new_EM_12_GEM.cpp
