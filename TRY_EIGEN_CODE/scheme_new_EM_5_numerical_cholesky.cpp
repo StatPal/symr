@@ -353,7 +353,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		Vector_eig chain = Y.segment(3*n, 6);
 		Y.segment(3*n, 6) = to_grad_Cholesky(temp_L)*chain;		//check transpose
 		
-		Debug2("grad: " << Y.transpose() << "\n" );
+		Debug3("grad: " << Y.transpose() << "\n" );
 		
 	}
 

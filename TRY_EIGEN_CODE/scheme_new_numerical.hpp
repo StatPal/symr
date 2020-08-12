@@ -1,17 +1,9 @@
 /*
+Precompile header using
 
-Different functions to be used in main files.
+g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 
-Main parts:
-Debugging level definitions 
-1) Group of Bessel functions
-2) Small Misc fn (det, head, check bounds, nan, dim etc)
-3) Defnition of Lambda and related matrices and functions(+Kron), 
-   Different Reparametrizations (+Cholesky) 
-   Bloch transform
-4) Generate a sample matrix when mu and sigma are given
-5) Hessian matrix and vector related to Delta method
-
+- Don't do it now. taking huge gch file. 
 
 
 Changes:
@@ -80,7 +72,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-//#define DEBUG_LEVEL_2
+#define DEBUG_LEVEL_2
 
 #ifdef DEBUG_LEVEL_2
 #define Debug2(x) {std::cout << "DEBUG 2: "<< x << "\n";}
@@ -146,7 +138,6 @@ const int IF_DEBUG = 1;
 
 /*
 * Modified Bessel Function of First Kind - Hand-written -  would be slow
-* Inputs: x, alpha
 */
 static double besseli(double x, int alpha){
 
@@ -181,10 +172,6 @@ static double besseli(double x, int alpha){
 }
 
 
-/* 
-* Bessel function: reformatted - need to see what macro can be used
-* Inputs: x, nu
-*/
 double our_bessel_I(double x, double nu){
 
 	if(x>=0.0){
@@ -206,7 +193,6 @@ double our_bessel_I(double x, double nu){
 
 /*
 * Ratio of BesselI(x, 1) and BesselI(x, 0)
-* No used now, see later!
 */
 double ratio_bessel_10(double x){
 
@@ -217,8 +203,7 @@ double ratio_bessel_10(double x){
 	}
 }
 
-
-/*
+/**
 * Ratio of BesselI(x, 2) and BesselI(x, 0)
 */
 double ratio_bessel_20(double x){
@@ -232,7 +217,7 @@ double ratio_bessel_20(double x){
 }
 
 
-/*
+/**
 * Ratio of BesselI(x, 1) and BesselI(x, 0)
 * Copied - give source.
 */
@@ -365,9 +350,6 @@ double logBesselI0(double x) {
 ********************************************************/
 
 
-/* 
-* Covariance matrix
-*/
 // [[Rcpp::export]]
 Matrix_eig Cov_1(Matrix_eig x) {
 	int nRows = x.rows();
@@ -377,9 +359,6 @@ Matrix_eig Cov_1(Matrix_eig x) {
 	return x.transpose()*x/(nRows-1);			// or x_cen
 }
 
-/*
-* Similar to head function in R - helpful for debugging
-*/
 void show_head(Eigen::MatrixXd W, int n = 10){
 	std::cout << "head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
@@ -387,9 +366,6 @@ void show_head(Eigen::MatrixXd W, int n = 10){
 	}
 }
 
-/*
-* Similar to head function in R for a vector - helpful for debugging
-*/
 void show_head_vec(Eigen::VectorXd W, int n = 10, int endLine = 0){
 	std::cout << "head of the vector:\t" ;
 	for(int i = 0; i < n; ++i){
@@ -402,19 +378,10 @@ void show_head_vec(Eigen::VectorXd W, int n = 10, int endLine = 0){
 }
 
 
-/*
-* Mean of rice distribution
-*/
 double mean_rice(double nu, double sigma){
 	double x = - SQ(nu)/(2*SQ(sigma));
 	return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
 }
-
-/*
-* * Add mode finding of rice distribution also, but that would require another numerical optimization
-*/
-
-
 
 
 /**
@@ -441,7 +408,7 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 
 
 /**
-Crude Determinant of a sparse matrix - not needed I guess
+Crude Det of a sparse matrix - not needed I guess
 */
 // [[Rcpp::export]]
 double sp_det_1(SpMat A){
@@ -504,8 +471,7 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 
 
 /*
-* Log determinant of a matrix
-* Not used now - see finding det with Cholesky
+ Log determinant of a matrix
 */
 // [[Rcpp::export]]
 double log_det_2(Matrix_eig B){
@@ -525,15 +491,12 @@ double log_det_3(Matrix3d_eig B){
 
 
 
-/*
-* Log determinant of a 3x3 matrix 
-* with Cholesky decomposition to avoid numerical error 
-*/
+/*Same - with Cholesky decomposition to avoid numerical error */
+
 double log_det_3_chol(Matrix3d_eig A){
 	//Matrix3d_eig L = to_Cholesky(A);			// Also numerical problems
 	Matrix3d_eig L( A.llt().matrixL() );
-	// It seems that this llt function does not give error, 
-	// whereas hand-written algo gives error if L(2,2)^2 ~ 0 sometimes
+	// It seems that this does not give error, whereas hand-written algo gives error if L(2,2)^2 ~ 0 sometimes
 	
 	Vector_eig temp(3);
 	temp(0) = L(0,0); temp(1) = L(1,1); temp(2) = L(2,2);
@@ -561,9 +524,7 @@ double log_det_3_chol(Matrix3d_eig A){
 
 
 
-/*
-* trace of a sparse matrix
-*/
+
 double sp_trace(SpMat A){
 	double sum =0;
 	for (int k = 0; k < A.outerSize(); ++k) {
@@ -579,108 +540,6 @@ double sp_trace(SpMat A){
 
 
 
-/*
-* Checks whether W is inside proper bound  or not
-* Write in a good format 
-*/
-void check_bounds(Matrix_eig &W, Vector_eig lb, Vector_eig ub){
-	int n = W.rows();
-	int count = 0;
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < 3; ++j){
-			Debug2(W(i,j));
-			/*try{
-				if(W(i, j) < lb(j*n + i)){
-					W(i, j) = lb(j*n + i);
-					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
-					count++;
-				} else if(W(i, j) > ub(j*n + i)){
-					W(i, j) = ub(j*n + i);
-					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
-					count++;
-				}
-			} catch (...){
-				Debug0("i: "<< i << ", j:" << j << "; j*n + i: " << j*n + i);
-			}
-			*/
-		}
-	}
-	if(count>0){
-		Debug1(" "<< count << "boundary cases");
-	}
-}
-
-
-/*
-* Prints dim of a matrix in stdout.
-*/
-void show_dim(Matrix_eig A){
-	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
-}
-
-
-/*
-* Checks whether any vector(x) is inside proper bounds(lb and ub) or not
-*/
-void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
-
-	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
-		//std::cout << "Lower bound crossed initially!";
-		if(x(0)<lb(0)) Debug2("1st");
-		if(x(1)<lb(1)) Debug2("2nd");
-		if(x(2)<lb(2)) Debug2("3rd");
-		//bad_bound_1++;
-	}
-	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
-		//std::cout << "Upper Bound crossed initially!";
-		if(x(0)>ub(0)) Debug2("1st");
-		if(x(1)>ub(1)) Debug2("2nd");
-		if(x(2)>ub(2)) Debug2("3rd");
-		//bad_bound_2++;
-	}
-
-}
-
-
-/*
-* Checks whether there is NaN or not and prints the location in a matrix
-*/
-int check_nan(Matrix_eig A){
-	for(int i = 0; i < A.rows(); ++i){
-		for(int j = 0; j < A.cols(); ++j){
-			if(std::isnan(A(i, j))){
-				Debug0("NAN in location: ("<< i << "," << j<< ")!");
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
-/*
-* Checks whether there is NaN or not and prints the location in a vector
-*/
-int check_nan_vec(Vector_eig A){
-	int count = 0;
-	for(int i = 0; i < A.size(); ++i){
-		if(std::isnan(A(i))){
-			Debug0("NAN in location: ("<< i << ")!");
-			return 1;
-			count++;
-		}
-	}
-	if(count > 0){
-		return 1;
-	} else{ 
-		return 0;
-	}
-}
-
-
-
-
-
-
 
 
 
@@ -690,9 +549,7 @@ int check_nan_vec(Vector_eig A){
 ********************************************************/
 
 
-/*
-* Sparse Identity matrix of size n_x
-*/
+
 // [[Rcpp::export]]
 SpMat I_n(int n_x){
 	SpMat temp(n_x, n_x);				//temp.reserve(n_x);
@@ -701,12 +558,9 @@ SpMat I_n(int n_x){
 }
 
 
-/*
-* Sparse J_n matrix of size n_x
-* Determinant is 0
-*/
+
 // [[Rcpp::export]]
-SpMat J_n(int n_x){
+SpMat J_n(int n_x){				// has determinant 0???				// When n_x =1
 	SpMat temp(n_x, n_x);
 	if(n_x==1){
 		temp.coeffRef(0,0) = 1;
@@ -733,9 +587,8 @@ SpMat J_n(int n_x){
 
 /*
 * Kroneker product of two dense Matrices
-* https://forum.kde.org/viewtopic.php?f=74&t=50952
 */
-Matrix_eig Kron_eig(Matrix_eig m1, Matrix_eig m2){
+Matrix_eig Kron_eig(Matrix_eig m1, Matrix_eig m2){						//https://forum.kde.org/viewtopic.php?f=74&t=50952
 
 	Matrix_eig m3(m1.rows()*m2.rows(), m1.cols()*m2.cols());
 	for (int i = 0; i < m1.cols(); i++) {
@@ -745,7 +598,6 @@ Matrix_eig Kron_eig(Matrix_eig m1, Matrix_eig m2){
 	}
 	return m3;
 }
-
 
 /*
 * Kroneker product of two Vectors
@@ -786,7 +638,7 @@ SpMat Kron_Sparse_eig(SpMat m1, SpMat m2){
 
 
 /*
-* Eigenvalues of J_n - better ways?
+* Eigen values of J_n
 */
 // https://stackoverflow.com/questions/30188482/sparse-eigenvalues-using-eigen3-sparse
 Vector_eig eigenvals_J_n(int n){
@@ -800,8 +652,7 @@ Vector_eig eigenvals_J_n(int n){
 
 
 /*
-Sparse Matrix 
-Lambda = beta_x J_n_x x I_n_y x I_n_z + beta_y I_n_x x J_n_y x I_n_z + beta_z I_n_x x I_n_y x J_n_z
+Sparse Matrix lambda
 */
 // see also https://stackoverflow.com/questions/38839406/eigen-efficient-kronecker-product
 // or kroneckerProduct
@@ -831,7 +682,6 @@ double sp_log_det_specific(Vector_eig beta, int n_x, int n_y, int n_z, double th
 	}
 	return temp;
 }
-
 
 /*
  The ratio of eigenvalue sum part of Lambda(beta, n_x, n_y, n_z)
@@ -867,7 +717,7 @@ double sp_log_inv_specific(Vector_eig beta, int n_x, int n_y, int n_z, int k, do
 
 
 /*
-* \nu_{ij} as a mx1 vector generated from one row of W (and TE, TR)
+* \nu_{ij} as a mx1 vector from one row of W (and TE, TR)
 */
 Eigen::VectorXd Bloch_vec(Eigen::VectorXd W_row, Eigen::VectorXd TE, Eigen::VectorXd TR){
 
@@ -898,12 +748,95 @@ Eigen::VectorXd Bloch_vec(Eigen::VectorXd W_row, Eigen::VectorXd TE, Eigen::Vect
 
 
 
+/*
+Write in a good format 
+*/
+void check_bounds(Matrix_eig &W, Vector_eig lb, Vector_eig ub){
+	int n = W.rows();
+	int count = 0;
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 3; ++j){
+			// Debug2(W(i,j));			// WHY!!!!
+			/*try{
+				if(W(i, j) < lb(j*n + i)){
+					W(i, j) = lb(j*n + i);
+					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
+					count++;
+				} else if(W(i, j) > ub(j*n + i)){
+					W(i, j) = ub(j*n + i);
+					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
+					count++;
+				}
+			} catch (...){
+				Debug0("i: "<< i << ", j:" << j << "; j*n + i: " << j*n + i);
+			}
+			*/
+		}
+	}
+	if(count>0){
+		Debug1(" "<< count << "boundary cases");
+	}
+}
+
+void show_dim(Matrix_eig A){
+	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
+}
+
+
+void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
+
+	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
+		//std::cout << "Lower bound crossed initially!";
+		if(x(0)<lb(0)) Debug2("1st");
+		if(x(1)<lb(1)) Debug2("2nd");
+		if(x(2)<lb(2)) Debug2("3rd");
+		//bad_bound_1++;
+	}
+	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
+		//std::cout << "Upper Bound crossed initially!";
+		if(x(0)>ub(0)) Debug2("1st");
+		if(x(1)>ub(1)) Debug2("2nd");
+		if(x(2)>ub(2)) Debug2("3rd");
+		//bad_bound_2++;
+	}
+
+}
+
+
+int check_nan(Matrix_eig A){
+	for(int i = 0; i < A.rows(); ++i){
+		for(int j = 0; j < A.cols(); ++j){
+			if(std::isnan(A(i, j))){
+				Debug0("NAN in location: ("<< i << "," << j<< ")!");
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+
+int check_nan_vec(Vector_eig A){
+	int count = 0;
+	for(int i = 0; i < A.size(); ++i){
+		if(std::isnan(A(i))){
+			Debug0("NAN in location: ("<< i << ")!");
+			return 1;
+			count++;
+		}
+	}
+	if(count > 0){
+		return 1;
+	} else{ 
+		return 0;
+	}
+}
+
 
 
 
 /*
-* Input: W and TE, TR values
-* Output: the whole \nu matrix
+* Create the whole \nu matrix from W and TE, TR values
 */
 // [[Rcpp::export]]
 Matrix_eig v_mat(Matrix_eig W, Vector_eig TE, Vector_eig TR){
@@ -931,8 +864,7 @@ Matrix_eig v_mat(Matrix_eig W, Vector_eig TE, Vector_eig TR){
 
 
 /*
-* Reparametrization to W from rho, T_1, T_2
-* Have not used till now - raw rho, T_1, T_2 aree nowhere used
+Reparametrization to W from rho, T_1, T_2
 */
 //[[Rcpp::export]]
 Matrix_eig to_W(Vector_eig rho, Vector_eig T_1, Vector_eig T_2){
@@ -947,9 +879,7 @@ Matrix_eig to_W(Vector_eig rho, Vector_eig T_1, Vector_eig T_2){
 
 
 /*
-* Reparametrize everything to one vector of size 3*n+6+2
-* Input: W, Psi_inv(symmetric), beta_x, beta_y
-* Output: reparametrized vector (needed for the optimization)
+ Reparametrize everything to one vector of size 3*n+6+2
 */
 Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, double beta_y){
 	int n = W.rows();		// check
@@ -994,7 +924,7 @@ Vector_eig to_param_vec_grad(Matrix_eig W, Matrix_eig Psi_inv, double beta_x, do
 
 
 /*
-* Regaining Symmetric Psi_inv(3x3) from temp_psi(6x1) vector
+* Regaining Symmetric Psi_inv(3x3) from temp_psi(6) vector
 */
 Matrix3d_eig to_Psi_inv(Vector_eig temp_psi){
 	Matrix3d_eig Psi_inv = Matrix3d_eig::Zero(3,3);
@@ -1016,7 +946,7 @@ Matrix3d_eig to_L_mat(Vector_eig temp_L){
 	L(2,0) = temp_L(2); L(2,1) = temp_L(4); L(2,2) = temp_L(5);
 	return L;
 }
-*/  // Not lower Triangular - BUG - corrected -- see later
+*/  // Not lower Triangular
 
 Matrix3d_eig to_L_mat(Vector_eig temp_L){
 	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
@@ -1024,15 +954,10 @@ Matrix3d_eig to_L_mat(Vector_eig temp_L){
 	L(1,0) = temp_L(1); L(1,1) = temp_L(3); L(1,2) = 0.0;
 	L(2,0) = temp_L(2); L(2,1) = temp_L(4); L(2,2) = temp_L(5);
 	return L;
-}
+}																// Bug -- corrected
 
 
-/* 
-* Reverse transform - intermediate function: 
-* Non-zero elements of Cholesky factor 
-* input: L: 3x3 Lower triangular matrix
-* Output: 6x1 vector
-*/
+// Reverse transform:
 Vector_eig from_L_mat(Matrix3d_eig L) {
 	Vector_eig temp_L(6);
 	temp_L(0) = L(0,0);
@@ -1046,9 +971,8 @@ Vector_eig from_L_mat(Matrix3d_eig L) {
 }
 
 
-/*
-* llt (opposite of llt decomposition)
-*/
+
+
 Matrix3d_eig from_Cholesky(Matrix3d_eig L){
 	return (L*L.transpose());
 }
@@ -1056,11 +980,8 @@ Matrix3d_eig from_Cholesky(Matrix3d_eig L){
 
 
 /*
-* Not used now - this hand written program creates numerical errors in sqrt part!
 * Input : Symmetric 3x3 matrix A
-* Output: Cholesky Decomposition of A
-* Use Matrix3d_eig L( A.llt().matrixL() );
-* See the function log_det_3_chol
+* Output: Cholesky Decomposition
 */
 Matrix3d_eig to_Cholesky(Matrix3d_eig A){
 	
@@ -1075,12 +996,10 @@ Matrix3d_eig to_Cholesky(Matrix3d_eig A){
 
 
 
-
 /*
 * Chain rule for converting gradient with Cholesky parametrization
 * Input: 6x1 vector (l = nonzero-vec(L))
-* Output: 6x6 (Lower Traingular?) matrix: d LL'/d vec(l) 
-* See details:
+* Output: 6x6 Lower Traingular(?) matrix: d LL'/d vec(l) ?
 * -- Recheck:
 * / 2L_0	L_1		L_2		0		0		0    \
 * | 0		L_0		0		2L_1	L_2		0    |
@@ -1093,11 +1012,9 @@ Matrix3d_eig to_Cholesky(Matrix3d_eig A){
 * We have calculated dl_star/d vec_symm(A)
 * To caculate: dl_star/d vec_chol(L) = dl_star/d vec_symm(A) * d vec_symm(A)/ d vec_chol(L)
 * A = LL'
-* This function calculates d vec_symm(A)/ d vec_chol(L) matrix
 * vec_symm(A) = [a_00, a_10, a_20, a_11, a_12, a_22]
-* vec_chol(L) = [l_00, l_10, l_20, l_11, l_12, l_22]
+* vec_chol(L) = [l_00, l_10, l_20, l_11, l_12, l_22]				// changed due to change in symmetry??
 * The parameter is: 
-* This function is needed to calculate the derivative w.r.t. Psi_inv.
 */
 Matrix_eig to_grad_Cholesky(Vector_eig L){
 	
@@ -1157,6 +1074,8 @@ Matrix_eig Gen_r_from_v_mat(Matrix_eig our_v_mat, Vector_eig sigma){
 Matrix_eig Gen_r(Matrix_eig W, Vector_eig TE, Vector_eig TR, Vector_eig sigma){
 	return(Gen_r_from_v_mat(v_mat(W, TE, TR), sigma));
 }
+
+
 
 
 
@@ -1238,7 +1157,8 @@ double simple_dee_v_ij_dee_W_ik(Vector_eig W, Vector_eig TE, Vector_eig TR, int 
 	*/
 }
 // There was a problem in indexing - C / R style confusion - corrected 
-// After doing the proper scaling to TE and TR, this nested way of calculation is not needed
+
+// Corect the next ones!
 
 
 
@@ -1298,8 +1218,7 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(Vector_eig W, Vector_eig TE, Vector_
 	}
 }
 // There is a problem in indexing - C / R style confusion -corrected
-// ISSUE: The TE and TR are scaled to have derivative just greater than 1
-// But here we would need the same - but > 2.
+
 
 
 
@@ -1494,9 +1413,44 @@ SpVec v_grad(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig 
 
 
 
-	// Export the result to a file: with a n_x x n_y x n_z structure
-	// OW you have to read it using R again.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// Export the result to a file:
 	//	saveAsBitmap(x, n, argv[1]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
