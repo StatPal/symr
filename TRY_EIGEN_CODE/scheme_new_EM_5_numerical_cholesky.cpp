@@ -63,8 +63,9 @@ Penalised Negative log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 No change for cholesky inside the function
 */
-double l_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
-              Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, 
+double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
+              const Vector_eig &TE, const Vector_eig &TR, 
+              const Vector_eig &sigma, const Matrix_eig &r, 
               int n_x, int n_y, int n_z){
 
 	Matrix_eig v = v_mat(W, TE, TR);
@@ -75,8 +76,9 @@ double l_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
 	//Rice part://
 	long double likeli_sum = 0.0, tmp4 = 0.0;
 	auto start = std::chrono::high_resolution_clock::now();
-	for(long int i = 0; i < n; ++i) {
-		for(int j = 0; j < m; ++j) {
+	int i = 0, j = 0;
+	for(i = 0; i < n; ++i) {
+		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)/SQ(sigma(j));
 			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/SQ(sigma(j));
 			tmp1 = logBesselI0(tmp2*v(i,j));
@@ -98,8 +100,9 @@ double l_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
 * Checks are removed as much as possible to get a cleaner code
 * Add them whenever necessary (see old git commits)
 */
-double Q_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
-              Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, Matrix_eig W_old,
+double Q_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
+              const Vector_eig &TE, const Vector_eig &TR, 
+              const Vector_eig &sigma, const Matrix_eig &r, const Matrix_eig &W_old,
               int n_x, int n_y, int n_z){
 
 	
@@ -112,23 +115,24 @@ double Q_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	//Rice part://
 	double likeli_sum = 0.0;
-	for(int i = 0; i < n; ++i) {
-		for(int j = 0; j < m; ++j) {
+	int i = 0, j = 0;
+	for(i = 0; i < n; ++i) {
+		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)*v_old(i,j)/SQ(sigma(j));
 			tmp3 = besselI1_I0(tmp2);
 			likeli_sum += v(i,j)*(- 0.5*v(i,j) + r(i,j)*tmp3)/SQ(sigma(j));
 		}
 	}
 	
-	if(std::isnan(likeli_sum)){
-		Debug0("nan after Rice part");
-	}
+	//if(std::isnan(likeli_sum)){
+	//	Debug0("nan after Rice part");
+	//}
 	
 	// MRF part://
 	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
 	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
-	if(std::isnan(likeli_sum))
-		Debug0("nan after MRF part");
+	//if(std::isnan(likeli_sum))
+	//	Debug0("nan after MRF part");
 	
 	Debug2(" - Q function calculated: " << -likeli_sum);
 	
@@ -143,9 +147,10 @@ double Q_star(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
 /*
 * Negative Gradient of Penalised Q function
 */
-Vector_eig Q_grad_vec(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta, 
-                   Vector_eig TE, Vector_eig TR, Vector_eig sigma, Matrix_eig r, Matrix_eig W_old,
-                   int n_x, int n_y, int n_z){
+Vector_eig Q_grad_vec(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+                      const Vector_eig &TE, const Vector_eig &TR, 
+                      const Vector_eig &sigma, const Matrix_eig &r, const Matrix_eig &W_old,
+                      int n_x, int n_y, int n_z){
 
 	
 	Matrix_eig v = v_mat(W, TE, TR);
@@ -154,16 +159,17 @@ Vector_eig Q_grad_vec(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta,
 	int m = v.cols();
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
-	Matrix_eig W_grad = W;
+	Matrix_eig W_grad(n, 3);
 	
 	// MRF contribution part//
 	Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;
 	
 	// W - grad part//
-	for(int i = 0; i < n; ++i) {
-		for(int k = 0; k < 3; ++k) {
+	int i = 0, j = 0, k = 0;
+	for(i = 0; i < n; ++i) {
+		for(k = 0; k < 3; ++k) {
 			temp = 0.;
-			for(int j = 0; j < m ; ++j){
+			for(j = 0; j < m ; ++j){
 				tmp2 = r(i,j)/SQ(sigma(j));
 				tmp3 = -v(i,j)/SQ(sigma(j)) + tmp2*besselI1_I0(tmp2*v_old(i,j));
 				temp += tmp3* simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
@@ -240,7 +246,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 	
 	// Extra check:
 	TVector lb, ub;
-	double prev_val = 0.0, prev_lik = 0.0;
+	double prev_val = 0.0, prev_lik = 0.0;								// necessary??
 
 
 
@@ -325,7 +331,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 	void gradient(const TVector &all_param, TVector &Y) {
 	
 		
-		check_nan_vec(all_param);
+		//check_nan_vec(all_param);
 		int n = n_x*n_y*n_z;
 		
 		//W
@@ -333,7 +339,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		W.col(0) = all_param.segment(0,  n);
 		W.col(1) = all_param.segment(n,  n);
 		W.col(2) = all_param.segment(2*n,n);
-		check_bounds(W, lb, ub);
+		//check_bounds(W, lb, ub);
 		
 		//Psi
 		Vector_eig temp_L = all_param.segment(3*n, 6);
@@ -353,7 +359,7 @@ class EM_opt : public cppoptlib::BoundedProblem<T> {
 		Vector_eig chain = Y.segment(3*n, 6);
 		Y.segment(3*n, 6) = to_grad_Cholesky(temp_L)*chain;		//check transpose
 		
-		Debug3("grad: " << Y.transpose() << "\n" );
+		//Debug3("grad: " << Y.transpose() << "\n" );
 		
 	}
 
@@ -465,12 +471,12 @@ void EM_solve(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
 	cppoptlib::Criteria<double> crit = cppoptlib::Criteria<double>::defaults(); 	// Create Criteria class to set the stopping rule
-	crit.iterations = 10000;														// Change the number of allowed iterations
-	solver.setStopCriteria(crit);
+	//crit.iterations = 10000;														// Change the number of allowed iterations
+	//solver.setStopCriteria(crit);
 	
 	
 	
-	// EM loop //
+	//* EM loop *//
 	while(iter < maxiter){
 	
 	
