@@ -8,11 +8,11 @@ g++ scheme_new_EM_12_GEM.cpp -o test -I /usr/include/eigen3 -O3
 g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/GEM_12_no_grad.cpp -o GEM_12_no_grad -I ~/MRI/Headers -O3 -std=c++11
 
 
-* To run:
 
 ./test ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+
 
 ./test ../data/new_phantom.nii ../data/Dummy_sd.txt 0
 
@@ -90,9 +90,10 @@ double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig
 	double tmp2 = 0.0, tmp3 = 0.0, tmp1 = 0.0;
 
 	//Rice part://
+	int i = 0, j = 0;
 	long double likeli_sum = 0.0, tmp4 = 0.0;
-	for(long int i = 0; i < n; ++i) {
-		for(int j = 0; j < m; ++j) {
+	for(i = 0; i < n; ++i) {
+		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)/SQ(sigma(j));
 			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/SQ(sigma(j));
 			tmp1 = logBesselI0(tmp2*v(i,j));
@@ -131,15 +132,15 @@ double Q_star_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const 
 		tmp3 = besselI1_I0(tmp2);
 		likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j)*tmp3)/SQ(sigma(j));
 	}
-	if(std::isnan(-likeli_sum)){
-		Debug0("NAN after Rice! \n W_row(i):" << W.row(i) <<  " \n v_i= " << v_i.transpose());
-	}
+	//if(std::isnan(-likeli_sum)){
+	//	Debug0("NAN after Rice! \n W_row(i):" << W.row(i) <<  " \n v_i= " << v_i.transpose());
+	//}
 	
 	//MRF part://
 	likeli_sum -= (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace()/2;
-	if(std::isnan(-likeli_sum)){
-		Debug0("NAN after MRF!");
-	}
+	//if(std::isnan(-likeli_sum)){
+	//	Debug0("NAN after MRF!");
+	//}
 	//assert( ! std::isnan(-likeli_sum) );			// Don't assert, sobar mongol...
 	return (-likeli_sum);
 }
@@ -158,16 +159,16 @@ double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, cons
 	int n = n_x*n_y*n_z;
 	double likeli_sum = 0.0;
 	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	if(std::isnan(tmp)){
-		Debug1("tmp is nan in Q_star_other_param");
-	}
+	//if(std::isnan(tmp)){
+	//	Debug1("tmp is nan in Q_star_other_param");
+	//}
 	
 	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + 
 					n*log_det_3_chol(Psi_inv) - 3*n*log(2*M_PI) )/2;
 	
-	if(std::isnan(likeli_sum)){
-		Debug1("likeli_sum is nan in Q_star_other_param");
-	}
+	//if(std::isnan(likeli_sum)){
+	//	Debug1("likeli_sum is nan in Q_star_other_param");
+	//}
 	
 	return -likeli_sum;
 }
@@ -194,7 +195,9 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
 	
 	// MRF contribution part
-	Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;
+	// Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;	// i-th column of Lambda is good enough
+	Vector_eig MRF_grad = Gamma_inv.row(i) * W * Psi_inv;
+	
 	
 	// Likelihood part
 	for(int k = 0; k < 3; ++k){
@@ -202,13 +205,15 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 		for(int j = 0; j < m ; ++j){
 			tmp2 = r(i,j)/SQ(sigma(j));
 			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2*besselI1_I0(tmp2*v_old_i(j));
-			temp += tmp3* simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
+			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
 		}
-		W_grad(k) = temp - MRF_grad(i,k);
+		// W_grad(k) = temp - MRF_grad(i,k);
+		W_grad(k) = temp - MRF_grad(k);
 	}
 	return (-W_grad);
 }
-/* -ve -- Check and Correct - Subrata - corrected I guess.
+/* 
+* -ve -- Check and Correct - Subrata - corrected I guess.
 */
 
 
@@ -342,8 +347,8 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 	
 		//Psi:
 		Vector_eig temp_L = x.segment(0, 6);
-		Matrix3d_eig L_mat = to_L_mat(temp_L);							// 6 element vector to Lower traingular matrix: [a0, a1, a2; 0, a3, a4; 0, 0, a5]
-		Matrix3d_eig Psi_inv = from_Cholesky(L_mat);					// Psi from Cholesky decomposition!
+		Matrix3d_eig L_mat = to_L_mat(temp_L);				// 6 element vec to Lower traingular mat: [a0, a1, a2; 0, a3, a4; 0, 0, a5]
+		Matrix3d_eig Psi_inv = from_Cholesky(L_mat);		// Psi from Cholesky decomposition!
 		
 		//beta:
 		Vector_eig beta = Vector_eig::Zero(3);
@@ -408,17 +413,14 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 
 
 /*
-* Main fn, currently number of iteration if necessary!
-* Change the number of allowed maxiter in each of the optimizers to have faster result 
-* Change crit_voxel.iterations and crit_MRF.iterations
-* Remove verbose option?
+* Main fn, currently one iteration is done. Change that with while loop
 */
 void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta, 
                   const Vector_eig &TE_example, const Vector_eig &TR_example, 
                   const Vector_eig &sigma, const Matrix_eig &r, 
                   int n_x, int n_y, int n_z, double TE_scale, double TR_scale, 
                   int maxiter = 10, double abs_diff = 1e-6, int verbose = 0) {
-// Change maxiter?
+// Change
 
 
 	
@@ -449,6 +451,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
 	f.beta = beta;										// beta(2) = 0.1;
+	//Debug1("bad Psi_inv: \n" << Psi_inv);
 	f.Psi_inv = Psi_inv;
 	f.sigma = sigma;	f.r = r;	f.TE = TE_example;	f.TR = TR_example;
 	Matrix_eig W_old = W_init;
@@ -508,7 +511,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
 	crit_MRF.iterations = 500;														// Change the number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
-	// Change iteration value if necessary.
+	// Change 
 	
 
 
@@ -521,18 +524,21 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	// Update beta etc after MRF optim to be loaded in W part...
 	
+	
 		
 		Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter++ << "\n");
 		
 		
+		
 		// * Loop over voxels: * //
+		
 		auto time_2_likeli = std::chrono::high_resolution_clock::now();
 		
 		
-		// Change for debug: 
+		// Change: 
 		for(int i = 0; i < r.rows()/1; ++i){
 		//for(int i = 0; i < r.rows()/10000; ++i){
-		//for(int i = 73; i < 75; ++i){			// Contains the first non-zero voxel for phantom data.
+		//for(int i = 73; i < 75; ++i){
 		
 			std::cout << "\n\n";
 			if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
@@ -622,6 +628,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		Debug1("Time taken for 1 loop with " << r.rows() << " rows: " << duration_23.count() << " seconds\n");
 		Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
+		
+		
 		
 		
 		
@@ -751,6 +759,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		
+		
+		
 		// *Checking stopping criterion with penalized negative log likelihood:* //
 		
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
@@ -814,9 +824,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 
 /*
 * Hessian matrix iterative solution:
-* v_grad ' Hessian_mat v_grad is to be calculated 
+* v_grad ' Hessian_mat_without_MRF v_grad is to be calculated 
 * j-th image's variance(n = n_x*n_y*n_z) is to be calculated.
-* See Hessian_mat and v_grad functions also.
 */
 Vector_eig Var_est(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                    const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
@@ -861,7 +870,6 @@ Vector_eig Var_est(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vecto
 
 int main(int argc, char * argv[]) {
 
-
 	if (argc != 4) {
 		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
 		exit(EXIT_FAILURE);
@@ -874,10 +882,9 @@ int main(int argc, char * argv[]) {
 	
 
 
-// Later, read these TE, TR values from another data file. 
-
 //	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
 //	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+
 
 
 
@@ -903,6 +910,9 @@ int main(int argc, char * argv[]) {
 	
 
 
+
+
+
 	
 	Matrix_eig r = Preprocess_data(data_file, our_dim, will_write);
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
@@ -911,10 +921,11 @@ int main(int argc, char * argv[]) {
 	
 
 	
-	// Divide into train and test: Take it from another file/make it user given 
+	// Divide into train and test:
 	
 	//std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 	//std::vector<int> test_ind{11};
+	
 	std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 	std::vector<int> test_ind{16, 17};
 	
@@ -944,7 +955,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Temp results: Performance on the Crude Init W: 
+	// Temp results: Performance on the Init W: 
 	Matrix_eig W_1st = Matrix_eig::Ones(our_dim_train[1]*our_dim_train[2]*our_dim_train[3], 3);
 	W_1st.col(0) = train.rowwise().mean().transpose();
 	// Knowing first non-zero index:
@@ -975,7 +986,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Least Sq: 
-	// Change 0 to 1 (or vice versa) to do least square before likelihood optimization
+	// Change
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
@@ -1012,8 +1023,6 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
 	
-	
-	// Add the variance estimation part here!
 
 	return 0;
 }
