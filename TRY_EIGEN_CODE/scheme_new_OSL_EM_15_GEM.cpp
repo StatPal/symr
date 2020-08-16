@@ -2,13 +2,16 @@
 * 
 * To compile:
 
-g++ scheme_new_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3
+g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3
 
-g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_EM_15_GEM.cpp -o scheme_new_EM_15_GEM -I ~/MRI/Headers -O3 -std=c++11
+g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 -std=c++11
+
+g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -O3
+
 
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-
+./scheme_new_OSL_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
 ./scheme_new_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
@@ -50,9 +53,9 @@ No change for cholesky inside the function
 */
 double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig &r, 
-              int n_x, int n_y, int n_z){
+              int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
-	Matrix_eig v = v_mat(W, TE, TR);
+	Matrix_eig v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
 	double tmp2 = 0.0, tmp3 = 0.0, tmp1 = 0.0;
 
@@ -69,8 +72,8 @@ double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig
 	}
 	
 	//MRF part://
-	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
+	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	
 	assert( ! std::isnan(-likeli_sum) );
 	return -likeli_sum;
 }
@@ -130,8 +133,8 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
 	
+	// SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
 	// MRF contribution part:
 	// Vector_eig MRF_grad = Gamma_inv.row(i) * W_old * Psi_inv;
 	// Changed -- Feed old MRF_grad as c_i. -- would become little more fast I guess.
@@ -161,14 +164,10 @@ Penalised NEGATIVE Q fn, w.r.t. parameter of MRF -- to be minimised
 double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
                           //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                           //const Matrix_eig &r, const Matrix_eig &W_old,
-                          int n_x, int n_y, int n_z){
+                          int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	int n = n_x*n_y*n_z;
-	double likeli_sum = 0.0;
-	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	
-	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + 
-					n*log_det_3_chol(Psi_inv) - 3*n*log(2*M_PI) )/2;
+	double likeli_sum = MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	
 	return -likeli_sum;
 }
@@ -181,17 +180,17 @@ double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, cons
 Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
                                       //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                                       //const Matrix_eig &r, const Matrix_eig &W_old,
-                                      int n_x, int n_y, int n_z){
+                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	int n = n_x*n_y*n_z;
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
+	SpMat Gamma_inv = MRF_obj.Lambda(beta);
 	
 	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Gamma_inv*W);
 	
 	Matrix_eig temp_mat = W * Psi_inv;
-	double beta_x_grad = 1.5*sp_log_inv_specific(beta, n_x, n_y, n_z, 0) - 
+	double beta_x_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 0) - 
 	                     0.5*(W.transpose()*Kron_Sparse_eig(J_n(n_x), I_n(n_y*n_z))*temp_mat).trace();
-	double beta_y_grad = 1.5*sp_log_inv_specific(beta, n_x, n_y, n_z, 1) - 
+	double beta_y_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 1) - 
 	                     0.5*(W.transpose()*Kron_Sparse_eig(Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z))*temp_mat).trace();
 	
 	
@@ -210,23 +209,32 @@ Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &P
 /*
 * Optim template for rows of W using partial fn:
 */
+// Class definition with template
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {
+class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
 
+
+// I guess, it's the declaration
   public:
-	MRF_optim(const TVector y_) :
-		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	MRF_optim(const TVector y_) : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	
 
 
 	int n_x, n_y, n_z;
 	double beta_z = 0.1;												//Subrata - or get the value. 
 	TVector lb, ub;
 	TMatrix W;															// W here creating problem in optimization?
+	
+	MRF_param MRF_obj_optim;											// Check whether it is passed or copied...- Subrata
+	// Better way might be to use it in the 
+	
+	
+	
 	
 	
 	// Track the best:
@@ -252,7 +260,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		
 		
 		// check_bounds_vec(x, lb, ub);
-		double fx = Q_star_other_param(W, Psi_inv, beta, n_x, n_y, n_z);
+		double fx = Q_star_other_param(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		//Debug2("- Q fn:" << fx);
 		Debug2("x: " << std::setprecision(6) << x.transpose() << " \t& - Q fn:" << fx);
 		
@@ -287,7 +295,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		//Debug3("lb in grad: "<< lb.transpose());
 		//Debug3("ub in grad: "<< ub.transpose());
 		
-		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z);
+		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		
 		
 		
@@ -309,16 +317,20 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class Likeli_optim : public cppoptlib::BoundedProblem<T> {
+class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is inheriting fn from cppoptlib::BoundedProblem
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
+	
 	TMatrix r;
 	TVector r2;
 
+	// This is again inheritance? from cppoptlib::BoundedProblem I guess
+	// Or it might be Constructor - I guess it's a constructor.
   public:
-	Likeli_optim(const TVector y_) :
-		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	Likeli_optim(const TVector y_) : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+
+
 
 
 
@@ -377,6 +389,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig &r, 
                int n_x, int n_y, int n_z, double TE_scale, double TR_scale, 
+               MRF_param &MRF_obj,
                int maxiter = 10, double abs_diff = 1e-6, int verbose = 0) {
 // Change
 
@@ -421,6 +434,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	f_2.W = W_init;
 	
 	
+	f_2.MRF_obj_optim = MRF_obj;									// Subrata - check
 	
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
@@ -560,7 +574,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		// MRF contribution part:
-		SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
+		SpMat Gamma_inv = MRF_obj.Lambda(beta);
 		Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;
 		f.W_old = W_old;
 		
@@ -651,7 +665,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		// W_old  = f.W_old;				// This is also needed for proper stopping criteria
 		// the restore values is done after checking now - so now cool!
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z);
+									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
 		
 		if(current_best_likeli >= old_likeli){ 									// As everything is "-ve" log-likeli.
@@ -835,7 +849,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Least Sq: 
-	// Change
+	// Change 
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
@@ -851,9 +865,12 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
 	
-
-
 	
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+
+
+	/*
 	// Likelihood Based optimization:
 	
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
@@ -871,7 +888,7 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
-	
+	*/
 
 	return 0;
 }
