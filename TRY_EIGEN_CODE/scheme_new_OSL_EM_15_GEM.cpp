@@ -231,7 +231,10 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	TMatrix W;															// W here creating problem in optimization?
 	
 	MRF_param MRF_obj_optim;											// Check whether it is passed or copied...- Subrata
-	// Better way might be to use it in the 
+	// Better way might be to use it in the 'initializer list'
+	// This method uses https://stackoverflow.com/a/18971386
+	// But this ans would give better method I guess:
+	// https://stackoverflow.com/a/18971392
 	
 	
 	

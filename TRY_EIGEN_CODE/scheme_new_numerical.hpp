@@ -682,8 +682,8 @@ class MRF_param{
 	
 	//Constructor:
 	MRF_param(){};
-	// Might help in main file MRF - it resolved the problem.
-	// The errors were:
+	// Might help in main file MRF - yes it resolved the problem.
+	// Without this, the errors were:
 
 /*
 scheme_new_OSL_EM_15_GEM.cpp: In instantiation of ‘MRF_optim<T>::MRF_optim(typename cppoptlib::BoundedProblem<T>::TVector) [with T = double; typename cppoptlib::BoundedProblem<T>::TVector = Eigen::Matrix<double, -1, 1>]’:
@@ -702,7 +702,9 @@ scheme_new_numerical.hpp:669:7: note: candidate: ‘MRF_param::MRF_param(const M
 scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 */
 
-
+	// https://stackoverflow.com/questions/18971355/no-matching-function-for-call-to-class  - important
+	
+	
 	
 	
 	
