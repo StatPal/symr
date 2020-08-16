@@ -681,7 +681,7 @@ class MRF_param{
 	
 	
 	//Constructor:
-	MRF_param(){};
+	// MRF_param(){};
 	// Might help in main file MRF - yes it resolved the problem.
 	// Without this, the errors were:
 

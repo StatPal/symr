@@ -217,12 +217,30 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
+	MRF_param MRF_obj_optim;		
+	// Without this error: 
+	// In constructor ‘MRF_optim<T>::MRF_optim(typename cppoptlib::BoundedProblem<T>::TVector, const MRF_param&)’:
+	// scheme_new_OSL_EM_15_GEM.cpp:230:54: error: class ‘MRF_optim<T>’ does not have any field named ‘MRF_obj_optim’
+	//   230 |   : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
+
+	// Though this is not needed if MRF_param(){}; is written in the MRF_param class.
+	
+	
 
 
 // I guess, it's the declaration
   public:
-	MRF_optim(const TVector y_) : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	// MRF_optim(const TVector y_) 
+	//	: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
 	
+	// https://stackoverflow.com/a/18971392 :
+	MRF_optim(const TVector y_, const MRF_param &MRF_obj_optim) 
+		: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
+	
+	// OR, Let's do it with their style:
+	// 
+	// MRF_optim(const TVector y_, const MRF_param& MRF_obj_optim_) 
+	// 	: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim_){}
 
 
 	int n_x, n_y, n_z;
@@ -230,7 +248,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	TVector lb, ub;
 	TMatrix W;															// W here creating problem in optimization?
 	
-	MRF_param MRF_obj_optim;											// Check whether it is passed or copied...- Subrata
+	// MRF_param MRF_obj_optim;											// Check whether it is passed or copied...- Subrata
 	// Better way might be to use it in the 'initializer list'
 	// This method uses https://stackoverflow.com/a/18971386
 	// But this ans would give better method I guess:
@@ -407,7 +425,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	///** First estimate other MRF parameters **///
 	
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
-	MRF_optim<double> f_2(Eigen::VectorXd::Ones(8));
+	MRF_optim<double> f_2(Eigen::VectorXd::Ones(8), MRF_obj);
 	cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
 	
 	
@@ -437,7 +455,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	f_2.W = W_init;
 	
 	
-	f_2.MRF_obj_optim = MRF_obj;									// Subrata - check
+	// f_2.MRF_obj_optim = MRF_obj;									// Subrata - check
 	
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
@@ -873,14 +891,14 @@ int main(int argc, char * argv[]) {
 	
 
 
-	/*
+	
 	// Likelihood Based optimization:
 	
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
 	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
 	Vector_eig beta_init = 0.1*Vector_eig::Ones(3);						// beta_init	// Subrata multiply by 0.1
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale);
+	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1);
 	show_head(W_init);
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -891,7 +909,7 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
-	*/
+	
 
 	return 0;
 }
