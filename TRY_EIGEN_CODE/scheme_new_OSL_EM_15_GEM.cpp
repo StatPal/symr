@@ -33,13 +33,7 @@ g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -
 
 
 
-const Matrix_eig G((Matrix_eig(6,9) << 
-  1, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 0, 1, 0, 0, 0, 0, 0,
-  0, 0, 1, 0, 0, 0, 1, 0, 0,
-  0, 0, 0, 0, 1, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 0, 1, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 1).finished());
+
 
 
 
@@ -133,12 +127,7 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-	
-	// SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
-	// MRF contribution part:
-	// Vector_eig MRF_grad = Gamma_inv.row(i) * W_old * Psi_inv;
-	// Changed -- Feed old MRF_grad as c_i. -- would become little more fast I guess.
-	
+		
 	// Likelihood part
 	for(int k = 0; k < 3; ++k){
 		temp = 0.;
@@ -166,9 +155,7 @@ double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, cons
                           //const Matrix_eig &r, const Matrix_eig &W_old,
                           int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
-	int n = n_x*n_y*n_z;
 	double likeli_sum = MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
-	
 	return -likeli_sum;
 }
 
@@ -183,15 +170,15 @@ Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &P
                                       int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	int n = n_x*n_y*n_z;
-	SpMat Gamma_inv = MRF_obj.Lambda(beta);
+	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
 	
-	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Gamma_inv*W);
+	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - MRF_obj.Wt_L_W(W, beta));
 	
 	Matrix_eig temp_mat = W * Psi_inv;
 	double beta_x_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 0) - 
-	                     0.5*(W.transpose()*Kron_Sparse_eig(J_n(n_x), I_n(n_y*n_z))*temp_mat).trace();
+	                     0.5*(W.transpose()*MRF_obj.H_1*temp_mat).trace();
 	double beta_y_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 1) - 
-	                     0.5*(W.transpose()*Kron_Sparse_eig(Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z))*temp_mat).trace();
+	                     0.5*(W.transpose()*MRF_obj.H_2*temp_mat).trace();
 	
 	
 	Vector_eig grad(8);
@@ -217,7 +204,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
-	MRF_param MRF_obj_optim;		
+	MRF_param MRF_obj_optim;
 	// Without this error: 
 	// In constructor ‘MRF_optim<T>::MRF_optim(typename cppoptlib::BoundedProblem<T>::TVector, const MRF_param&)’:
 	// scheme_new_OSL_EM_15_GEM.cpp:230:54: error: class ‘MRF_optim<T>’ does not have any field named ‘MRF_obj_optim’
@@ -437,7 +424,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	Matrix3d_eig L( Psi_inv.llt().matrixL() );
 	x_MRF.segment(0, 6) = from_L_mat(L);
 	x_MRF(6) = beta(0); x_MRF(7) = beta(1);
-	x_MRF_old = x_MRF;
+	x_MRF_old.noalias() = x_MRF;
 	
 	// Bound on Cholesky etc: (Why 255 btw? - Forgot - ad hoc I guess)
 	ub_MRF.segment(0, 6+1+1) =  255*Vector_eig::Ones(6+1+1);
@@ -492,7 +479,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	
 	// Track the best: It's currently inside boundary
-	x_MRF = f_2.current_best_param;
+	x_MRF.noalias() = f_2.current_best_param;
 	double fx_MRF = f_2.current_best_val;
 	Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
 			"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
@@ -512,7 +499,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	Vector_eig temp_L = x_MRF.segment(0, 6);
 	Matrix3d_eig L_mat = to_L_mat(temp_L);
-	Psi_inv = from_Cholesky(L_mat);
+	Psi_inv.noalias() = from_Cholesky(L_mat);
 	beta(0) = x_MRF(6); beta(1) = x_MRF(7); beta(2) = 0.1;
 	
 	/*
@@ -617,7 +604,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			Debug0("MRF_grad.row(i)" << MRF_grad.row(i));
 			f.c_i = MRF_grad.row(i); 
 			f.W = W_init;
-			x = W_init.row(i);
+			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
 			
@@ -712,7 +699,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		// Restore default values  ---- check other files also
-		W_old = W_init;
+		W_old.noalias() = W_init;
 		
 		
 		auto time_4_likeli = std::chrono::high_resolution_clock::now();

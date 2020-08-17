@@ -1,6 +1,12 @@
 /**
 *
 
+Multiple Cycle EM (AECM) -  3 dimensional optimization for each voxel.
+
+
+
+
+
 * To compile:
 
 g++ scheme_new_EM_12_GEM.cpp -o test -I /usr/include/eigen3 -O3
@@ -65,7 +71,7 @@ W.row(i) should be replaced by x.transpose(), nor x -- Check
 
 
 
-
+/*
 const Matrix_eig G((Matrix_eig(6,9) << 
   1, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 0, 1, 0, 0, 0, 0, 0,
@@ -73,7 +79,7 @@ const Matrix_eig G((Matrix_eig(6,9) <<
   0, 0, 0, 0, 1, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 1, 0, 1, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 1).finished());
-
+*/
 
 
 /*
@@ -83,7 +89,7 @@ No change for cholesky inside the function
 */
 double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig &r, 
-              int n_x, int n_y, int n_z){
+              int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	Matrix_eig v = v_mat(W, TE, TR);
 	int m = v.cols(), n = v.rows();
@@ -102,8 +108,8 @@ double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig
 	}
 	
 	//MRF part://
-	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
+	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	
 	assert( ! std::isnan(-likeli_sum) );
 	return -likeli_sum;
 }
@@ -119,7 +125,7 @@ Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 double Q_star_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                         const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                         const Matrix_eig &r, const Matrix_eig &W_old,
-                        int n_x, int n_y, int n_z, int i){
+                        int n_x, int n_y, int n_z, int i, MRF_param &MRF_obj){
 
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
@@ -137,13 +143,12 @@ double Q_star_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const 
 	//}
 	
 	//MRF part://
-	likeli_sum -= (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace()/2;
-	//if(std::isnan(-likeli_sum)){
-	//	Debug0("NAN after MRF!");
-	//}
+	likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
+	
 	//assert( ! std::isnan(-likeli_sum) );			// Don't assert, sobar mongol...
 	return (-likeli_sum);
 }
+
 
 
 
@@ -154,24 +159,12 @@ Penalised NEGATIVE Q fn, w.r.t. parameter of MRF -- to be minimised
 double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
                           //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                           //const Matrix_eig &r, const Matrix_eig &W_old,
-                          int n_x, int n_y, int n_z){
+                          int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
-	int n = n_x*n_y*n_z;
-	double likeli_sum = 0.0;
-	double tmp = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-	//if(std::isnan(tmp)){
-	//	Debug1("tmp is nan in Q_star_other_param");
-	//}
-	
-	likeli_sum += ( -tmp + 3*sp_log_det_specific(beta, n_x, n_y, n_z) + 
-					n*log_det_3_chol(Psi_inv) - 3*n*log(2*M_PI) )/2;
-	
-	//if(std::isnan(likeli_sum)){
-	//	Debug1("likeli_sum is nan in Q_star_other_param");
-	//}
-	
+	double likeli_sum = MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	return -likeli_sum;
 }
+
 
 
 
@@ -184,7 +177,7 @@ double Q_star_other_param(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, cons
 Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                                 const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                                 const Matrix_eig &r, const Matrix_eig &W_old,
-                                int n_x, int n_y, int n_z, int i){
+                                int n_x, int n_y, int n_z, int i, MRF_param &MRF_obj){
 
 	int m = TE.size(), n = n_x*n_y*n_z;
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
@@ -192,11 +185,24 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
+	//SpMat Gamma_inv_i = MRF_obj.Lambda_row(beta, i);
+	
+	
+	// Test:
+	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
+	// Debug0("Gamma_inv_i:" << Gamma_inv_i.rows() << "\t" << Gamma_inv_i.cols());
+	// Debug0("Gamma_inv.row(0):" << Gamma_inv.row(i).transpose().transpose().rows()  << "\t" << Gamma_inv.row(i).transpose().transpose().cols());
+	// Debug0("sum of diff:" << (Gamma_inv_i - Gamma_inv.row(i).transpose()).sum());
+	
 	
 	// MRF contribution part
 	// Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;	// i-th column of Lambda is good enough
-	Vector_eig MRF_grad = Gamma_inv.row(i) * W * Psi_inv;
+	// Vector_eig MRF_grad = Gamma_inv.row(i) * W * Psi_inv;
+	//Vector_eig MRF_grad_i = Gamma_inv_i.transpose() * W * Psi_inv;
+	
+	Vector_eig MRF_grad = MRF_obj.MRF_grad_fn(W, Psi_inv, beta, i);
+	// Debug3("MRF_grad: " << MRF_grad);
+	
 	
 	
 	// Likelihood part
@@ -224,18 +230,18 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
                                       //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                                       //const Matrix_eig &r, const Matrix_eig &W_old,
-                                      int n_x, int n_y, int n_z){
+                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	int n = n_x*n_y*n_z;
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
+	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
 	
-	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Gamma_inv*W);
+	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - MRF_obj.Wt_L_W(W, beta));
 	
 	Matrix_eig temp_mat = W * Psi_inv;
-	double beta_x_grad = 1.5*sp_log_inv_specific(beta, n_x, n_y, n_z, 0) - 
-	                     0.5*(W.transpose()*Kron_Sparse_eig(J_n(n_x), I_n(n_y*n_z))*temp_mat).trace();
-	double beta_y_grad = 1.5*sp_log_inv_specific(beta, n_x, n_y, n_z, 1) - 
-	                     0.5*(W.transpose()*Kron_Sparse_eig(Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z))*temp_mat).trace();
+	double beta_x_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 0) - 
+	    	                 0.5*(W.transpose()*MRF_obj.H_1*temp_mat).trace();
+	double beta_y_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 1) - 
+		                     0.5*(W.transpose()*MRF_obj.H_2*temp_mat).trace();
 	
 	
 	Vector_eig grad(8);
@@ -262,10 +268,11 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
+	MRF_param MRF_obj_optim;
 
   public:
-	Likeli_optim(const TVector y_) :
-		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	Likeli_optim(const TVector y_, const MRF_param &MRF_obj_optim) 
+		: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
 
 
 
@@ -283,8 +290,8 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 	T value(const TVector &x) {
 		W.row(i) = x.transpose();
-		check_bounds_vec(x, lb, ub);
-		double fx = Q_star_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z, i);
+		// check_bounds_vec(x, lb, ub);
+		double fx = Q_star_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z, i, MRF_obj_optim);
 		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
 		
 		// Track immediate past (add later)
@@ -300,7 +307,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 	void gradient(const TVector &x, TVector &grad) {
 		W.row(i) = x;
-		grad = Q_grad_vec_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z, i);
+		grad = Q_grad_vec_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z, i, MRF_obj_optim);
 		Debug2("grad: " << grad.transpose() << "\n" );
 	}
 
@@ -311,7 +318,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 
 /*
-* Optim template for rows of W using partial fn:
+* Optim template for rows of W using pvpn.iastate.eduartial fn:
 */
 
 template<typename T>
@@ -321,10 +328,11 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
+	MRF_param MRF_obj_optim;
 
   public:
-	MRF_optim(const TVector y_) :
-		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	MRF_optim(const TVector y_, const MRF_param &MRF_obj_optim) 
+		: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
 
 
 	int n_x, n_y, n_z;
@@ -356,7 +364,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		
 		
 		check_bounds_vec(x, lb, ub);
-		double fx = Q_star_other_param(W, Psi_inv, beta, n_x, n_y, n_z);
+		double fx = Q_star_other_param(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		//Debug2("- Q fn:" << fx);
 		Debug2("x: " << std::setprecision(6) << x.transpose() << " \t& - Q fn:" << fx);
 		
@@ -393,7 +401,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		Debug3("lb in grad: "<< lb.transpose());
 		Debug3("ub in grad: "<< ub.transpose());
 		
-		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z);
+		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		
 		
 		
@@ -413,12 +421,13 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 
 
 /*
-* Main fn, currently one iteration is done. Change that with while loop
+* Main fn, currently one iteration is done. Change that with while loop 
 */
-void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta, 
+void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                   const Vector_eig &TE_example, const Vector_eig &TR_example, 
                   const Vector_eig &sigma, const Matrix_eig &r, 
-                  int n_x, int n_y, int n_z, double TE_scale, double TR_scale, 
+                  int n_x, int n_y, int n_z, double TE_scale, double TR_scale,
+                  MRF_param &MRF_obj,
                   int maxiter = 10, double abs_diff = 1e-6, int verbose = 0) {
 // Change
 
@@ -428,8 +437,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	
 	int iter = 0;
-	Likeli_optim<double> f(Eigen::VectorXd::Ones(3));
-	MRF_optim<double> f_2(Eigen::VectorXd::Ones(8));
+	Likeli_optim<double> f(Eigen::VectorXd::Ones(3), MRF_obj);
+	MRF_optim<double> f_2(Eigen::VectorXd::Ones(8), MRF_obj);
 	
 
 
@@ -450,12 +459,11 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
-	f.beta = beta;										// beta(2) = 0.1;
-	//Debug1("bad Psi_inv: \n" << Psi_inv);
+	f.beta = beta;
 	f.Psi_inv = Psi_inv;
 	f.sigma = sigma;	f.r = r;	f.TE = TE_example;	f.TR = TR_example;
 	Matrix_eig W_old = W_init;
-	f.W_old = W_old;
+	f.W_old = W_old;									// Check noalias is applicable or not
 	
 
 
@@ -470,7 +478,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	Matrix3d_eig L( Psi_inv.llt().matrixL() );
 	x_MRF.segment(0, 6) = from_L_mat(L);
 	x_MRF(6) = beta(0); x_MRF(7) = beta(1);
-	x_MRF_old = x_MRF;
+	x_MRF_old.noalias() = x_MRF;
 	
 	// Bound on Cholesky etc: (Why 255 btw? - Forgot - ad hoc I guess)
 	ub_MRF.segment(0, 6+1+1) =  255*Vector_eig::Ones(6+1+1);
@@ -509,7 +517,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	solver.setStopCriteria(crit_voxel);
 	
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-	crit_MRF.iterations = 500;														// Change the number of allowed iterations
+	crit_MRF.iterations = 1000;															// Change the number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
 	// Change 
 	
@@ -549,8 +557,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			f.i = i;
 			f.W = W_init;
 			f.W_old = W_old;
-			x = W_init.row(i);
-			check_bounds_vec(x, lb, ub);
+			x.noalias() = W_init.row(i);
+			// check_bounds_vec(x, lb, ub);
 			
 			
 			
@@ -601,7 +609,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			
 			
 			// Track the best:
-			x = f.current_best_param;
+			x.noalias() = f.current_best_param;
 			double fx = f.current_best_val;
 			Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 					"\t old val: " << old_val << "\t diff: " << fx - old_val);
@@ -620,7 +628,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			
 			
 			// Restore default values
-			W_old = W_init;
+			W_old.noalias() = W_init;
 			
 		}
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
@@ -702,7 +710,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		// Track the best:
-		x_MRF = f_2.current_best_param;
+		x_MRF.noalias() = f_2.current_best_param;
 		double fx_MRF = f_2.current_best_val;
 		Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
 				"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
@@ -728,7 +736,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		Vector_eig temp_L = x_MRF.segment(0, 6);
 		Matrix3d_eig L_mat = to_L_mat(temp_L);
-		Psi_inv = from_Cholesky(L_mat);
+		Psi_inv.noalias() = from_Cholesky(L_mat);
 		beta(0) = x_MRF(6); beta(1) = x_MRF(7); beta(2) = 0.1;
 		
 		/*
@@ -764,7 +772,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		// *Checking stopping criterion with penalized negative log likelihood:* //
 		
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z);
+									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
 		if(abs_sum(to_vector(W_old)-to_vector(W_init)) <= abs_diff && abs_sum(x_MRF_old - x_MRF) <= abs_diff){
 			std::cout << "Stopped after " << iter << " iterations" << "\n";
@@ -784,8 +792,8 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		// -- without this, diff between abs sum between old and new parameters would be 0!
 		//	W_old = W_init;
 		//}
-		W_old = W_init;
-		x_MRF_old = x_MRF;
+		W_old.noalias() = W_init;
+		x_MRF_old.noalias() = x_MRF;
 		old_likeli = current_best_likeli;
 		
 		Debug1("Another iteration done\n\n");
@@ -827,6 +835,7 @@ void likeli_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 * v_grad ' Hessian_mat_without_MRF v_grad is to be calculated 
 * j-th image's variance(n = n_x*n_y*n_z) is to be calculated.
 */
+/*
 Vector_eig Var_est(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                    const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                    const Matrix_eig &r, const Matrix_eig &W_old,
@@ -859,6 +868,7 @@ Vector_eig Var_est(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vecto
 	
 	return Var_est;
 }
+*/
 
 
 
@@ -987,7 +997,7 @@ int main(int argc, char * argv[]) {
 	
 	// Least Sq: 
 	// Change
-	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
+	int do_least_sq = 0;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
 	Debug2("W initial done");
@@ -1004,6 +1014,12 @@ int main(int argc, char * argv[]) {
 	
 
 
+
+
+
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	
 	
 	// Likelihood Based optimization:
 	
@@ -1011,7 +1027,7 @@ int main(int argc, char * argv[]) {
 	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
 	Vector_eig beta_init = 0.1*Vector_eig::Ones(3);						// beta_init	// Subrata multiply by 0.1
 	likeli_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, train, 
-	             our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale);
+	             our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1);
 	show_head(W_init);
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);

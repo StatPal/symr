@@ -106,6 +106,13 @@ const int IF_DEBUG = 1;
 
 
 
+const Matrix_eig G((Matrix_eig(6,9) << 
+  1, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 0, 1, 0, 0, 0, 0, 0,
+  0, 0, 1, 0, 0, 0, 1, 0, 0,
+  0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 0, 1, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 1).finished());
 
 
 
@@ -678,6 +685,9 @@ class MRF_param{
 	Vector_eig final_vec;
 	double deriv_1, deriv_2, deriv_3;
 	SpMat Lambda_init;
+	SpMat Lambda_init_row;
+	Matrix_eig tmp_W_Psi_inv;
+	Matrix_eig tmp_Wt_L_W;
 	
 	
 	//Constructor:
@@ -733,7 +743,11 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		final_vec = Vector_eig::Zero(n);
 		eigens    = Vector_eig::Zero(n);
 		
+		
 		Lambda_init = 0.1*H_1 + 0.2*H_2 + 0.3*H_3;
+		Lambda_init_row = Lambda_init.row(0);
+		tmp_W_Psi_inv = Matrix_eig::Zero(n, 3);
+		tmp_Wt_L_W = Matrix_eig::Zero(3, 3);
 	}
 	
 	
@@ -744,11 +758,29 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	// see also https://stackoverflow.com/questions/38839406/eigen-efficient-kronecker-product or kroneckerProduct
 	*/
 	SpMat Lambda(Vector_eig beta){
-		Lambda_init = beta(0)*H_1 + beta(1)*H_2 + beta(2)*H_3;
+		Lambda_init = beta(0)*H_1 + beta(1)*H_2 + beta(2)*H_3;		// Check, is it doable?
 		return(Lambda_init);
 	}
 	
 	
+	// Specific row of Lambda matrix: Creates some problem.
+	/*
+	SpMat Lambda_row(Vector_eig beta, int i){
+		Lambda_init_row = beta(0)*H_1.row(i) + beta(1)*H_2.row(i) + beta(2)*H_3.row(i);
+		return(Lambda_init_row);
+	}
+	*/
+	
+	
+	Vector_eig MRF_grad_fn(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta, int i){
+		Vector_eig tmp1(3), tmp2(3), tmp3(3);
+		tmp_W_Psi_inv.noalias() = W * Psi_inv;
+		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
+		tmp2 = H_2.row(i) * tmp_W_Psi_inv;
+		tmp3 = H_3.row(i) * tmp_W_Psi_inv;
+		Vector_eig MRF_grad = beta(0)*tmp1 + beta(1)*tmp2 + beta(2)*tmp3;
+		return MRF_grad;
+	}
 	
 	
 	/*
@@ -792,11 +824,10 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	double MRF_log_likeli(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
 	
-		double likeli_sum = 0.0;
-		// double tmp2 = (Psi_inv*W.transpose()*Lambda(beta, n_x, n_y, n_z)*W).trace();
-		double tmp2 = (Psi_inv*W.transpose()*Lambda(beta)*W).trace();
+	double MRF_log_likeli_num(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	
+		double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
 		/*
 		int i = 0, j = 0, k = 0;
 		double tmp1 = 0.0, tmp2 = 0.0;
@@ -830,14 +861,58 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		tmp2 += beta(2)*tmp1;
 		*/
 		
-		
-		likeli_sum += ( -tmp2 + 3*sp_log_det_specific(beta) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
+		return tmp2;
+	}
+	
+	
+	
+	
+	
+	double MRF_log_likeli(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	
+		double tmp_num = MRF_log_likeli_num(W, Psi_inv, beta);
+		double likeli_sum = ( tmp_num + 3*sp_log_det_specific(beta) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
 		
 		return likeli_sum;
 	}
 	
 	
-	// Add the 
+	
+	// W'Lambda W:
+	Matrix_eig Wt_L_W(Matrix_eig W, Vector_eig beta){
+	
+		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
+		Lambda_init = Lambda(beta);
+		
+		return W.transpose()*Lambda_init*W;
+	}
+	
+	// Add the derivative: 
+	Vector_eig MRF_log_likeli_grad(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	
+		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
+		Lambda_init = Lambda(beta);
+		
+		
+		Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
+	
+		Matrix_eig temp_mat = W * Psi_inv;						// Is this direction of multiplication faster?
+		double beta_x_grad = 1.5*sp_log_inv_specific(beta, 0) - 
+		                     0.5*(W.transpose() * H_1 * temp_mat).trace();
+		double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
+		                     0.5*(W.transpose() *  H_2 * temp_mat).trace();
+		
+		
+		Vector_eig grad(8);
+		grad.segment(0, 6) = Psi_grad;				// 6x1 matrix I guess
+		grad(6) = beta_x_grad; grad(7) = beta_y_grad;
+	
+		return grad;
+	}
+	
+	
+	
+	
 	
 	
 	
