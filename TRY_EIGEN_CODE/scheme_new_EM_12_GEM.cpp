@@ -517,7 +517,7 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	solver.setStopCriteria(crit_voxel);
 	
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-	crit_MRF.iterations = 1000;															// Change the number of allowed iterations
+	crit_MRF.iterations = 50;															// Change the number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
 	// Change 
 	

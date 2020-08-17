@@ -179,6 +179,7 @@ static double besseli(double x, int alpha){
 }
 
 
+
 double our_bessel_I(double x, double nu){
 
 	if(x>=0.0){
@@ -198,6 +199,8 @@ double our_bessel_I(double x, double nu){
 
 
 
+
+
 /*
 * Ratio of BesselI(x, 1) and BesselI(x, 0)
 */
@@ -209,6 +212,8 @@ double ratio_bessel_10(double x){
 		return (1.0 - 0.5/x);
 	}
 }
+
+
 
 /**
 * Ratio of BesselI(x, 2) and BesselI(x, 0)
@@ -222,6 +227,8 @@ double ratio_bessel_20(double x){
 		return (1.0 - 2/x);		// Take one more term
 	}
 }
+
+
 
 
 /**
@@ -294,6 +301,8 @@ double besselI1_I0(double x)
 }
 
 
+
+
 /**
 * log(BesselI(x, 0))
 * Copied - give source.
@@ -352,6 +361,8 @@ double logBesselI0(double x) {
 
 
 
+
+
 /********************************************************
 ***************** Other small functions *****************
 ********************************************************/
@@ -366,12 +377,15 @@ Matrix_eig Cov_1(Matrix_eig x) {
 	return x.transpose()*x/(nRows-1);			// or x_cen
 }
 
+
+
 void show_head(Eigen::MatrixXd W, int n = 10){
 	std::cout << "head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
 		std::cout << W.row(i) << "\n";
 	}
 }
+
 
 void show_head_vec(Eigen::VectorXd W, int n = 10, int endLine = 0){
 	std::cout << "head of the vector:\t" ;
@@ -385,10 +399,12 @@ void show_head_vec(Eigen::VectorXd W, int n = 10, int endLine = 0){
 }
 
 
+
 double mean_rice(double nu, double sigma){
 	double x = - SQ(nu)/(2*SQ(sigma));
 	return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
 }
+
 
 
 /**
@@ -402,6 +418,8 @@ Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
 	//https://stackoverflow.com/questions/32452739/vector-to-matrix/32475129
 }
 
+
+
 /**
 * Change matrix to vector
 */
@@ -414,8 +432,10 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 }
 
 
+
+
 /**
-Crude Det of a sparse matrix - not needed I guess
+Crude Determinant of a sparse matrix - not needed I guess
 */
 // [[Rcpp::export]]
 double sp_det_1(SpMat A){
@@ -423,6 +443,7 @@ double sp_det_1(SpMat A){
 	//https://stackoverflow.com/questions/15484622/how-to-convert-sparse-matrix-to-dense-matrix-in-eigen/15592295
 	//https://stackoverflow.com/questions/13033694/eigen-convert-dense-matrix-to-sparse-one
 }
+
 
 /**
  Vectorized log - needed?
@@ -447,6 +468,7 @@ double abs_sum(Vector_eig x){
 }
 
 
+
 /**
 * Not needed now
 */
@@ -456,6 +478,7 @@ double sp_log_det_2(SpMat B){			// Log determinant
 	SelfAdjointEigenSolver<MatrixXd> es(A);				// Marked was in eigen 2
 	return log_vec(es.eigenvalues()).sum();
 }
+
 
 
 /**
@@ -488,6 +511,7 @@ double log_det_2(Matrix_eig B){
 }
 
 
+
 /*
 Log determinant for fixed size(3) matrix
 */
@@ -499,8 +523,9 @@ double log_det_3(Matrix3d_eig B){
 
 
 
-/*Same - with Cholesky decomposition to avoid numerical error */
-
+/*
+Same - with Cholesky decomposition to avoid numerical error
+*/
 double log_det_3_chol(Matrix3d_eig A){
 	//Matrix3d_eig L = to_Cholesky(A);			// Also numerical problems
 	Matrix3d_eig L( A.llt().matrixL() );
@@ -511,6 +536,7 @@ double log_det_3_chol(Matrix3d_eig A){
 	return 2*log_vec(temp).sum();
 }
 // Bug - Subrata - forgot the 2 - corrected!
+
 
 
 /*
@@ -550,6 +576,9 @@ double sp_trace(SpMat A){
 
 
 
+
+
+
 /********************************************************
 ******** New Functiones needed for Likelihood ***********
 ********************************************************/
@@ -559,7 +588,7 @@ double sp_trace(SpMat A){
 /*
 * Kroneker product of two dense Matrices
 */
-Matrix_eig Kron_eig(Matrix_eig m1, Matrix_eig m2){			//https://forum.kde.org/viewtopic.php?f=74&t=50952
+Matrix_eig Kron_eig(const Matrix_eig &m1, const Matrix_eig &m2){			//https://forum.kde.org/viewtopic.php?f=74&t=50952
 
 	Matrix_eig m3(m1.rows()*m2.rows(), m1.cols()*m2.cols());
 	for (int i = 0; i < m1.cols(); i++) {
@@ -573,7 +602,7 @@ Matrix_eig Kron_eig(Matrix_eig m1, Matrix_eig m2){			//https://forum.kde.org/vie
 /*
 * Kroneker product of two Vectors
 */
-Vector_eig Kron_vec_eig(Vector_eig m1, Vector_eig m2){
+Vector_eig Kron_vec_eig(const Vector_eig &m1, const Vector_eig &m2){
 
 	Vector_eig m3(m1.size()*m2.size());
 	for (int i = 0; i < m1.size(); i++) {
@@ -586,9 +615,9 @@ Vector_eig Kron_vec_eig(Vector_eig m1, Vector_eig m2){
 /*
 * Kroneker product of two Sparse Matrices
 */
-SpMat Kron_Sparse_eig(SpMat m1, SpMat m2){
+SpMat Kron_Sparse_eig(const SpMat &m1, const SpMat &m2){
 
-	 m1.makeCompressed(); m2.makeCompressed();				// const would not allow makeCompressed
+	// m1.makeCompressed(); m2.makeCompressed();				// const would not allow makeCompressed
 	int m = m1.rows(), n = m1.cols(), p = m2.rows(), q = m2.cols(), nz1 = m1.nonZeros(), nz2 = m2.nonZeros();
 	
 	SpMat m3(m*p, n*q);
@@ -757,7 +786,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	Sparse Matrix lambda
 	// see also https://stackoverflow.com/questions/38839406/eigen-efficient-kronecker-product or kroneckerProduct
 	*/
-	SpMat Lambda(Vector_eig beta){
+	SpMat Lambda(const Vector_eig &beta){
 		Lambda_init = beta(0)*H_1 + beta(1)*H_2 + beta(2)*H_3;		// Check, is it doable?
 		return(Lambda_init);
 	}
@@ -772,7 +801,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	*/
 	
 	
-	Vector_eig MRF_grad_fn(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta, int i){
+	Vector_eig MRF_grad_fn(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
 		Vector_eig tmp1(3), tmp2(3), tmp3(3);
 		tmp_W_Psi_inv.noalias() = W * Psi_inv;
 		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
@@ -786,7 +815,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	/*
 	 log determinant of Lambda(beta, n_x, n_y, n_z)
 	*/
-	double sp_log_det_specific(Vector_eig beta, double thres = 0.000001){
+	double sp_log_det_specific(const Vector_eig &beta, double thres = 0.000001){
 		eigens.noalias() = beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
 		double temp = 0.0;
 		for(int i = 0; i < eigens.size(); ++i){
@@ -804,7 +833,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	 The ratio of eigenvalue sum part of Lambda(beta, n_x, n_y, n_z) for the derivative
 	 Depends on the value of k (0, 1, 2 - corresponding to derivative wt beta_1, beta_2, beta_3)
 	*/
-	double sp_log_inv_specific(Vector_eig beta, int k, double thres = 0.000001){
+	double sp_log_inv_specific(const Vector_eig &beta, int k, double thres = 0.000001){
 	
 		eigens.noalias() =  beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
 		
@@ -825,7 +854,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	double MRF_log_likeli_num(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	double MRF_log_likeli_num(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
 		/*
@@ -868,10 +897,11 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	double MRF_log_likeli(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	double MRF_log_likeli(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double tmp_num = MRF_log_likeli_num(W, Psi_inv, beta);
-		double likeli_sum = ( tmp_num + 3*sp_log_det_specific(beta) + n*log_det_3(Psi_inv) - 3*n*log(2*M_PI) )/2;
+		double likeli_sum = ( tmp_num + 3 * sp_log_det_specific(beta) + 
+								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
 		
 		return likeli_sum;
 	}
@@ -879,7 +909,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	// W'Lambda W:
-	Matrix_eig Wt_L_W(Matrix_eig W, Vector_eig beta){
+	Matrix_eig Wt_L_W(const Matrix_eig &W, const Vector_eig &beta){
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
@@ -887,8 +917,9 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		return W.transpose()*Lambda_init*W;
 	}
 	
+	
 	// Add the derivative: 
-	Vector_eig MRF_log_likeli_grad(Matrix_eig W, Matrix3d_eig Psi_inv, Vector_eig beta) {
+	Vector_eig MRF_log_likeli_grad(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
@@ -896,7 +927,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		
 		Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
 	
-		Matrix_eig temp_mat = W * Psi_inv;						// Is this direction of multiplication faster?
+		Matrix_eig temp_mat = W * Psi_inv;						// Is this direction faster?
 		double beta_x_grad = 1.5*sp_log_inv_specific(beta, 0) - 
 		                     0.5*(W.transpose() * H_1 * temp_mat).trace();
 		double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
@@ -916,8 +947,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	
-	// Destructor called:
+	// Destructor:
 	~MRF_param(){ }
 };
 
@@ -934,7 +964,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 /*
 * \nu_{ij} as a mx1 vector from one row of W (and TE, TR)
 */
-Eigen::VectorXd Bloch_vec(Eigen::VectorXd W_row, Eigen::VectorXd TE, Eigen::VectorXd TR){
+Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR){
 
 	int m = TE.size();
 	Eigen::VectorXd tmp = Eigen::VectorXd::Zero(m);
@@ -966,7 +996,7 @@ Eigen::VectorXd Bloch_vec(Eigen::VectorXd W_row, Eigen::VectorXd TE, Eigen::Vect
 /*
 Write in a good format 
 */
-void check_bounds(Matrix_eig W, Vector_eig lb, Vector_eig ub){
+void check_bounds(const Matrix_eig &W, const Vector_eig &lb, const Vector_eig &ub){
 	int n = W.rows();
 	int count = 0;
 	for(int i = 0; i < n; ++i){
@@ -993,12 +1023,12 @@ void check_bounds(Matrix_eig W, Vector_eig lb, Vector_eig ub){
 	}
 }
 
-void show_dim(Matrix_eig A){
+void show_dim(const Matrix_eig &A){
 	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
 }
 
 
-void check_bounds_vec(Vector_eig x, Vector_eig lb, Vector_eig ub){
+void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
 
 	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
 		//std::cout << "Lower bound crossed initially!";
@@ -1018,7 +1048,7 @@ void check_bounds_vec(Vector_eig x, Vector_eig lb, Vector_eig ub){
 }
 
 
-int check_nan(Matrix_eig A){
+int check_nan(const Matrix_eig &A){
 	for(int i = 0; i < A.rows(); ++i){
 		for(int j = 0; j < A.cols(); ++j){
 			if(std::isnan(A(i, j))){
@@ -1031,7 +1061,7 @@ int check_nan(Matrix_eig A){
 }
 
 
-int check_nan_vec(Vector_eig A){
+int check_nan_vec(const Vector_eig &A){
 	int count = 0;
 	for(int i = 0; i < A.size(); ++i){
 		if(std::isnan(A(i))){
@@ -1054,7 +1084,7 @@ int check_nan_vec(Vector_eig A){
 * Create the whole \nu matrix from W and TE, TR values
 */
 // [[Rcpp::export]]
-Matrix_eig v_mat(Matrix_eig W, Vector_eig TE, Vector_eig TR){
+Matrix_eig v_mat(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR){
 	int nCol = TE.size();	//m
 	int nRow = W.rows();	//n
 	Matrix_eig tmp = Matrix_eig::Zero(nRow, nCol);		//check the order
@@ -1082,7 +1112,7 @@ Matrix_eig v_mat(Matrix_eig W, Vector_eig TE, Vector_eig TR){
 Reparametrization to W from rho, T_1, T_2
 */
 //[[Rcpp::export]]
-Matrix_eig to_W(Vector_eig rho, Vector_eig T_1, Vector_eig T_2){
+Matrix_eig to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
 	Matrix_eig W = Matrix_eig::Zero(rho.size(), 3);
 	W.col(0) = rho;				//as<arma::vec>(wrap(rho));
 	for(int i = 0; i < rho.size(); ++i){
@@ -1095,6 +1125,7 @@ Matrix_eig to_W(Vector_eig rho, Vector_eig T_1, Vector_eig T_2){
 
 /*
  Reparametrize everything to one vector of size 3*n+6+2
+ const is not taken here.
 */
 Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, double beta_y){
 	// to_vector can't handle const
@@ -1125,7 +1156,7 @@ Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, doubl
 * I forgot this - The change is in Psi_inv?
 * Possibly it is the reparametrization used for gradient calculation of all param
 */
-Vector_eig to_param_vec_grad(Matrix_eig W, Matrix_eig Psi_inv, double beta_x, double beta_y){
+Vector_eig to_param_vec_grad(const Matrix_eig &W, const Matrix_eig &Psi_inv, double beta_x, double beta_y){
 	//const removed
 	int n = W.rows();		// check
 	Vector_eig temp = Vector_eig::Zero(3*n+6+2);
@@ -1143,7 +1174,7 @@ Vector_eig to_param_vec_grad(Matrix_eig W, Matrix_eig Psi_inv, double beta_x, do
 /*
 * Regaining Symmetric Psi_inv(3x3) from temp_psi(6) vector
 */
-Matrix3d_eig to_Psi_inv(Vector_eig temp_psi){
+Matrix3d_eig to_Psi_inv(const Vector_eig &temp_psi){
 	Matrix3d_eig Psi_inv = Matrix3d_eig::Zero(3,3);
 	Psi_inv(0,0) = temp_psi(0); Psi_inv(0,1) = temp_psi(1); Psi_inv(0,2) = temp_psi(2);
 	Psi_inv(1,0) = temp_psi(1); Psi_inv(1,1) = temp_psi(3); Psi_inv(1,2) = temp_psi(4);
@@ -1156,7 +1187,7 @@ Matrix3d_eig to_Psi_inv(Vector_eig temp_psi){
 * Regaining L matrix from temp_L vector (Cholesky part) -- Wait - this is symmetric - not Cholesky?
 */
 /*
-Matrix3d_eig to_L_mat(Vector_eig temp_L){
+Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
 	L(0,0) = temp_L(0); L(0,1) = temp_L(1); L(0,2) = temp_L(2);
 	L(1,0) = temp_L(1); L(1,1) = temp_L(3); L(1,2) = temp_L(4);
@@ -1165,7 +1196,7 @@ Matrix3d_eig to_L_mat(Vector_eig temp_L){
 }
 */  // Not lower Triangular
 
-Matrix3d_eig to_L_mat(Vector_eig temp_L){
+Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
 	L(0,0) = temp_L(0); L(0,1) = 0.0;       L(0,2) = 0.0;
 	L(1,0) = temp_L(1); L(1,1) = temp_L(3); L(1,2) = 0.0;
@@ -1175,7 +1206,7 @@ Matrix3d_eig to_L_mat(Vector_eig temp_L){
 
 
 // Reverse transform:
-Vector_eig from_L_mat(Matrix3d_eig L) {
+Vector_eig from_L_mat(const Matrix3d_eig &L) {
 	Vector_eig temp_L(6);
 	temp_L(0) = L(0,0);
 	temp_L(1) = L(1,0);
@@ -1190,7 +1221,7 @@ Vector_eig from_L_mat(Matrix3d_eig L) {
 
 
 
-Matrix3d_eig from_Cholesky(Matrix3d_eig L){
+Matrix3d_eig from_Cholesky(const Matrix3d_eig &L){
 	return (L*L.transpose());
 }
 
@@ -1200,7 +1231,7 @@ Matrix3d_eig from_Cholesky(Matrix3d_eig L){
 * Input : Symmetric 3x3 matrix A
 * Output: Cholesky Decomposition
 */
-Matrix3d_eig to_Cholesky(Matrix3d_eig A){
+Matrix3d_eig to_Cholesky(const Matrix3d_eig &A){
 	
 	Matrix3d_eig L;
 	
@@ -1233,7 +1264,7 @@ Matrix3d_eig to_Cholesky(Matrix3d_eig A){
 * vec_chol(L) = [l_00, l_10, l_20, l_11, l_12, l_22]				// changed due to change in symmetry??
 * The parameter is: 
 */
-Matrix_eig to_grad_Cholesky(Vector_eig L){
+Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 	
 	Matrix_eig D = Matrix_eig::Zero(6, 6);
 	
@@ -1264,7 +1295,7 @@ Matrix_eig to_grad_Cholesky(Vector_eig L){
 * Output: Generate a sample r matrix
 */
 //[[Rcpp::export]]
-Matrix_eig Gen_r_from_v_mat(Matrix_eig our_v_mat, Vector_eig sigma){
+Matrix_eig Gen_r_from_v_mat(const Matrix_eig &our_v_mat, const Vector_eig &sigma){
 	int nRow = our_v_mat.rows();	 //n
 	int nCol = our_v_mat.cols();	 //m
 	Matrix_eig tmp3 = our_v_mat;
@@ -1288,7 +1319,7 @@ Matrix_eig Gen_r_from_v_mat(Matrix_eig our_v_mat, Vector_eig sigma){
 * Same function as before with different parametrization
 */
 //[[Rcpp::export]]
-Matrix_eig Gen_r(Matrix_eig W, Vector_eig TE, Vector_eig TR, Vector_eig sigma){
+Matrix_eig Gen_r(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma){
 	return(Gen_r_from_v_mat(v_mat(W, TE, TR), sigma));
 }
 
@@ -1307,7 +1338,8 @@ Matrix_eig Gen_r(Matrix_eig W, Vector_eig TE, Vector_eig TR, Vector_eig sigma){
 
 
 // Not needed now - see next one
-double dee_v_ij_dee_W_ik(Matrix_eig W, Vector_eig TE, Vector_eig TR, int i, int j, int k){
+double dee_v_ij_dee_W_ik(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
+						 int i, int j, int k){
 	if(k == 0){
 		return( exp(TE(j)*log(W(i, 2))) * (1-exp(TR(j)*log(W(i, 1)))) );
 	} else if(k == 1){
@@ -1324,7 +1356,8 @@ double dee_v_ij_dee_W_ik(Matrix_eig W, Vector_eig TE, Vector_eig TR, int i, int 
 /**
 * d\nu_{ij}/dW_{ik} where i is fixed - j and k are taken as inputs.
 */
-double simple_dee_v_ij_dee_W_ik(Vector_eig W, Vector_eig TE, Vector_eig TR, int j, int k){
+double simple_dee_v_ij_dee_W_ik(const Vector_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
+								int j, int k){
 
 	if( k != 0 && k != 1 && k != 2){
 		Debug0("k is not 0/1/2:" << k);
@@ -1380,7 +1413,7 @@ double simple_dee_v_ij_dee_W_ik(Vector_eig W, Vector_eig TE, Vector_eig TR, int 
 
 
 // Not needed now - see next one
-double dee_2_v_ij_dee_W_ik_dee_W_ik1(Matrix_eig W, Vector_eig TE, Vector_eig TR, 
+double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
                                      int i, int j, int k, int k1){
 
 	
@@ -1408,7 +1441,7 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(Matrix_eig W, Vector_eig TE, Vector_eig TR,
 /**
 * d^2\nu_ij/dW_{i, k}dW_{i, k1}
 */
-double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(Vector_eig W, Vector_eig TE, Vector_eig TR, 
+double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
                                             int j, int k, int k1){
 
 	if( k != 0 && k != 1 && k != 2){
