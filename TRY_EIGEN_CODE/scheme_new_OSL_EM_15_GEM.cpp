@@ -190,23 +190,12 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	TMatrix r;
 	TVector r2;
 	MRF_param MRF_obj_optim;
-	// Without this error: 
-	// In constructor ‘MRF_optim<T>::MRF_optim(typename cppoptlib::BoundedProblem<T>::TVector, const MRF_param&)’:
-	// scheme_new_OSL_EM_15_GEM.cpp:230:54: error: class ‘MRF_optim<T>’ does not have any field named ‘MRF_obj_optim’
-	//   230 |   : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
-
-	// Though this is not needed if MRF_param(){}; is written in the MRF_param class.
-	
 	
 
 
 // I guess, it's the declaration
-  public:
-	// MRF_optim(const TVector y_) 
-	//	: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
-	
+  public:	
 	// https://stackoverflow.com/a/18971392 :
-	// This will use the compiler generated copy constructor. Be aware that if your class contains more then POD types, you might want to implement your own copy constructor.
 	// Also see https://www.geeksforgeeks.org/when-do-we-use-initializer-list-in-c/
 	MRF_optim(const TVector y_, const MRF_param &MRF_obj_optim) : 
 		cppoptlib::BoundedProblem<T>(y_.size()),  
@@ -225,13 +214,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	double beta_z = 0.1;												//Subrata - or get the value. 
 	TVector lb, ub;
 	TMatrix W;															// W here creating problem in optimization?
-	
-	// MRF_param MRF_obj_optim;											// Check whether it is passed or copied...- Subrata
-	// Better way might be to use it in the 'initializer list'
-	// This method uses https://stackoverflow.com/a/18971386
-	// But this ans would give better method I guess:
-	// https://stackoverflow.com/a/18971392
-	
+		
 	
 	
 	
@@ -242,10 +225,10 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 
 	
+	
 	// x(8) has the following format:
 	// First 6 elements for Cholesky decomposition of Psi_inv!
 	// Then 2 element for beta_x and beta_y!
-	
 	T value(const TVector &x) {
 	
 		//Psi:
@@ -274,10 +257,10 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 // Comment this Gradient part if you don't want to feed the gradient:
 
 	
+	
 	// x(8) has the following format:
 	// First 6 elements for Cholesky decomposition of Psi_inv!
 	// Then 2 element for beta_x and beta_y!
-	
 	void gradient(const TVector &x, TVector &grad) {
 		
 		//Psi:
@@ -312,6 +295,8 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 
 
+
+
 /*
 * Optim template for rows of W using partial fn:
 */
@@ -324,8 +309,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	TMatrix r;
 	TVector r2;
 
-	// This is again inheritance? from cppoptlib::BoundedProblem I guess
-	// Or it might be Constructor - I guess it's a constructor.
+
   public:
 	Likeli_optim(const TVector y_) : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
 
@@ -351,7 +335,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		double fx = Q_OSL_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, n_x, n_y, n_z, i);
 		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
 		
-		// Track immediate past (add later)
 		// Track the best
 		if(fx < current_best_val){
 			current_best_param = x;
@@ -436,13 +419,14 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	f_2.n_x = n_x; f_2.n_y = n_y; f_2.n_z = n_z;
 	f_2.W.noalias() = W_init;
 	
+		
 	
-	// f_2.MRF_obj_optim = MRF_obj;									// Subrata - check
+	
 	
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-	crit_MRF.iterations = 2000;														// Change the number of allowed iterations
+	crit_MRF.iterations = 2000;														// number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
 	// Change 
 	
@@ -548,7 +532,6 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	Matrix_eig W_old = W_init;
 	f.W_old.noalias() = W_old;
-	// Look whether we can carefully change just one row of W_old whenever necessary or not use W_old at all.
 	
 	
 	
@@ -556,7 +539,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Create a Criteria class to set the solver's stop conditions
 	crit_voxel.iterations = 1000;														// Change the number of allowed iterations
 	solver.setStopCriteria(crit_voxel);
-	
+	// Change
 	
 	
 	
@@ -581,7 +564,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		// One time per each loop - check removable or not:
 		SpMat Gamma_inv = MRF_obj.Lambda(beta);
 		Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;
-		// f.W_old.noalias() = W_old;		// Put later
+		
 		
 		
 		
@@ -598,9 +581,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			}
 			
 			f.i = i;
-			// Debug0("MRF_grad.row(i)" << MRF_grad.row(i));
 			f.c_i.noalias() = MRF_grad.row(i); 
-			// f.W.noalias() = W_init;		// Put later
 			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
@@ -672,15 +653,12 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		// *Checking stopping criterion with penalized negative log likelihood:* //
-		// W_init = f.W;					// Without this, condition is wrong  - check previous files
-		// W_old  = f.W_old;				// This is also needed for proper stopping criteria
-		// the restore values is done after checking now - so now cool!
-		check_nan_W(W_init, W_old);			// Check this!
+		check_nan_W(W_init, W_old);									// Check this!
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
 		
-		if(current_best_likeli >= old_likeli){ 									// As everything is "-ve" log-likeli.
+		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			Debug1("Value not decreased in EM loop!! old val: " << old_likeli << 
 					";\t new val: " << current_best_likeli);
 			//bad_count_o++;
@@ -714,6 +692,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		Debug0("Max. iter reached for the ECM cycle");
 	}
 	// ** OSL-EM loop ends ** //
+	
 	
 	
 	

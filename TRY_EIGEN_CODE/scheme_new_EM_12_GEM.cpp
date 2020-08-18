@@ -192,7 +192,6 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	
 	
 	// MRF contribution part
-	// Vector_eig MRF_grad = Gamma_inv.row(i) * W * Psi_inv;
 	Vector_eig MRF_grad = MRF_obj.MRF_grad_fn(W, Psi_inv, beta, i);
 	
 	
@@ -352,6 +351,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		return (fx);
 	}
 
+	
 // Comment this Gradient part if you don't want to feed the gradient:
 
 	
@@ -441,16 +441,8 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	Matrix_eig W_old = W_init;
-	f.W_old.noalias() = W_old;									// Check noalias is applicable or not
-	// Check whether we can remove W_old from this funtion at all r not.
-	// Or we can just change one row of W_old whenever necessary - CHECK!
-	// But in stopping criteria, W_old is necessary
-	// But W_old is not explicitly necessary inside the voxel loop - just changing a row is enough --  check!
-	// Just change the f.W_old.row(i) in each voxel loop.
+	f.W_old.noalias() = W_old;
 	
-	// These two lines just say: f.W_old.noalias() = W_init;
-	
-
 
 
 
@@ -503,7 +495,7 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	solver.setStopCriteria(crit_voxel);
 	
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-	crit_MRF.iterations = 50;															// Change the number of allowed iterations
+	crit_MRF.iterations = 1000;															// Change the number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
 	// Change 
 	
@@ -541,8 +533,6 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			f.i = i;
-			// f.W.noalias() = W_init;				// Put later		// Any way to pass? 
-			// f.W_old.noalias() = W_old;
 			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
@@ -595,8 +585,8 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			// Track the best: (retain this or remove this??? - Subrata, be careful)
-			x.noalias() = f.current_best_param;
-			double fx = f.current_best_val;
+			// x.noalias() = f.current_best_param;
+			// double fx = f.current_best_val;
 			Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 					"\t old val: " << old_val << "\t diff: " << fx - old_val);
 			
@@ -614,43 +604,17 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			// Restore default values
-			// W_old.noalias() = W_init;
-			// W_old.row(i) = W_init.row(i);
-			
-			
-			
-			
-			// Think, the W_old and W_init chnaging chronology is:
-			/*
-			f.W.noalias() = W_init;				// W_init is changed for just (i-1)-th row, i.e., previous iter
-			f.W_old.noalias() = W_old;			// 
-			
-			x.noalias() = W_init.row(i);		// non reducible
-			x changed as best parameter;		// non reducible
-			W_init.row(i) = x;					// non reducible
-								i.e., just W_init.row(i) changed;
-			
-			W_old.row(i) = W_init.row(i);
-			*/
-			
-			// Just change f.W_old, keep outer W_old as intact as possible?
-			// At the outer end W_old and W_init are compared and then
-			// W_old.noalias() = W_init; is done.
-
-			
 			f.W_old.row(i) = W_init.row(i);
 			f.W.row(i) = W_init.row(i);
-			
-			// Current chronology:
-			// f.W_old.row(i) = W_init.row(i);
-			// f.W.row(i) = W_init.row(i);
-			
+						
 		}
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
 		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
 		Debug1("Time taken for 1 loop with " << r.rows() << " rows: " << duration_23.count() << " seconds\n");
 		Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
+		
+		
 		
 		
 		
@@ -774,6 +738,8 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		f.Psi_inv.noalias() = Psi_inv;
 		
 		// * Optimization over other parameters ends * //
+		
+		
 		
 		
 		
@@ -1018,7 +984,7 @@ int main(int argc, char * argv[]) {
 	
 	// Least Sq: 
 	// Change
-	int do_least_sq = 0;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
+	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
 	Debug2("W initial done");
