@@ -70,6 +70,10 @@ W.row(i) should be replaced by x.transpose(), nor x -- Check
 #include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 
+#include <ctime>
+#include <iomanip>
+
+
 
 /*
 const Matrix_eig G((Matrix_eig(6,9) << 
@@ -185,23 +189,11 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-	//SpMat Gamma_inv_i = MRF_obj.Lambda_row(beta, i);
-	
-	
-	// Test:
-	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
-	// Debug0("Gamma_inv_i:" << Gamma_inv_i.rows() << "\t" << Gamma_inv_i.cols());
-	// Debug0("Gamma_inv.row(0):" << Gamma_inv.row(i).transpose().transpose().rows()  << "\t" << Gamma_inv.row(i).transpose().transpose().cols());
-	// Debug0("sum of diff:" << (Gamma_inv_i - Gamma_inv.row(i).transpose()).sum());
 	
 	
 	// MRF contribution part
-	// Matrix_eig MRF_grad = Gamma_inv * W * Psi_inv;	// i-th column of Lambda is good enough
 	// Vector_eig MRF_grad = Gamma_inv.row(i) * W * Psi_inv;
-	//Vector_eig MRF_grad_i = Gamma_inv_i.transpose() * W * Psi_inv;
-	
 	Vector_eig MRF_grad = MRF_obj.MRF_grad_fn(W, Psi_inv, beta, i);
-	// Debug3("MRF_grad: " << MRF_grad);
 	
 	
 	
@@ -213,7 +205,6 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig &W, const Matrix3d_eig &Psi_inv
 			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2*besselI1_I0(tmp2*v_old_i(j));
 			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
 		}
-		// W_grad(k) = temp - MRF_grad(i,k);
 		W_grad(k) = temp - MRF_grad(k);
 	}
 	return (-W_grad);
@@ -232,23 +223,7 @@ Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &P
                                       //const Matrix_eig &r, const Matrix_eig &W_old,
                                       int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
-	int n = n_x*n_y*n_z;
-	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
-	
-	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - MRF_obj.Wt_L_W(W, beta));
-	
-	Matrix_eig temp_mat = W * Psi_inv;
-	double beta_x_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 0) - 
-	    	                 0.5*(W.transpose()*MRF_obj.H_1*temp_mat).trace();
-	double beta_y_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 1) - 
-		                     0.5*(W.transpose()*MRF_obj.H_2*temp_mat).trace();
-	
-	
-	Vector_eig grad(8);
-	grad.segment(0, 6) = Psi_grad;			// 6x1 matrix I guess
-	grad(6) = beta_x_grad; grad(7) = beta_y_grad;
-	
-	
+	Vector_eig grad = MRF_obj.MRF_log_likeli_grad(W, Psi_inv, beta);	
 	return (-grad);
 }
 // Add chain rule due to cholesky? - added later - or adding here is beter?
@@ -294,7 +269,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 		double fx = Q_star_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, n_x, n_y, n_z, i, MRF_obj_optim);
 		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
 		
-		// Track immediate past (add later)
 		// Track the best
 		if(fx < current_best_val){
 			current_best_param = x;
@@ -401,7 +375,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		Debug3("lb in grad: "<< lb.transpose());
 		Debug3("ub in grad: "<< ub.transpose());
 		
-		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
+		grad.noalias() = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		
 		
 		
@@ -422,6 +396,10 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 
 /*
 * Main fn, currently one iteration is done. Change that with while loop 
+* Stopping criteria might seem confusing at first: 
+* W_old is used to compare between new and previous iteration parameters
+* and updated after each iteration
+* whereas f.W_old is updated at each voxel update.
 */
 void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                   const Vector_eig &TE_example, const Vector_eig &TR_example, 
@@ -452,19 +430,27 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	f.setLowerBound(lb);	f.setUpperBound(ub);
-	f.lb = lb;	f.ub = ub;								// Extra checks
+	f.lb.noalias() = lb;	f.ub.noalias() = ub;								// Extra checks
 	Debug2("lb: " << lb.transpose());
 	Debug2("ub: " << ub.transpose());
 	
 	
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
-	f.beta = beta;
-	f.Psi_inv = Psi_inv;
-	f.sigma = sigma;	f.r = r;	f.TE = TE_example;	f.TR = TR_example;
+	f.beta.noalias() = beta;
+	f.Psi_inv.noalias() = Psi_inv;
+	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	Matrix_eig W_old = W_init;
-	f.W_old = W_old;									// Check noalias is applicable or not
+	f.W_old.noalias() = W_old;									// Check noalias is applicable or not
+	// Check whether we can remove W_old from this funtion at all r not.
+	// Or we can just change one row of W_old whenever necessary - CHECK!
+	// But in stopping criteria, W_old is necessary
+	// But W_old is not explicitly necessary inside the voxel loop - just changing a row is enough --  check!
+	// Just change the f.W_old.row(i) in each voxel loop.
 	
+	// These two lines just say: f.W_old.noalias() = W_init;
+	
+
 
 
 
@@ -490,11 +476,11 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	//lb.segment(0, 6+1+1) = 0.00001*Vector_eig::Ones(6);
 	
 	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
-	f_2.lb = lb_MRF;	f_2.ub = ub_MRF;		// Extra checks
+	f_2.lb.noalias() = lb_MRF;	f_2.ub.noalias() = ub_MRF;		// Extra checks
 	
 	
 	f_2.n_x = n_x; f_2.n_y = n_y; f_2.n_z = n_z;
-	f_2.W = W_init;
+	f_2.W.noalias() = W_init;
 	
 
 
@@ -555,8 +541,8 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			f.i = i;
-			f.W = W_init;
-			f.W_old = W_old;
+			// f.W.noalias() = W_init;				// Put later		// Any way to pass? 
+			// f.W_old.noalias() = W_old;
 			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
@@ -602,13 +588,13 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			//Solve:
 			solver.minimize(f, x);
-			Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
+			Debug1("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 			f(x);
 			Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 			Debug2("Final criteria values: " << "\n" << solver.criteria());
 			
 			
-			// Track the best:
+			// Track the best: (retain this or remove this??? - Subrata, be careful)
 			x.noalias() = f.current_best_param;
 			double fx = f.current_best_val;
 			Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
@@ -628,7 +614,36 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			// Restore default values
-			W_old.noalias() = W_init;
+			// W_old.noalias() = W_init;
+			// W_old.row(i) = W_init.row(i);
+			
+			
+			
+			
+			// Think, the W_old and W_init chnaging chronology is:
+			/*
+			f.W.noalias() = W_init;				// W_init is changed for just (i-1)-th row, i.e., previous iter
+			f.W_old.noalias() = W_old;			// 
+			
+			x.noalias() = W_init.row(i);		// non reducible
+			x changed as best parameter;		// non reducible
+			W_init.row(i) = x;					// non reducible
+								i.e., just W_init.row(i) changed;
+			
+			W_old.row(i) = W_init.row(i);
+			*/
+			
+			// Just change f.W_old, keep outer W_old as intact as possible?
+			// At the outer end W_old and W_init are compared and then
+			// W_old.noalias() = W_init; is done.
+
+			
+			f.W_old.row(i) = W_init.row(i);
+			f.W.row(i) = W_init.row(i);
+			
+			// Current chronology:
+			// f.W_old.row(i) = W_init.row(i);
+			// f.W.row(i) = W_init.row(i);
 			
 		}
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
@@ -647,7 +662,7 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// * Optimize over other Parameters: * //
 		
-		f_2.W = W_init;
+		f_2.W.noalias() = W_init;
 		check_bounds_vec(x_MRF, lb_MRF, ub_MRF);
 		
 		
@@ -755,8 +770,8 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Change the Psi and beta values needed for other optimization:
 		
-		f.beta = beta;										// beta(2) = 0.1;
-		f.Psi_inv = Psi_inv;
+		f.beta.noalias() = beta;										// beta(2) = 0.1;
+		f.Psi_inv.noalias() = Psi_inv;
 		
 		// * Optimization over other parameters ends * //
 		
@@ -880,6 +895,12 @@ Vector_eig Var_est(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vecto
 
 int main(int argc, char * argv[]) {
 
+	
+	std::time_t t = std::time(nullptr);
+	std::tm tm = *std::localtime(&t);
+	std::cout << "Current time: " << std::put_time(&tm, "%c %Z") << '\n';
+	
+	
 	if (argc != 4) {
 		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
 		exit(EXIT_FAILURE);
@@ -1039,6 +1060,11 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
 	
+
+
+	std::time_t t2 = std::time(nullptr);
+	std::tm tm2 = *std::localtime(&t2);
+	std::cout << "Current time: " << std::put_time(&tm2, "%c %Z") << '\n';
 
 	return 0;
 }

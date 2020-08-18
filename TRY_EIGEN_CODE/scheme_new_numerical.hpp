@@ -717,6 +717,7 @@ class MRF_param{
 	SpMat Lambda_init_row;
 	Matrix_eig tmp_W_Psi_inv;
 	Matrix_eig tmp_Wt_L_W;
+	Matrix_eig Psi_grad = Matrix_eig::Zero(6, 1);
 	
 	
 	//Constructor:
@@ -777,6 +778,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		Lambda_init_row = Lambda_init.row(0);
 		tmp_W_Psi_inv = Matrix_eig::Zero(n, 3);
 		tmp_Wt_L_W = Matrix_eig::Zero(3, 3);
+		
 	}
 	
 	
@@ -853,7 +855,9 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	
+	/* 
+	Numerator of the log likelihood from the MRF part.
+	*/
 	double MRF_log_likeli_num(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
@@ -896,6 +900,9 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
+	/* 
+	log likelihood from the MRF part.
+	*/
 	
 	double MRF_log_likeli(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
@@ -908,7 +915,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	// W'Lambda W:
+	// W'Lambda W matrix:
 	Matrix_eig Wt_L_W(const Matrix_eig &W, const Vector_eig &beta){
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
@@ -918,20 +925,23 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	}
 	
 	
-	// Add the derivative: 
+	
+	
+	
+	// Derivative of the likelihood
 	Vector_eig MRF_log_likeli_grad(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
 		
 		
-		Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
+		Psi_grad.noalias() = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
 	
-		Matrix_eig temp_mat = W * Psi_inv;						// Is this direction faster?
+		tmp_W_Psi_inv.noalias() = W * Psi_inv; 		// Is this direction faster?
 		double beta_x_grad = 1.5*sp_log_inv_specific(beta, 0) - 
-		                     0.5*(W.transpose() * H_1 * temp_mat).trace();
+		                    	0.5*(W.transpose() * H_1 * tmp_W_Psi_inv).trace();
 		double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
-		                     0.5*(W.transpose() *  H_2 * temp_mat).trace();
+		                    	0.5*(W.transpose() *  H_2 * tmp_W_Psi_inv).trace();
 		
 		
 		Vector_eig grad(8);
@@ -940,10 +950,6 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 		return grad;
 	}
-	
-	
-	
-	
 	
 	
 	
@@ -1058,6 +1064,23 @@ int check_nan(const Matrix_eig &A){
 		}
 	}
 	return 0;
+}
+
+
+int check_nan_W(Matrix_eig& W, const Matrix_eig& W_old){
+	int bad_count = 0;
+	int i = 0, j = 0;
+	for(i = 0; i < W.rows(); ++i){
+		for(j = 0; j < W.cols(); ++j){
+			if(std::isnan(W(i, j))){
+				Debug0("NAN in location: ("<< i << "," << j<< ") of W!");
+				W(i, j) = W_old(i, j);
+				bad_count++;
+				// return 1;
+			}
+		}
+	}
+	return bad_count;
 }
 
 

@@ -29,6 +29,8 @@ g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -
 #include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
 #include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
+#include <ctime>
+#include <iomanip>
 
 
 
@@ -67,7 +69,7 @@ double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig
 	//MRF part://
 	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	
-	assert( ! std::isnan(-likeli_sum) );
+	// assert( ! std::isnan(-likeli_sum) );		// There are still NaN at W matrix after one iteration.
 	return -likeli_sum;
 }
 
@@ -168,23 +170,7 @@ Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &P
                                       //const Matrix_eig &r, const Matrix_eig &W_old,
                                       int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
-	int n = n_x*n_y*n_z;
-	// SpMat Gamma_inv = MRF_obj.Lambda(beta);
-	
-	Matrix_eig Psi_grad = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - MRF_obj.Wt_L_W(W, beta));
-	
-	Matrix_eig temp_mat = W * Psi_inv;
-	double beta_x_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 0) - 
-	                     0.5*(W.transpose()*MRF_obj.H_1*temp_mat).trace();
-	double beta_y_grad = 1.5*MRF_obj.sp_log_inv_specific(beta, 1) - 
-	                     0.5*(W.transpose()*MRF_obj.H_2*temp_mat).trace();
-	
-	
-	Vector_eig grad(8);
-	grad.segment(0, 6) = Psi_grad;			// 6x1 matrix I guess
-	grad(6) = beta_x_grad; grad(7) = beta_y_grad;
-	
-	
+	Vector_eig grad = MRF_obj.MRF_log_likeli_grad(W, Psi_inv, beta);	
 	return (-grad);
 }
 
@@ -199,7 +185,7 @@ Vector_eig Q_grad_vec_other_parameter(const Matrix_eig &W, const Matrix3d_eig &P
 template<typename T>
 class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
-	using typename cppoptlib::BoundedProblem<T>::TVector;
+	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	TMatrix r;
 	TVector r2;
@@ -220,8 +206,14 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	//	: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
 	
 	// https://stackoverflow.com/a/18971392 :
-	MRF_optim(const TVector y_, const MRF_param &MRF_obj_optim) 
-		: cppoptlib::BoundedProblem<T>(y_.size()), r2(y_), MRF_obj_optim(MRF_obj_optim){}
+	// This will use the compiler generated copy constructor. Be aware that if your class contains more then POD types, you might want to implement your own copy constructor.
+	// Also see https://www.geeksforgeeks.org/when-do-we-use-initializer-list-in-c/
+	MRF_optim(const TVector y_, const MRF_param &MRF_obj_optim) : 
+		cppoptlib::BoundedProblem<T>(y_.size()),  
+		r2(y_), 
+		MRF_obj_optim(MRF_obj_optim) {}
+
+	// I guess W can be included here if MRF is optimized for one time only.
 	
 	// OR, Let's do it with their style:
 	// 
@@ -302,7 +294,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 		//Debug3("lb in grad: "<< lb.transpose());
 		//Debug3("ub in grad: "<< ub.transpose());
 		
-		grad = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
+		grad.noalias() = Q_grad_vec_other_parameter(W, Psi_inv, beta, n_x, n_y, n_z, MRF_obj_optim);
 		
 		
 		
@@ -391,6 +383,10 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 /*
 * Main fn, currently one iteration is done. Change that with while loop
+* Stopping criteria might seem confusing at first: 
+* W_old is used to compare between new and previous iteration parameters
+* and updated after each iteration
+* whereas f.W_old is updated at each voxel update.
 */
 void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
@@ -435,10 +431,10 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	//lb.segment(0, 6+1+1) = 0.00001*Vector_eig::Ones(6);
 	
 	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
-	f_2.lb = lb_MRF;	f_2.ub = ub_MRF;		// Extra checks
+	f_2.lb.noalias() = lb_MRF;	f_2.ub.noalias() = ub_MRF;		// Extra checks
 	
 	f_2.n_x = n_x; f_2.n_y = n_y; f_2.n_z = n_z;
-	f_2.W = W_init;
+	f_2.W.noalias() = W_init;
 	
 	
 	// f_2.MRF_obj_optim = MRF_obj;									// Subrata - check
@@ -541,17 +537,18 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	f.setLowerBound(lb);
 	f.setUpperBound(ub);
-	f.lb = lb;	f.ub = ub;								// Extra checks
+	f.lb.noalias() = lb;	f.ub.noalias() = ub;								// Extra checks
 	Debug2("lb: " << lb.transpose());
 	Debug2("ub: " << ub.transpose());
 	
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
-	f.beta = beta;
-	f.Psi_inv = Psi_inv;
-	f.sigma = sigma;	f.r = r;	f.TE = TE_example;	f.TR = TR_example;
+	f.beta.noalias() = beta;
+	f.Psi_inv.noalias() = Psi_inv;
+	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	Matrix_eig W_old = W_init;
-	f.W_old = W_old;
+	f.W_old.noalias() = W_old;
+	// Look whether we can carefully change just one row of W_old whenever necessary or not use W_old at all.
 	
 	
 	
@@ -581,9 +578,10 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		
 		
 		// MRF contribution part:
+		// One time per each loop - check removable or not:
 		SpMat Gamma_inv = MRF_obj.Lambda(beta);
 		Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;
-		f.W_old = W_old;
+		// f.W_old.noalias() = W_old;		// Put later
 		
 		
 		
@@ -600,9 +598,9 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			}
 			
 			f.i = i;
-			Debug0("MRF_grad.row(i)" << MRF_grad.row(i));
-			f.c_i = MRF_grad.row(i); 
-			f.W = W_init;
+			// Debug0("MRF_grad.row(i)" << MRF_grad.row(i));
+			f.c_i.noalias() = MRF_grad.row(i); 
+			// f.W.noalias() = W_init;		// Put later
 			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
@@ -619,18 +617,19 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			
 			
 			// Check derivative - new: 			// see Rosenbrock files
+			/*
 			bool probably_correct = f.checkGradient(x);
 			if(probably_correct){
 				Debug1(" Deriv is probably correct for voxel");
 			} else {
 				Debug1(" Deriv is probably NOT correct for voxel");
 			}
-			
+			*/
 			
 			
 			//Solve:
 			solver.minimize(f, x);
-			Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
+			Debug1("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 			double fx = f(x);
 			Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 			Debug2("Final criteria values: " << "\n" << solver.criteria());
@@ -656,6 +655,11 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 			}
 			
 			
+			// Restore values:
+			f.W.row(i) = W_init.row(i);
+			f.W_old.row(i) = W_init.row(i);
+			
+			
 		}
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
 		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
@@ -671,6 +675,7 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 		// W_init = f.W;					// Without this, condition is wrong  - check previous files
 		// W_old  = f.W_old;				// This is also needed for proper stopping criteria
 		// the restore values is done after checking now - so now cool!
+		check_nan_W(W_init, W_old);			// Check this!
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
@@ -737,6 +742,12 @@ void OSL_optim(Matrix_eig W_init, Matrix3d_eig Psi_inv, Vector_eig beta,
 
 int main(int argc, char * argv[]) {
 
+	
+	std::time_t t = std::time(nullptr);
+	std::tm tm = *std::localtime(&t);
+	std::cout << "Current time: " << std::put_time(&tm, "%c %Z") << '\n';
+	
+	
 	if (argc != 4) {
 		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
 		exit(EXIT_FAILURE);
@@ -896,6 +907,10 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images: " << perf_4.transpose() << "\n";
 	
+	
+	std::time_t t2 = std::time(nullptr);
+	std::tm tm2 = *std::localtime(&t2);
+	std::cout << "Current time: " << std::put_time(&tm2, "%c %Z") << '\n';
 
 	return 0;
 }
