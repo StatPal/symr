@@ -16,7 +16,6 @@ Debugging level definitions
 
 
 
-
 Changes:
 
 float -> double
@@ -63,6 +62,7 @@ using namespace Eigen;
 
 
 typedef Eigen::MatrixXd Matrix_eig;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, RowMajor> Matrix_eig_row;	// For r, W etc	// Inside optimizer, the THessian would be changed
 typedef Eigen::VectorXd Vector_eig;
 typedef Eigen::VectorXd::Scalar Scalar_eig;
 
@@ -419,20 +419,44 @@ Matrix_eig Cov_1(Matrix_eig x) {
 
 /*
 * Similar to head function in R - helpful for debugging
+* Used template here.
+* Matrix_eig_row or Matrix_eig or similar
+* Use show_head<Matrix_eig_row>(W);
 */
-void show_head(Eigen::MatrixXd W, int n = 10){
-	std::cout << "head of the matrix:\n" ;
+/*
+template <typename T>
+void show_head(const T &W, int n = 10){
+	std::cout << "Head of the matrix:\n" ;
+	for(int i = 0; i < n; ++i){
+		std::cout << W.row(i) << "\n";
+	}
+}
+*/
+// https://stackoverflow.com/questions/27687769/use-different-parameter-data-types-in-same-function-c
+// https://stackoverflow.com/questions/12331655/function-overloading-vs-function-templates-c -- This explains
+// Sorry - Just keep it as overload for now...:
+void show_head(const Matrix_eig &W, int n = 10){
+	std::cout << "Head of the matrix:\n" ;
+	for(int i = 0; i < n; ++i){
+		std::cout << W.row(i) << "\n";
+	}
+}
+void show_head(const Matrix_eig_row &W, int n = 10){
+	std::cout << "Head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
 		std::cout << W.row(i) << "\n";
 	}
 }
 
 
+
+
+
 /*
 * Similar to head function in R for a vector - helpful for debugging
 */
-void show_head_vec(Eigen::VectorXd W, int n = 10, int endLine = 0){
-	std::cout << "head of the vector:\t" ;
+void show_head_vec(const Eigen::VectorXd &W, int n = 10, int endLine = 0){
+	std::cout << "Head of the vector:\t" ;
 	for(int i = 0; i < n; ++i){
 		std::cout << W(i) << ", ";
 	}
@@ -469,6 +493,7 @@ Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
 
 /**
 * Change matrix to vector
+* Used overloading here.
 */
 Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 	if(!is_transpose){
@@ -477,6 +502,49 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 		return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
 	}
 }
+// Can't be done using Map I guess for rowmajor - ignore transpose now.
+// Still has some problem - will see later.
+/*
+Vector_eig to_vector(Matrix_eig_row v1, int is_transpose=0){
+	//if(!is_transpose){
+	//	return(Map<VectorXd> (v1.data(), v1.rows()*v1.cols()));
+	//} else {
+	//	return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
+	//}
+	
+	// cout << "In memory (row-major):" << endl;
+	Vector_eig tmp = Vector_eig::Zero(v1.size());
+	for (int i = 0; i < v1.size(); i++){
+		tmp(i) = *(v1.data() + i);
+	}
+	return tmp;
+	// or just pass the pointer? Check what is there!
+}
+*/
+Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
+	//if(!is_transpose){
+	//	return(Map<VectorXd> (v1.data(), v1.rows()*v1.cols()));
+	//} else {
+	//	return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
+	//}
+	
+	// int n = v1.rows()*v1.cols();
+	// Vector_eig tmp(n);
+	// Eigen::Map< Vector_eig > tmp(v1.data(), n, 1);
+	// https://eigen.tuxfamily.org/dox/group__TutorialMapClass.html
+	// No idea why it's not working!
+	
+	Vector_eig tmp = Vector_eig::Zero(v1.size());
+	for (int i = 0; i < v1.size(); i++){
+		tmp(i) = *(v1.data() + i);
+	}
+	return tmp;
+	// or just pass the pointer? Check what is there!
+}
+// 2nd part compiled perfectly when name is changed - problem in overloading maybe!
+// Though 1st part does not compile even when name is changed!
+// https://stackoverflow.com/questions/28722899/creating-an-eigen-matrix-from-an-array-with-row-major-order
+// ^ Would this help?
 
 
 
@@ -485,7 +553,7 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 Crude Determinant of a sparse matrix - not needed I guess
 */
 // [[Rcpp::export]]
-double sp_det_1(SpMat A){
+double sp_det_1(const SpMat &A){
 	return MatrixXd(A).determinant();
 	//https://stackoverflow.com/questions/15484622/how-to-convert-sparse-matrix-to-dense-matrix-in-eigen/15592295
 	//https://stackoverflow.com/questions/13033694/eigen-convert-dense-matrix-to-sparse-one
@@ -495,7 +563,7 @@ double sp_det_1(SpMat A){
 /**
  Vectorized log - needed?
 */
-Vector_eig log_vec(Vector_eig x){
+Vector_eig log_vec(const Vector_eig &x){
 	Vector_eig y = x;
 	for(int i = 0; i < x.size(); ++i){
 		y(i) = std::log(x(i));
@@ -506,7 +574,7 @@ Vector_eig log_vec(Vector_eig x){
 /**
  Needed?
 */
-double abs_sum(Vector_eig x){
+double abs_sum(const Vector_eig &x){
 	double temp = 0.;
 	for(int i = 0; i < x.size(); ++i){
 		temp += std::fabs(x(i));
@@ -520,7 +588,7 @@ double abs_sum(Vector_eig x){
 * Not needed now
 */
 // [[Rcpp::export]]
-double sp_log_det_2(SpMat B){			// Log determinant
+double sp_log_det_2(const SpMat &B){					// Log determinant
 	MatrixXd A = MatrixXd(B);
 	SelfAdjointEigenSolver<MatrixXd> es(A);				// Marked was in eigen 2
 	return log_vec(es.eigenvalues()).sum();
@@ -553,7 +621,7 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 * Not used now - see finding det with Cholesky
 */
 // [[Rcpp::export]]
-double log_det_2(Matrix_eig B){
+double log_det_2(const Matrix_eig &B){
 	SelfAdjointEigenSolver<MatrixXd> es(B);
 	return log_vec(es.eigenvalues()).sum();
 }
@@ -563,7 +631,7 @@ double log_det_2(Matrix_eig B){
 /*
 Log determinant for fixed size(3) matrix
 */
-double log_det_3(Matrix3d_eig B){
+double log_det_3(const Matrix3d_eig &B){
 	SelfAdjointEigenSolver<Matrix3d> es(B);
 	return log_vec(es.eigenvalues()).sum();
 }
@@ -575,7 +643,7 @@ double log_det_3(Matrix3d_eig B){
 * Log determinant of a 3x3 matrix 
 * with Cholesky decomposition to avoid numerical error 
 */
-double log_det_3_chol(Matrix3d_eig A){
+double log_det_3_chol(const Matrix3d_eig &A){
 	//Matrix3d_eig L = to_Cholesky(A);			// Also numerical problems
 	Matrix3d_eig L( A.llt().matrixL() );
 	// It seems that this does not give error, whereas hand-written algo gives error if L(2,2)^2 ~ 0 sometimes
@@ -610,13 +678,142 @@ double log_det_3_chol(Matrix3d_eig A){
 /*
 * trace of a sparse matrix
 */
-double sp_trace(SpMat A){
+double sp_trace(const SpMat &A){
 	double sum =0;
 	for (int k = 0; k < A.outerSize(); ++k) {
 		sum += A.coeff(k,k);
 	}
 	return sum;
 }
+
+
+
+
+/*
+Write in a good format 
+*/
+void check_bounds(const Matrix_eig_row &W, const Vector_eig &lb, const Vector_eig &ub){
+	int n = W.rows();
+	int count = 0;
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 3; ++j){
+			// Debug2(W(i,j));			// WHY!!!!
+			/*try{
+				if(W(i, j) < lb(j*n + i)){
+					W(i, j) = lb(j*n + i);
+					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
+					count++;
+				} else if(W(i, j) > ub(j*n + i)){
+					W(i, j) = ub(j*n + i);
+					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
+					count++;
+				}
+			} catch (...){
+				Debug0("i: "<< i << ", j:" << j << "; j*n + i: " << j*n + i);
+			}
+			*/
+		}
+	}
+	if(count>0){
+		Debug1(" "<< count << "boundary cases");
+	}
+}
+
+
+/*
+* Prints dim of a matrix in stdout.
+*/
+void show_dim(const Matrix_eig &A){
+	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
+}
+/*
+void show_dim(const Matrix_eig_row &A){
+	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
+}
+*/
+// It says overload is ambiguous - I guess the second one is not necessary!
+
+
+/*
+* Checks whether any vector(x) is inside proper bounds(lb and ub) or not
+*/
+void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
+
+	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
+		//std::cout << "Lower bound crossed initially!";
+		if(x(0)<lb(0)) Debug2("1st");
+		if(x(1)<lb(1)) Debug2("2nd");
+		if(x(2)<lb(2)) Debug2("3rd");
+		//bad_bound_1++;
+	}
+	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
+		//std::cout << "Upper Bound crossed initially!";
+		if(x(0)>ub(0)) Debug2("1st");
+		if(x(1)>ub(1)) Debug2("2nd");
+		if(x(2)>ub(2)) Debug2("3rd");
+		//bad_bound_2++;
+	}
+
+}
+
+
+/*
+* Checks whether there is NaN or not and prints the location in a matrix
+*/
+int check_nan(const Matrix_eig_row &A){
+	for(int i = 0; i < A.rows(); ++i){
+		for(int j = 0; j < A.cols(); ++j){
+			if(std::isnan(A(i, j))){
+				Debug0("NAN in location: ("<< i << "," << j<< ")!");
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+
+/*
+* Checks whether there is NaN in W and replaces that element from W_old.
+* Subrata - Important - Replace W row wise - i.e., when replace, replace the whole row
+* OW there is no gurentee that it does not at least decrease the log likelihood!
+*/
+int check_nan_W(Matrix_eig_row& W, const Matrix_eig_row& W_old){
+	int bad_count = 0;
+	int i = 0, j = 0;
+	for(i = 0; i < W.rows(); ++i){
+		for(j = 0; j < W.cols(); ++j){
+			if(std::isnan(W(i, j))){
+				Debug0("NAN in location: ("<< i << "," << j<< ") of W!");
+				W(i, j) = W_old(i, j);
+				bad_count++;
+				// return 1;
+			}
+		}
+	}
+	return bad_count;
+}
+
+
+/*
+* Checks whether there is NaN or not and prints the location in a vector
+*/
+int check_nan_vec(const Vector_eig &A){
+	int count = 0;
+	for(int i = 0; i < A.size(); ++i){
+		if(std::isnan(A(i))){
+			Debug0("NAN in location: ("<< i << ")!");
+			return 1;
+			count++;
+		}
+	}
+	if(count > 0){
+		return 1;
+	} else{ 
+		return 0;
+	}
+}
+
 
 
 
@@ -868,7 +1065,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	*/
 	
 	
-	Vector_eig MRF_grad_fn(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
+	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
 		Vector_eig tmp1(3), tmp2(3), tmp3(3);
 		tmp_W_Psi_inv.noalias() = W * Psi_inv;
 		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
@@ -923,7 +1120,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	/* 
 	* Numerator of the log likelihood from the MRF part:
 	*/
-	double MRF_log_likeli_num(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
+	double MRF_log_likeli_num(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
 		
@@ -962,6 +1159,53 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		}
 		tmp2 += beta(2)*tmp1;
 		
+		
+		return tmp2;
+	}
+	
+	
+	
+	
+	/* 
+	* Change in Numerator of the log likelihood from the MRF part
+	* if one changes i-th row of W.
+	*/
+	double MRF_log_likeli_num_increment(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+										double old_val, int i1, const Vector_eig &x_old) {
+	
+		//double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
+		Vector_eig x_new = W.row(i1);
+		
+		int i = 0, j = 0, k = 0;
+		double tmp1 = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		for (k = 0; k < H_1.outerSize(); ++k){
+			for (SparseMatrix<double>::InnerIterator it(H_1,k); it; ++it){
+				// i = it.row(); j = it.col();
+				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
+				tmp1 += tmp3 * it.value();
+			}
+		}
+		tmp2 += beta(0)*tmp1;
+		
+		tmp1 = 0.0;
+		for (k = 0; k < H_2.outerSize(); ++k){
+			for (SparseMatrix<double>::InnerIterator it(H_2,k); it; ++it){
+				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
+				tmp1 += tmp3 * it.value();
+			}
+		}
+		tmp2 += beta(1)*tmp1;
+		
+		tmp1 = 0.0;
+		for (k = 0; k < H_3.outerSize(); ++k){
+			for (SparseMatrix<double>::InnerIterator it(H_3,k); it; ++it){
+				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
+				tmp1 += tmp3 * it.value();
+			}
+		}
+		tmp2 += beta(2)*tmp1;
+		
+		
 		return tmp2;
 	}
 	
@@ -971,7 +1215,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	/* 
 	* log likelihood from the MRF part.
 	*/
-	double MRF_log_likeli(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
+	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double tmp_num = MRF_log_likeli_num(W, Psi_inv, beta);
 		double likeli_sum = ( tmp_num + 3 * sp_log_det_specific(beta) + 
@@ -983,7 +1227,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	// W'Lambda W matrix:
-	Matrix_eig Wt_L_W(const Matrix_eig &W, const Vector_eig &beta){
+	Matrix_eig Wt_L_W(const Matrix_eig_row &W, const Vector_eig &beta){
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
@@ -997,7 +1241,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	// Derivative of the likelihood
-	Vector_eig MRF_log_likeli_grad(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
+	Vector_eig MRF_log_likeli_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
@@ -1023,6 +1267,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	// Destructor:
 	~MRF_param(){ }
+	
 };
 
 
@@ -1067,124 +1312,6 @@ Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const V
 
 
 
-/*
-Write in a good format 
-*/
-void check_bounds(const Matrix_eig &W, const Vector_eig &lb, const Vector_eig &ub){
-	int n = W.rows();
-	int count = 0;
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < 3; ++j){
-			// Debug2(W(i,j));			// WHY!!!!
-			/*try{
-				if(W(i, j) < lb(j*n + i)){
-					W(i, j) = lb(j*n + i);
-					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
-					count++;
-				} else if(W(i, j) > ub(j*n + i)){
-					W(i, j) = ub(j*n + i);
-					Debug2("Bound Checks: i:" << i << " j:" << j << " W: " << W(i,j));
-					count++;
-				}
-			} catch (...){
-				Debug0("i: "<< i << ", j:" << j << "; j*n + i: " << j*n + i);
-			}
-			*/
-		}
-	}
-	if(count>0){
-		Debug1(" "<< count << "boundary cases");
-	}
-}
-
-
-/*
-* Prints dim of a matrix in stdout.
-*/
-void show_dim(const Matrix_eig &A){
-	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
-}
-
-
-/*
-* Checks whether any vector(x) is inside proper bounds(lb and ub) or not
-*/
-void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
-
-	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
-		//std::cout << "Lower bound crossed initially!";
-		if(x(0)<lb(0)) Debug2("1st");
-		if(x(1)<lb(1)) Debug2("2nd");
-		if(x(2)<lb(2)) Debug2("3rd");
-		//bad_bound_1++;
-	}
-	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
-		//std::cout << "Upper Bound crossed initially!";
-		if(x(0)>ub(0)) Debug2("1st");
-		if(x(1)>ub(1)) Debug2("2nd");
-		if(x(2)>ub(2)) Debug2("3rd");
-		//bad_bound_2++;
-	}
-
-}
-
-
-/*
-* Checks whether there is NaN or not and prints the location in a matrix
-*/
-int check_nan(const Matrix_eig &A){
-	for(int i = 0; i < A.rows(); ++i){
-		for(int j = 0; j < A.cols(); ++j){
-			if(std::isnan(A(i, j))){
-				Debug0("NAN in location: ("<< i << "," << j<< ")!");
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
-
-/*
-* Checks whether there is NaN in W and replaces that element from W_old.
-*/
-int check_nan_W(Matrix_eig& W, const Matrix_eig& W_old){
-	int bad_count = 0;
-	int i = 0, j = 0;
-	for(i = 0; i < W.rows(); ++i){
-		for(j = 0; j < W.cols(); ++j){
-			if(std::isnan(W(i, j))){
-				Debug0("NAN in location: ("<< i << "," << j<< ") of W!");
-				W(i, j) = W_old(i, j);
-				bad_count++;
-				// return 1;
-			}
-		}
-	}
-	return bad_count;
-}
-
-
-/*
-* Checks whether there is NaN or not and prints the location in a vector
-*/
-int check_nan_vec(const Vector_eig &A){
-	int count = 0;
-	for(int i = 0; i < A.size(); ++i){
-		if(std::isnan(A(i))){
-			Debug0("NAN in location: ("<< i << ")!");
-			return 1;
-			count++;
-		}
-	}
-	if(count > 0){
-		return 1;
-	} else{ 
-		return 0;
-	}
-}
-
-
 
 
 /*
@@ -1192,10 +1319,10 @@ int check_nan_vec(const Vector_eig &A){
 * Output: the whole \nu matrix
 */
 // [[Rcpp::export]]
-Matrix_eig v_mat(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR){
+Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR){
 	int nCol = TE.size();	//m
 	int nRow = W.rows();	//n
-	Matrix_eig tmp = Matrix_eig::Zero(nRow, nCol);		//check the order
+	Matrix_eig_row tmp = Matrix_eig_row::Zero(nRow, nCol);		//check the order
 	for(int i = 0; i < nRow; ++i) {
 		for(int j = 0; j < nCol; ++j) {
 			tmp(i,j) = W(i,0);
@@ -1221,8 +1348,8 @@ Matrix_eig v_mat(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR
 * Have not used till now - raw rho, T_1, T_2 aree nowhere used
 */
 //[[Rcpp::export]]
-Matrix_eig to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
-	Matrix_eig W = Matrix_eig::Zero(rho.size(), 3);
+Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
+	Matrix_eig_row W = Matrix_eig_row::Zero(rho.size(), 3);
 	W.col(0) = rho;				//as<arma::vec>(wrap(rho));
 	for(int i = 0; i < rho.size(); ++i){
 		W(i, 1) = exp(-1/T_1(i));
@@ -1260,13 +1387,17 @@ Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, doubl
 
 	return temp;
 }
+// Change this for Matrix_eig_row.
+
+
+
 
 
 /*
 * I forgot this - The change is in Psi_inv?
 * Possibly it is the reparametrization used for gradient calculation of all param
 */
-Vector_eig to_param_vec_grad(const Matrix_eig &W, const Matrix_eig &Psi_inv, double beta_x, double beta_y){
+Vector_eig to_param_vec_grad(const Matrix_eig_row &W, const Matrix_eig &Psi_inv, double beta_x, double beta_y){
 	//const removed
 	int n = W.rows();		// check
 	Vector_eig temp = Vector_eig::Zero(3*n+6+2);
@@ -1416,10 +1547,10 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 * Output: Generate a sample r matrix
 */
 //[[Rcpp::export]]
-Matrix_eig Gen_r_from_v_mat(const Matrix_eig &our_v_mat, const Vector_eig &sigma){
+Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_eig &sigma){
 	int nRow = our_v_mat.rows();	 //n
 	int nCol = our_v_mat.cols();	 //m
-	Matrix_eig tmp3 = our_v_mat;
+	Matrix_eig_row tmp3 = our_v_mat;
 	double tmp1, tmp2;
 	
 	std::srand((unsigned int) time(0));		std::random_device rd{};	std::mt19937 gen{rd()};
@@ -1440,7 +1571,7 @@ Matrix_eig Gen_r_from_v_mat(const Matrix_eig &our_v_mat, const Vector_eig &sigma
 * Same function as before with different parametrization
 */
 //[[Rcpp::export]]
-Matrix_eig Gen_r(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma){
+Matrix_eig_row Gen_r(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma){
 	return(Gen_r_from_v_mat(v_mat(W, TE, TR), sigma));
 }
 
@@ -1459,7 +1590,7 @@ Matrix_eig Gen_r(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR
 
 
 // Not needed now - see next one
-double dee_v_ij_dee_W_ik(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
+double dee_v_ij_dee_W_ik(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, 
 						 int i, int j, int k){
 	if(k == 0){
 		return( exp(TE(j)*log(W(i, 2))) * (1-exp(TR(j)*log(W(i, 1)))) );
@@ -1534,7 +1665,7 @@ double simple_dee_v_ij_dee_W_ik(const Vector_eig &W, const Vector_eig &TE, const
 
 
 // Not needed now - see next one
-double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig &W, const Vector_eig &TE, const Vector_eig &TR, 
+double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, 
                                      int i, int j, int k, int k1){
 
 	
@@ -1662,15 +1793,15 @@ void show_dim_sp(SpMat A){
 * Number of non-zero elements per column: <= 7*3
 */
 /*
-SpMat Hessian_mat(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
-                  const Vector_eig &sigma, const Matrix_eig &r, 
+                  const Vector_eig &sigma, const Matrix_eig_row &r, 
                   int n_x, int n_y, int n_z){
 
 	
 	auto time_1_hess = std::chrono::high_resolution_clock::now();
 	Debug1("Hessian calculation started without MRF");
-	Matrix_eig v = v_mat(W, TE, TR);
+	Matrix_eig_row v = v_mat(W, TE, TR);
 	int n = n_x * n_y * n_z;	//n
 	int m = v.cols();			//m
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
@@ -1759,8 +1890,8 @@ SpMat Hessian_mat(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector
 * d\nu_ij/dW_{i,0}, d\nu_ij/dW_{i,1}, d\nu_ij/dW_{i,2}
 */
 /*
-SpVec v_grad(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-             const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig &r, 
+SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+             const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
              int n_x, int n_y, int n_z, int i, int j){
 
 
