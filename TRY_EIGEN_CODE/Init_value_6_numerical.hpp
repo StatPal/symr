@@ -34,9 +34,15 @@ int main(int argc, char * argv[]){
 #include "Read_files_2.hpp"
 
 
-#include "../optim_cpp_solver/include/cppoptlib/meta.h"
-#include "../optim_cpp_solver/include/cppoptlib/boundedproblem.h"
-#include "../optim_cpp_solver/include/cppoptlib/solver/lbfgsbsolver.h"
+//#include "../optim_cpp_solver/include/cppoptlib/meta.h"
+//#include "../optim_cpp_solver/include/cppoptlib/boundedproblem.h"
+//#include "../optim_cpp_solver/include/cppoptlib/solver/lbfgsbsolver.h"
+
+
+#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
+
 
 
 #ifndef INIT_VAL
@@ -114,8 +120,8 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 };
 
 
-void least_sq_solve(Eigen::MatrixXd &W, Eigen::VectorXd TE_example, Eigen::VectorXd TR_example, Eigen::MatrixXd &r, 
-                    double TE_scale, double TR_scale){
+void least_sq_solve(Eigen::MatrixXd &W, const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+                    const Eigen::MatrixXd &r, double TE_scale, double TR_scale){
 
 
 	Debug0("Doing Least Square Estimate!");
@@ -208,6 +214,11 @@ void least_sq_solve(Eigen::MatrixXd &W, Eigen::VectorXd TE_example, Eigen::Vecto
 }
 
 
+
+
+
+
+
 Eigen::MatrixXd Preprocess_data(char* const data_file, short our_dim[8], char will_write = 0){
 	
 	// Load the data file first. 
@@ -225,13 +236,18 @@ Eigen::MatrixXd Preprocess_data(char* const data_file, short our_dim[8], char wi
 
 
 
-Eigen::MatrixXd Init_val(Eigen::MatrixXd r, Eigen::VectorXd TE_example, Eigen::VectorXd TR_example, short our_dim[8], 
+
+
+
+Eigen::MatrixXd Init_val(const Eigen::MatrixXd &r, 
+                         const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, short our_dim[8], 
                          double TE_scale, double TR_scale, double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
                          int do_least_sq = 1, char will_write = 0){
 
 	//Primary Initial value for test//
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
 	Matrix_eig W = Matrix_eig::Ones(n, 3);
+	// Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> W;			// row major - first do the other thing without error
 	//show_dim(W);
 	//show_dim(r);
 	
@@ -266,8 +282,10 @@ Eigen::MatrixXd Init_val(Eigen::MatrixXd r, Eigen::VectorXd TE_example, Eigen::V
 
 
 
-Vector_eig Performance_test(Matrix_eig W, Matrix_eig test, Vector_eig TE_test, Vector_eig TR_test,
-							Vector_eig sigma_test, 
+
+
+Vector_eig Performance_test(const Matrix_eig &W, const Matrix_eig &test, 
+							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
 							int v_type = 1, int measure_type = 1){
 
 	int n_test = TE_test.size();

@@ -16,6 +16,7 @@ Debugging level definitions
 
 
 
+
 Changes:
 
 float -> double
@@ -46,7 +47,7 @@ g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 #include <Eigen/Sparse>
 #include <Eigen/Eigenvalues>
 #include <random>
-#include "meta.h"
+
 
 
 #include <cmath> 	//For bessel fn if cpp17
@@ -59,6 +60,11 @@ g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 
 //using namespace Rcpp;
 using namespace Eigen;
+
+
+typedef Eigen::MatrixXd Matrix_eig;
+typedef Eigen::VectorXd Vector_eig;
+typedef Eigen::VectorXd::Scalar Scalar_eig;
 
 typedef std::function<double(const Vector_eig &x)> my_function_type;
 typedef Eigen::SparseMatrix<double> SpMat;
@@ -121,6 +127,10 @@ const int IF_DEBUG = 1;
 #else
 #define Debug_time(x)
 #endif
+
+
+
+
 
 
 

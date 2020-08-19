@@ -2,22 +2,22 @@
 * 
 * To compile:
 
-g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3
+g++ scheme_new_OSL_EM_16_GEM.cpp -o test -I /usr/include/eigen3 -O3
 
-g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 -std=c++11
+g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_16_GEM.cpp -o scheme_new_OSL_EM_16_GEM -I ~/MRI/Headers -O3 -std=c++11
 
-g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -O3
+g++ scheme_new_OSL_EM_16_GEM.cpp -o scheme_new_OSL_EM_16_GEM -I ../eigen-3.3.7 -O3
 
 
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-./scheme_new_OSL_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./scheme_new_OSL_EM_16_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./scheme_new_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./scheme_new_EM_16_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
 
 OSL EM algorithm
-Psi and beta are updated just from LS estimate. 
+Psi and beta are updated at each iteration for this file. 
 
 * 
 */
@@ -380,7 +380,7 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                const Vector_eig &sigma, const Matrix_eig &r, 
                int n_x, int n_y, int n_z, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
-               int maxiter = 20, double abs_diff = 1e-6, int verbose = 0) {
+               int maxiter = 10, double abs_diff = 1e-6, int verbose = 0) {
 // Change
 
 
@@ -388,7 +388,6 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
-	
 	
 	
 	///** First estimate other MRF parameters **///
@@ -423,83 +422,14 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f_2.n_x = n_x; f_2.n_y = n_y; f_2.n_z = n_z;
 	f_2.W.noalias() = W_init;
 	
-		
-	
 	
 	
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
 	cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-	crit_MRF.iterations = 5000;														// number of allowed iterations
+	crit_MRF.iterations = 1000;														// number of allowed iterations
 	solver_2.setStopCriteria(crit_MRF);
-	// Change -- make it min(1000*maxiter, 10000)
-	
-	
-	
-	
-	
-	
-	// Track the best:
-	f_2.current_best_val = 1.0e+15;
-	
-	//Print initial values:
-	Debug2 ("x_MRF at first: " << x_MRF.transpose());
-	Debug3 ("lb_MRF: " << lb_MRF.transpose());
-	Debug3 ("ub_MRF: " << ub_MRF.transpose());
-	Debug2 ("f(x) at first:");
-	old_val = f_2.value(x_MRF_old);
-	
-	
-	
-	//Solve:
-	solver_2.minimize(f_2, x_MRF);
-	Debug2("argmin: " << x_MRF.transpose() << ";\tf(x) in argmin:");
-	f_2(x_MRF);
-	Debug2("Solver status: " << solver_2.status());
-	Debug2("Final criteria values: " << "\n" << solver_2.criteria());
-	Debug1("x_MRF: " << x_MRF.transpose());
-	
-	
-	
-	// Track the best: It's currently inside boundary
-	x_MRF.noalias() = f_2.current_best_param;
-	double fx_MRF = f_2.current_best_val;
-	Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
-			"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
-	
-	if(fx_MRF >= old_val) {								//Compares best value inside
-		Debug1("Value have not decreased!!\n" << " val: " << old_val << "; val: " << fx_MRF  << "\n");
-		bad_count_o++;
-		if(fx_MRF>old_val){
-			bad_count_o_2++;
-		}
-	}
-	
-	
-	// Calculated values: 
-	// Could be shortened using f_2.value and f_2.gradient if gradient is not commented out: 
-	// - but beta, Psi are needed for other optimization
-	
-	Vector_eig temp_L = x_MRF.segment(0, 6);
-	Matrix3d_eig L_mat = to_L_mat(temp_L);
-	Psi_inv.noalias() = from_Cholesky(L_mat);
-	beta(0) = x_MRF(6); beta(1) = x_MRF(7); beta(2) = 0.1;
-	
-	/*
-	double val_1 = Q_star_other_param(W_init, Psi_inv, beta, n_x, n_y, n_z);
-	Debug2 ( "Optimized value: " << std::setprecision(15)  <<  val_1 << std::setprecision(6));
-	
-	Vector_eig grad1 = Q_grad_vec_other_parameter(W_init, Psi_inv, beta, n_x, n_y, n_z);
-	// Chain rule for Cholesky:
-	Vector_eig chain = grad1.segment(0, 6);
-	grad1.segment(0, 6) = to_grad_Cholesky(temp_L)*chain;		//check transpose
-	Debug2("- grad on optimized value:" << grad1.transpose());
-	*/
-	
-	
-	auto time_2_likeli = std::chrono::high_resolution_clock::now();
-	// * Optimization over other parameters ends * //
-	
+	// Change 
 
 
 
@@ -544,7 +474,7 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Create a Criteria class to set the solver's stop conditions
 	crit_voxel.iterations = 1000;														// Change the number of allowed iterations
 	solver.setStopCriteria(crit_voxel);
-	// Change
+	// Change: 
 	
 	
 	
@@ -562,6 +492,75 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
+		// Track the best:
+		f_2.current_best_val = 1.0e+15;
+		
+		//Print initial values:
+		Debug2 ("x_MRF at first: " << x_MRF.transpose());
+		Debug3 ("lb_MRF: " << lb_MRF.transpose());
+		Debug3 ("ub_MRF: " << ub_MRF.transpose());
+		Debug2 ("f(x) at first:");
+		old_val = f_2.value(x_MRF_old);
+		
+		
+		
+		//Solve:
+		solver_2.minimize(f_2, x_MRF);
+		Debug2("argmin: " << x_MRF.transpose() << ";\tf(x) in argmin:");
+		f_2(x_MRF);
+		Debug2("Solver status: " << solver_2.status());
+		Debug2("Final criteria values: " << "\n" << solver_2.criteria());
+		Debug1("x_MRF: " << x_MRF.transpose());
+		
+	
+		
+		// Track the best: It's currently inside boundary
+		x_MRF.noalias() = f_2.current_best_param;
+		double fx_MRF = f_2.current_best_val;
+		Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
+				"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
+		
+		if(fx_MRF >= old_val) {								//Compares best value inside
+			Debug1("Value have not decreased!!\n" << " val: " << old_val << "; val: " << fx_MRF  << "\n");
+			bad_count_o++;
+			if(fx_MRF>old_val){
+				bad_count_o_2++;
+			}
+		}
+	
+	
+		// Calculated values: 
+		// Could be shortened using f_2.value and f_2.gradient if gradient is not commented out: 
+		// - but beta, Psi are needed for other optimization
+		
+		Vector_eig temp_L = x_MRF.segment(0, 6);
+		Matrix3d_eig L_mat = to_L_mat(temp_L);
+		Psi_inv.noalias() = from_Cholesky(L_mat);
+		beta(0) = x_MRF(6); beta(1) = x_MRF(7); beta(2) = 0.1;
+		
+		/*
+		double val_1 = Q_star_other_param(W_init, Psi_inv, beta, n_x, n_y, n_z);
+		Debug2 ( "Optimized value: " << std::setprecision(15)  <<  val_1 << std::setprecision(6));
+		
+		Vector_eig grad1 = Q_grad_vec_other_parameter(W_init, Psi_inv, beta, n_x, n_y, n_z);
+		// Chain rule for Cholesky:
+		Vector_eig chain = grad1.segment(0, 6);
+		grad1.segment(0, 6) = to_grad_Cholesky(temp_L)*chain;		//check transpose
+		Debug2("- grad on optimized value:" << grad1.transpose());
+		*/
+		
+		auto time_3_likeli = std::chrono::high_resolution_clock::now();
+		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
+		Debug1("Time taken for MRF optimization: " << duration_23.count() << " seconds\n");
+		Debug1("MRF optimization ends!!");
+		// * Optimization over other parameters ends * //
+	
+
+
+
+
+
+
 		// * Loop over voxels: * //
 		
 		
@@ -586,7 +585,7 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 			
 			f.i = i;
-			f.c_i.noalias() = MRF_grad.row(i); 
+			f.c_i.noalias() = MRF_grad.row(i);
 			x.noalias() = W_init.row(i);
 			// check_bounds_vec(x, lb, ub);
 			
@@ -647,10 +646,6 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 		}
-		auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
-		Debug1("Time taken for 1 OSL-EM loop with " << r.rows() << " rows: " << duration_23.count() << " seconds\n");
-		Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
 		
 		
@@ -670,14 +665,13 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			//bad_count_o++;
 		}
 		Debug0(" Current likeli: " << -current_best_likeli << " Old likeli: " << -old_likeli << " diff: " << current_best_likeli - old_likeli );
-		old_likeli = current_best_likeli;
-		
 		Debug1("Another iteration done\n\n");
 		
 		
 		
 		
-		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
+		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff && abs_sum(x_MRF_old - x_MRF) <= abs_diff){
+		// remove the 2nd difference ???
 			std::cout << "Stopped after " << iter << " iterations" << "\n";
 			Debug1("W_old.row(73):" << W_old.row(73));
 			Debug1("W_init.row(73):" << W_init.row(73));
@@ -688,11 +682,13 @@ void OSL_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Restore default values  ---- check other files also
 		W_old.noalias() = W_init;
+		x_MRF_old = x_MRF;
+		old_likeli = current_best_likeli;
 		
 		
 		auto time_4_likeli = std::chrono::high_resolution_clock::now();
 		auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
+		Debug1("Time taken for one loop: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");
@@ -874,9 +870,7 @@ int main(int argc, char * argv[]) {
 	
 	// Test:
 	Matrix_eig W_LS = W_init;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
-	W_init(0,0) = 213.0;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
+	
 
 
 	
@@ -888,7 +882,6 @@ int main(int argc, char * argv[]) {
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1);
 	show_head(W_init);
-	
 	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);

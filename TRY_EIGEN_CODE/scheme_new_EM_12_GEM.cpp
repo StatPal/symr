@@ -114,7 +114,7 @@ double l_star(const Matrix_eig &W, const Matrix3d_eig &Psi_inv, const Vector_eig
 	//MRF part://
 	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	
-	assert( ! std::isnan(-likeli_sum) );
+	// assert( ! std::isnan(-likeli_sum) );
 	return -likeli_sum;
 }
 
@@ -417,7 +417,6 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int iter = 0;
 	Likeli_optim<double> f(Eigen::VectorXd::Ones(3), MRF_obj);
 	MRF_optim<double> f_2(Eigen::VectorXd::Ones(8), MRF_obj);
-	
 
 
 
@@ -440,9 +439,9 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	f.W = W_init;
 	Matrix_eig W_old = W_init;
 	f.W_old.noalias() = W_old;
-	
 
 
 
@@ -579,14 +578,14 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			//Solve:
 			solver.minimize(f, x);
 			Debug1("argmin: " << x.transpose() << ";\tf(x) in argmin:");
-			f(x);
+			double fx = f(x);
 			Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 			Debug2("Final criteria values: " << "\n" << solver.criteria());
 			
 			
 			// Track the best: (retain this or remove this??? - Subrata, be careful)
 			// x.noalias() = f.current_best_param;
-			// double fx = f.current_best_val;
+			// fx = f.current_best_val;
 			Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 					"\t old val: " << old_val << "\t diff: " << fx - old_val);
 			
@@ -606,7 +605,6 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// Restore default values
 			f.W_old.row(i) = W_init.row(i);
 			f.W.row(i) = W_init.row(i);
-						
 		}
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
 		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
@@ -623,12 +621,10 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		
 		// * Optimize over other Parameters: * //
 		
 		f_2.W.noalias() = W_init;
 		check_bounds_vec(x_MRF, lb_MRF, ub_MRF);
-		
 		
 		// Track the best:
 		f_2.current_best_val = 1.0e+15;
@@ -677,7 +673,6 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		//Solve:
-		
 		solver_2.minimize(f_2, x_MRF);
 		Debug2("argmin: " << x_MRF.transpose() << ";\tf(x) in argmin:");
 		f_2(x_MRF);
@@ -688,7 +683,7 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		// Track the best:
+		// Track the best: check
 		x_MRF.noalias() = f_2.current_best_param;
 		double fx_MRF = f_2.current_best_val;
 		Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
@@ -700,9 +695,6 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			if(fx_MRF>old_val){
 				bad_count_o_2++;
 			}
-		} else {
-			//W_init.row(i) = x_MRF;			
-			// Wait!!! This should not be here. Define something like: Vector_eig x_MRF_bufer = x_MRF;
 		}
 		
 		
@@ -751,15 +743,10 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// *Checking stopping criterion with penalized negative log likelihood:* //
-		
+		int nan_count = check_nan_W(W_init, W_old);					// Check this!
+		Debug0("nan count in " << iter << "-th iteration: " << nan_count);
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj);
-		
-		if(abs_sum(to_vector(W_old)-to_vector(W_init)) <= abs_diff && abs_sum(x_MRF_old - x_MRF) <= abs_diff){
-			std::cout << "Stopped after " << iter << " iterations" << "\n";
-			break;
-		}
-		// This needs to be changed as W is not the only parameter - done!
 		
 		
 		
@@ -768,18 +755,24 @@ void likeli_optim(Matrix_eig &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					";\t new val: " << current_best_likeli);
 			//bad_count_o++;
 		}
-		Debug0(" Current likeli: " << -current_best_likeli << " Old likeli: " << -old_likeli);
+		Debug0(" Current likeli: " << -current_best_likeli << " Old likeli: " << -old_likeli << " diff: " << current_best_likeli - old_likeli );
 		//if(best_val<old_val){		// Good case? 
 		// -- without this, diff between abs sum between old and new parameters would be 0!
 		//	W_old = W_init;
 		//}
-		W_old.noalias() = W_init;
-		x_MRF_old.noalias() = x_MRF;
-		old_likeli = current_best_likeli;
-		
 		Debug1("Another iteration done\n\n");
 		
 		
+		if(abs_sum(to_vector(W_old)-to_vector(W_init)) <= abs_diff && abs_sum(x_MRF_old - x_MRF) <= abs_diff){
+			std::cout << "Stopped after " << iter << " iterations" << "\n";
+			break;
+		}
+		// This needs to be changed as W is not the only parameter - done!
+		
+		
+		W_old.noalias() = W_init;
+		x_MRF_old.noalias() = x_MRF;
+		old_likeli = current_best_likeli;
 		
 		
 		
@@ -1007,6 +1000,10 @@ int main(int argc, char * argv[]) {
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	
 	
+	// Test:
+	Matrix_eig W_LS = W_init;
+	
+	
 	
 	// Likelihood Based optimization:
 	
@@ -1016,6 +1013,7 @@ int main(int argc, char * argv[]) {
 	likeli_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, train, 
 	             our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1);
 	show_head(W_init);
+	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
 	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);

@@ -1,11 +1,13 @@
 /**
 *
 
-Simple EM - updating all parameter in one shot!
+
+Everything updated in one shot using EM!
 
 
 
-* To compile :
+
+* See this:
 g++ scheme_new_EM_5_numerical_cholesky.cpp -o test -I /usr/include/eigen3 -O3
 g++ ~/MRI/Headers/TRY_EIGEN_2/scheme_new_EM_5_numerical.cpp -o scheme_new_EM_5_numerical -I ~/MRI/Headers -O3 -std=c++11
 *
