@@ -108,7 +108,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 	//Rice part://
 	int i = 0, j = 0;
-	long double likeli_sum = 0.0, tmp4 = 0.0;
+	long double likeli_sum = 0.0;
 	for(i = 0; i < n; ++i) {
 		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)/SQ(sigma(j));
@@ -140,7 +140,7 @@ double Q_star_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, co
 
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-	int m = TE.size(), n = n_x*n_y*n_z;
+	int m = TE.size();
 	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	
 	//Rice part://
@@ -490,7 +490,7 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 
 	
 	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
-	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
+	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0;
 	
 	
 	// Declaring the solver:
@@ -609,7 +609,11 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 					bad_count_o_2++;
 				}
 			} else {
-				W_init.row(i) = x;
+				if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
+					W_init.row(i) = x;
+				} else {
+					nan_count++;
+				}
 			}
 			
 			
@@ -617,6 +621,8 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 			f.W_old.row(i) = W_init.row(i);
 			f.W.row(i) = W_init.row(i);
 		}
+		Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
+		nan_count = 0;
 		auto time_3_likeli = std::chrono::high_resolution_clock::now();
 		auto duration_23 = std::chrono::duration_cast<std::chrono::seconds>(time_3_likeli - time_2_likeli);
 		Debug1("Time taken for 1 loop with " << r.rows() << " rows: " << duration_23.count() << " seconds\n");
@@ -754,8 +760,8 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 		
 		
 		// *Checking stopping criterion with penalized negative log likelihood:* //
-		int nan_count = check_nan_W(W_init, W_old);					// Check this!
-		Debug0("nan count in " << iter << "-th iteration: " << nan_count);
+		int nan_count_2 = check_nan_W(W_init, W_old);					// Check this!
+		Debug0("nan count in " << iter << "-th iteration: " << nan_count_2);
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
@@ -763,7 +769,7 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 		
 		if(current_best_likeli >= old_likeli){ 									// As everything is "-ve" log-likeli.
 			Debug1("Value not decreased in EM loop!! old val: " << old_likeli << 
-					";\t new val: " << current_best_likeli);
+					";\t new val: " << current_best_likeli << " diff: " << current_best_likeli - old_likeli );
 			//bad_count_o++;
 		}
 		Debug0(" Current likeli: " << -current_best_likeli << " Old likeli: " << -old_likeli << " diff: " << current_best_likeli - old_likeli );
@@ -991,8 +997,9 @@ int main(int argc, char * argv[]) {
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig_row W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
-	Debug2("W initial done");
-	check_nan(W_init);
+	Debug1("W initial done");
+	int nan_count_1st = check_nan_W(W_init, W_1st);
+	Debug0("NAN count at first:" << nan_count_1st);
 	show_head(W_init);
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
 	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
