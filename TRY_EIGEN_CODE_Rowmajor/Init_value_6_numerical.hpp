@@ -283,18 +283,34 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 
 
 
-
+/*
+* v_type 
+	1 -- compared with v
+	2 -- compared with mode of rice distn (not implemented yet - need another set of optimization)
+	3 -- compared with rice mean
+	
+  measure_type 
+  	1 -- abs deviation from mean(not median?)
+  	2 -- squared deviation from mean
+  
+  Scale: 
+  	0 -- no
+  	1 -- yes
+*/
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
 							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
-							int v_type = 1, int measure_type = 1){
+							int v_type = 1, int measure_type = 1, int scale = 1){
 
 	int n_test = TE_test.size();
 	assert(sigma_test.size() == n_test);
 	Vector_eig Performance_test = Vector_eig::Zero(n_test);
-	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// test 
+	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// just testing 
+	
 	for(int i = 0; i < W.rows(); ++i){
 		Vector_eig v_new = Bloch_vec(W.row(i), TE_test, TR_test);			// v_{ij}
 		Vector_eig v_star(n_test);
+		
+		
 		if(v_type == 1){
 			v_star = v_new;
 		} else if (v_type == 2){
@@ -314,13 +330,15 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		}
 		
 		
+		
+		
 		//std::cout << tmp.transpose() << "\n";
 		Perf_mat.row(i) = v_star.transpose() - test.row(i);
 		
 		
-		Performance_test = Performance_test + tmp;
+		Performance_test = Performance_test + tmp;				// This is main
 	}
-	std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
+	// std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
 	//Performance_test = Perf_mat.array().abs().colwise().mean();
 	
 	
@@ -331,6 +349,21 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 			Performance_test[j] = std::sqrt(Performance_test[j]);
 		}
 	}
+	
+	
+	
+	if(scale){
+		double scale_factor = 1.0;
+		for(int j = 0; j < n_test; ++j){
+			if(measure_type == 1){
+				scale_factor = abs_dev_mean(test.col(j)); 
+			} else if (measure_type == 2){
+				scale_factor = abs_dev_mean(test.col(j));
+			}
+			Performance_test[j] /= scale_factor;
+		}
+	}
+	
 	
 	return Performance_test;
 }

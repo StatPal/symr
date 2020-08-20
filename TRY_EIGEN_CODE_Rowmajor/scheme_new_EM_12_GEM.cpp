@@ -136,7 +136,13 @@ Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 double Q_star_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                         const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
                         const Matrix_eig_row &r, const Matrix_eig_row &W_old,
-                        int n_x, int n_y, int n_z, int i, MRF_param &MRF_obj){
+                        int n_x, int n_y, int n_z, int i, MRF_param &MRF_obj 
+                        //, const Vector_eig &old_row , double old_MRF_likeli
+                        ){
+                        // Don't change old_MRF_likeli back in optim class 
+                        // because Q_star_per_voxel is evaluated at many points in optimization process
+                        // Rather keep these as seperate MRF_param object in the other class 
+                        // - which would be accessed through 
 
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
@@ -154,7 +160,13 @@ double Q_star_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, co
 	//}
 	
 	//MRF part://
-	likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
+	// likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
+	if(i == 0){
+		likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
+	} else {
+		likeli_sum += MRF_obj.MRF_log_likeli_num_through_increment(W, Psi_inv, beta, i);
+	}
+	
 	
 	//assert( ! std::isnan(-likeli_sum) );			// Don't assert, sobar mongol...
 	return (-likeli_sum);
@@ -261,14 +273,16 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 	int i, n_x, n_y, n_z;
 	double beta_z = 0.1;												//Subrata - or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub;								// lb, ub are for extra check
+	TVector TE, TR, sigma, beta, lb, ub, old_row;						// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
-	TMatrix_row W, W_old;													// W here creating problem in optimization?
+	TMatrix_row W, W_old;												// W here creating problem in optimization?
 	
 	
 	// Track the best:
 	Eigen::VectorXd current_best_param;
-	double current_best_val = 1.0e+15;
+	double current_best_val = 1.0e+15, old_MRF_likeli;
+	// MRF_obj_optim.old_MRF_likeli;
+	// MRF_obj_optim.x_MRF_old;
 
 
 	T value(const TVector &x) {
@@ -434,7 +448,8 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 	
 	// * Voxel based initial values * //
 	
-	Eigen::VectorXd x(3), lb(3), ub(3);
+	Eigen::VectorXd x(3), lb(3), ub(3), x_old(3);	//  x_old is for calculating faster MRF part.
+	double old_MRF_likeli = 0.0;			// old_MRF_likeli is for calculating faster MRF part.
 	
 	//Bounds of rho, W1, W2:
 	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));

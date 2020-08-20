@@ -46,6 +46,7 @@ g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 #include <Eigen/Sparse>
 #include <Eigen/Eigenvalues>
 #include <random>
+#include <fstream>
 
 
 
@@ -96,7 +97,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-#define DEBUG_LEVEL_2
+// #define DEBUG_LEVEL_2
 
 #ifdef DEBUG_LEVEL_2
 #define Debug2(x) {std::cout << "DEBUG 2: "<< x << "\n";}
@@ -413,6 +414,22 @@ Matrix_eig Cov_1(Matrix_eig x) {
 	// https://eigen.tuxfamily.org/dox/group__TutorialReductionsVisitorsBroadcasting.html
 	x.rowwise() -= colMean.transpose();			// or x_cen instead of x
 	return x.transpose()*x/(nRows-1);			// or x_cen
+}
+
+
+double var(const Vector_eig &x){
+	double tmp = x.sum()/x.size();
+	tmp = -SQ(tmp);
+	tmp += x.array().square().sum()/x.size();
+	return tmp;
+}
+
+
+double abs_dev_mean(const Vector_eig &x){
+	double tmp = x.sum()/x.size();
+	Vector_eig y = x - Vector_eig::Constant(x.rows(), x.cols(), tmp);
+	tmp = y.array().abs().sum()/x.size();
+	return tmp;
 }
 
 
@@ -759,17 +776,19 @@ void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_ei
 
 /*
 * Checks whether there is NaN or not and prints the location in a matrix
+* returns number of such cases.
 */
 int check_nan(const Matrix_eig_row &A){
+	int bad_count = 0;
 	for(int i = 0; i < A.rows(); ++i){
 		for(int j = 0; j < A.cols(); ++j){
 			if(std::isnan(A(i, j))){
 				Debug0("NAN in location: ("<< i << "," << j<< ")!");
-				return 1;
+				bad_count++;
 			}
 		}
 	}
-	return 0;
+	return bad_count;
 }
 
 
@@ -785,7 +804,8 @@ int check_nan_W(Matrix_eig_row& W, const Matrix_eig_row& W_old){
 		for(j = 0; j < W.cols(); ++j){
 			if(std::isnan(W(i, j))){
 				Debug0("NAN in location: ("<< i << "," << j<< ") of W!");
-				W(i, j) = W_old(i, j);
+				// W(i, j) = W_old(i, j);		// Subrata - see what to do...
+				W.row(i) = W_old.row(i);		// Is this better?
 				bad_count++;
 				// return 1;
 			}
@@ -799,19 +819,14 @@ int check_nan_W(Matrix_eig_row& W, const Matrix_eig_row& W_old){
 * Checks whether there is NaN or not and prints the location in a vector
 */
 int check_nan_vec(const Vector_eig &A){
-	int count = 0;
+	int bad_count = 0;
 	for(int i = 0; i < A.size(); ++i){
 		if(std::isnan(A(i))){
-			Debug0("NAN in location: ("<< i << ")!");
-			return 1;
-			count++;
+			Debug0("NAN in location: ("<< i << ") of the vector!");
+			bad_count++;
 		}
 	}
-	if(count > 0){
-		return 1;
-	} else{ 
-		return 0;
-	}
+	return bad_count;
 }
 
 
@@ -980,6 +995,11 @@ class MRF_param{
 	Matrix_eig tmp_Lambda_W;
 	Matrix_eig Psi_grad = Matrix_eig::Zero(6, 1);
 	
+	// Important variables:
+	Vector_eig x_old;
+	double old_MRF_likeli = 0.0;
+	
+	
 	
 	//Constructor:
 	// MRF_param(){};
@@ -1040,7 +1060,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		tmp_W_Psi_inv = Matrix_eig::Zero(n, 3);
 		tmp_Wt_L_W = Matrix_eig::Zero(3, 3);
 		tmp_Lambda_W = Matrix_eig::Zero(n, 3);
-		
+		x_old = Vector_eig::Zero(3);
 	}
 	
 	
@@ -1064,17 +1084,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	}
 	*/
 	
-	
-	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
-		Vector_eig tmp1(3), tmp2(3), tmp3(3);
-		tmp_W_Psi_inv.noalias() = W * Psi_inv;
-		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
-		tmp2 = H_2.row(i) * tmp_W_Psi_inv;
-		tmp3 = H_3.row(i) * tmp_W_Psi_inv;
-		Vector_eig MRF_grad = beta(0)*tmp1 + beta(1)*tmp2 + beta(2)*tmp3;
-		return MRF_grad;
-	}
-	
+		
 	
 	/*
 	* log determinant of Lambda(beta, n_x, n_y, n_z)
@@ -1122,12 +1132,12 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	*/
 	double MRF_log_likeli_num(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
-		// double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
+		//double tmp2 = (Psi_inv*W.transpose()*Lambda(beta)*W).trace();
 		
-		int i = 0, j = 0, k = 0;
+		int k = 0;
 		double tmp1 = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 		for (k = 0; k < H_1.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_1,k); it; ++it){
+			for (SpMat::InnerIterator it(H_1,k); it; ++it){
 				// it.value();
 				// it.row();   // row index
 				// it.col();   // col index (here it is equal to k)
@@ -1139,7 +1149,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		
 		tmp1 = 0.0;
 		for (k = 0; k < H_2.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_2,k); it; ++it){
+			for (SpMat::InnerIterator it(H_2,k); it; ++it){
 				// i = it.row(); j = it.col();
 				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
 				tmp1 += tmp3 * it.value();
@@ -1150,7 +1160,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		
 		tmp1 = 0.0;
 		for (k = 0; k < H_3.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_3,k); it; ++it){
+			for (SpMat::InnerIterator it(H_3,k); it; ++it){
 				// i = it.row(); j = it.col();
 				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
 				tmp1 += tmp3 * it.value();
@@ -1159,54 +1169,61 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		}
 		tmp2 += beta(2)*tmp1;
 		
-		
-		return tmp2;
+		return (-tmp2/2);		// -0.5*trace(Psi_inv*W.transpose()*Lambda(beta)*W);
 	}
 	
+	
+	/*
+	* gradient of likelihood w.r.t. i-th row of W.
+	*/
+	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
+		Vector_eig tmp1(3), tmp2(3), tmp3(3);
+		tmp_W_Psi_inv.noalias() = W * Psi_inv;
+		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
+		tmp2 = H_2.row(i) * tmp_W_Psi_inv;
+		tmp3 = H_3.row(i) * tmp_W_Psi_inv;
+		Vector_eig MRF_grad = beta(0)*tmp1 + beta(1)*tmp2 + beta(2)*tmp3;
+		return MRF_grad;
+	}
+
 	
 	
 	
 	/* 
 	* Change in Numerator of the log likelihood from the MRF part
 	* if one changes i-th row of W.
+	* l(W_new) - l(W_old) 		// In the notebook, -ve of this is calculated.
+	* Directly using x_old is better than W_old because W_old might be already changed in the previous loop.
 	*/
-	double MRF_log_likeli_num_increment(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-										double old_val, int i1, const Vector_eig &x_old) {
+	double MRF_log_likeli_num_through_increment(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+												int i1) {
 	
-		//double tmp2 = -(Psi_inv*W.transpose()*Lambda(beta)*W).trace();
 		Vector_eig x_new = W.row(i1);
 		
 		int i = 0, j = 0, k = 0;
 		double tmp1 = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-		for (k = 0; k < H_1.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_1,k); it; ++it){
-				// i = it.row(); j = it.col();
-				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
+		Lambda_init = Lambda(beta);								// Remove later and split into H_i's
+		
+		
+		// here k and it.col() are same;
+		// So we need 
+		// \Sum_{j \ne i1} Lambda(i1, j) [W_j * Psi_inv * ( W_i1_new - W_i1_old)']
+		// 		+ 0.5 Lambda(i1, i1) [W_i1_new * Psi_inv * W_i1_new' - W_i1_old * Psi_inv * W_i1_old']		// ... Check this line
+		
+		// it.col() is fixed at i1.
+		// it.row() is basically j
+		for (SpMat::InnerIterator it(Lambda_init, i1); it; ++it){
+			if(it.col() != i1){
+				tmp3 = (W.row(it.row()) * Psi_inv) * (W.row(i1) - x_old).transpose();
 				tmp1 += tmp3 * it.value();
+			} else if(it.col() == i1){
+				tmp3 = (W.row(i1) - x_old) * Psi_inv * (W.row(i1) - x_old).transpose();
+				tmp1 += 0.5 * tmp3 * it.value();
 			}
 		}
-		tmp2 += beta(0)*tmp1;
+		tmp1 = -tmp1;	// = l(W_new) - l(W_old)	// In the notebook, -ve of this is calculated.
 		
-		tmp1 = 0.0;
-		for (k = 0; k < H_2.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_2,k); it; ++it){
-				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
-				tmp1 += tmp3 * it.value();
-			}
-		}
-		tmp2 += beta(1)*tmp1;
-		
-		tmp1 = 0.0;
-		for (k = 0; k < H_3.outerSize(); ++k){
-			for (SparseMatrix<double>::InnerIterator it(H_3,k); it; ++it){
-				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
-				tmp1 += tmp3 * it.value();
-			}
-		}
-		tmp2 += beta(2)*tmp1;
-		
-		
-		return tmp2;
+		return (old_MRF_likeli + tmp1);
 	}
 	
 	
@@ -1218,10 +1235,12 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double tmp_num = MRF_log_likeli_num(W, Psi_inv, beta);
-		double likeli_sum = ( tmp_num + 3 * sp_log_det_specific(beta) + 
+		double likeli_sum = tmp_num + ( 3 * sp_log_det_specific(beta) + 
 								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
 		
 		return likeli_sum;
+		
+		// (-0.5*trace(Psi_inv*W.transpose()*Lambda(beta)*W)) - 1.5*n*log(2*M_PI) - 
 	}
 	
 	
@@ -1735,9 +1754,20 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 
 Eigen::VectorXd read_sd(char* const sd_file, int our_dim_4){
 
-	// Read variance:
+	// Read sd:
 	double output[our_dim_4];		// warning: ISO C++ forbids variable length array ‘output’ [-Wvla]
-	int n = 0;
+									// Change this
+	
+	std::fstream myfile(sd_file, std::ios_base::in);
+	Eigen::VectorXd sigma = Eigen::VectorXd::Zero(our_dim_4);
+
+	float a;
+	int  i = 0;
+	while (myfile >> a) {
+		sigma(i) = a;
+		i++;
+	}
+	
 	/*
 	FILE* fp = fopen(sd_file, "r");
 	if (fp == NULL) {
@@ -1747,11 +1777,12 @@ Eigen::VectorXd read_sd(char* const sd_file, int our_dim_4){
 	while (fscanf(fp, "%f", &output[n++]) != EOF)
 		;
 	*/
-	Eigen::VectorXd sigma = Eigen::VectorXd::Zero(our_dim_4);
+	/*
 	for(int i = 0; i < our_dim_4; ++i){
 		//sigma(i) = 5.; 			//output[i]/20.;
 		sigma(i) = 15.;
 	}
+	*/
 	Debug0("Read the sd file\n----------------\n");
 	
 	return sigma;
