@@ -202,7 +202,7 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
                                 const Matrix_eig_row &r, const Matrix_eig_row &W_old,
                                 int n_x, int n_y, int n_z, int i, MRF_param &MRF_obj){
 
-	int m = TE.size(), n = n_x*n_y*n_z;
+	int m = TE.size(), j = 0, k = 0;
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	Vector_eig W_grad(3);
 	
@@ -216,9 +216,9 @@ Vector_eig Q_grad_vec_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	
 	
 	// Likelihood part
-	for(int k = 0; k < 3; ++k){
+	for(k = 0; k < 3; ++k){
 		temp = 0.;
-		for(int j = 0; j < m ; ++j){
+		for(j = 0; j < m ; ++j){
 			tmp2 = r(i,j)/SQ(sigma(j));
 			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2*besselI1_I0(tmp2*v_old_i(j));
 			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);

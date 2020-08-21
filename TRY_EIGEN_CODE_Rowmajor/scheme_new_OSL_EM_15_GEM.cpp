@@ -1,5 +1,11 @@
 /**
 * 
+* OSL EM algorithm
+* Psi and beta are updated just from LS estimate
+
+
+
+
 * To compile:
 
 g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3
@@ -10,14 +16,12 @@ g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -
 
 
 
+
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-./scheme_new_OSL_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-
-./scheme_new_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./scheme_new_OSL_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd_phantom.txt 0
 
 
-OSL EM algorithm
-Psi and beta are updated just from LS estimate. 
+
 
 
 Changes:

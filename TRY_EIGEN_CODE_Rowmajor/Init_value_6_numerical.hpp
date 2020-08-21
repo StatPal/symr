@@ -1,7 +1,7 @@
 /**
 *
-* File to get initial values through least squares:
-* Example use in main:
+* File to get initial values through Least Squares :
+* Example use in main :
 
 
 int main(int argc, char * argv[]){
@@ -30,13 +30,10 @@ int main(int argc, char * argv[]){
 
 
 
+
 #include "scheme_new_numerical.hpp"
 #include "Read_files_2.hpp"
 
-
-//#include "../optim_cpp_solver/include/cppoptlib/meta.h"
-//#include "../optim_cpp_solver/include/cppoptlib/boundedproblem.h"
-//#include "../optim_cpp_solver/include/cppoptlib/solver/lbfgsbsolver.h"
 
 
 #include "../CppNumericalSolvers/include/cppoptlib/meta.h"
@@ -48,11 +45,7 @@ int main(int argc, char * argv[]){
 #ifndef INIT_VAL
 #define INIT_VAL
 
-//const Vector_eig TE_example((Vector_eig(12) << 10, 15, 20, 10, 30, 40, 10, 40, 80, 10, 60, 100).finished());
-//const Vector_eig TR_example((Vector_eig(12) << 600, 600, 600, 1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000).finished());
 
-//const Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-//const Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
 
 
 
@@ -63,14 +56,17 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
-	TMatrix r;
+	typedef Matrix_eig_row TMatrix_row;
+	
+	TMatrix_row r;
 	TVector r2;
 
+
   public:
-	Least_Sq_est(const TVector y_) :											// Is it constructor?
+	Least_Sq_est(const TVector y_) : 
 		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
-	// What happens to r(y_) when r is a matrix. 
-	// r(y_){} changed to r2(y_){}													// Know more about it.
+	
+
 
 	TVector TE, TR;
 	int i;
@@ -82,7 +78,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	T value(const TVector &x) {
 		TVector v_new = Bloch_vec(x, TE, TR);
-		Debug3("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
+		DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
 		
 		// Track the best:
@@ -97,30 +93,33 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	void gradient(const TVector &x, TVector &grad) {
 		TVector v_new = Bloch_vec(x, TE, TR);
-		grad << 0,0,0;						//grad[0] = 0; grad[1] = 0; grad[2] = 0;
+		grad << 0,0,0;
 		int m = TR.size();
 		
-		if(x(1)==0){														// To avoid numerical problem at boundary.
-			for(int j = 0; j < m; ++j){
-				grad[0] -= 2*(r(i, j) - v_new(j)) * exp(TE(j)*log(x(2))) ;
-				grad[1] -= 0;
-				grad[2] -= 2*(r(i, j) - v_new(j)) * x(0)*TE(j) * exp((TE(j)-1)*log(x(2))) ;
-			}
-		} else { 
-			for(int j = 0; j < m; ++j){
-				grad[0] -= 2*(r(i, j) - v_new(j)) * exp(TE(j)*log(x(2))) * (1-exp(TR(j)*log(x(1))));
-				grad[1] -= 2*(v_new(j) - r(i, j)) * x(0)*TR(j) * exp(TE(j)*log(x(2))) * exp((TR(j)-1)*log(x(1)));
-				grad[2] -= 2*(r(i, j) - v_new(j)) * x(0)*TE(j) * exp((TE(j)-1)*log(x(2))) * (1-exp(TR(j)*log(x(1))));
-			}
+		
+		for(int j = 0; j < m; ++j){
+		
+			grad[0] -= 2*(r(i, j) - v_new(j)) * 
+						std::exp(TE(j)*std::log(x(2))) * 
+						(1-std::exp(TR(j)*std::log(x(1))));
+			
+			grad[1] -= 2*(v_new(j) - r(i, j)) * 
+						x(0)*TR(j) * std::exp(TE(j)*log(x(2))) * 
+						std::exp((TR(j)-1)*std::log(x(1)));
+			
+			grad[2] -= 2*(r(i, j) - v_new(j)) * 
+						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
+						(1-std::exp(TR(j)*std::log(x(1))));
 		}
-		Debug3("grad: " << grad.transpose() << "\n" );
+		DebugLS("grad: " << grad.transpose() << "\n" );
 	}
 
 
 };
 
 
-void least_sq_solve(Matrix_eig_row &W, const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+void least_sq_solve(Matrix_eig_row &W, 
+					const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
                     const Matrix_eig_row &r, double TE_scale, double TR_scale){
 
 
@@ -137,9 +136,9 @@ void least_sq_solve(Matrix_eig_row &W, const Eigen::VectorXd &TE_example, const 
 	
 	
 	
-	f.r = r;	f.TE = TE_example;	f.TR = TR_example;
+	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);
-	double old_val = 0.0;
+	double old_val = 0.0, fx;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
 
 
@@ -170,30 +169,34 @@ void least_sq_solve(Matrix_eig_row &W, const Eigen::VectorXd &TE_example, const 
 		}
 		
 		
+		
+		
 		f.i = i;
 		// Track the best:
 		double current_best_val = 1.0e+15;
 	
 		//Print initial values:
-		Debug3 ("value of i: " << i << "\t x at first: " << x.transpose());
-		Debug3 ("f(x) at first: \n" << f.value(x)) ;
+		DebugLS ("value of i: " << i << "\t x at first: " << x.transpose());
+		DebugLS ("f(x) at first: \n" << f.value(x)) ;
 		old_val = f.value(x);
 	
 		//Solve:
 		solver.minimize(f, x);
-		Debug3("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
-		Debug3("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
-		Debug3("Final criteria values: " << "\n" << solver.criteria());
+		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
+		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
+		DebugLS("Final criteria values: " << "\n" << solver.criteria());
 	
 		// Track the best:
+		// remove if necessary
 		x = f.current_best_param;
-		double fx = f.current_best_val;
-		Debug3("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
-		//Debug2(niter << " iterations");			// Wait! niter not defined ????
+		fx = f.current_best_val;
+		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
+		
 		
 		
 		if(fx>=old_val){
-			Debug2("Value not decreased!! old x:" << W.row(i) << " val: " << old_val << ";\t x: " << x.transpose() << " val: " << fx << " i:" << i);
+			Debug2("Value not decreased!! old x:" << W.row(i) << " val: " << old_val << 
+						";\t x: " << x.transpose() << " val: " << fx << " i:" << i);
 			bad_count_o++;
 			if(fx>old_val){
 				bad_count_o_2++;
@@ -206,7 +209,9 @@ void least_sq_solve(Matrix_eig_row &W, const Eigen::VectorXd &TE_example, const 
 		f.current_best_val = 1.0e+15;
 	}
 	
-	Debug0("Number of bad cases in Initial value determination:" << bad_count_o << " and worse: " << bad_count_o_2 << " and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);
+	Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
+			" and worse: " << bad_count_o_2 << 
+			" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);
 	
 	auto time_2_lsq = std::chrono::high_resolution_clock::now();
 	auto duration_lsq = std::chrono::duration_cast<std::chrono::seconds>(time_2_lsq - time_1_lsq);
@@ -240,16 +245,19 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 
 
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
-                        const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, short our_dim[8], 
-                        double TE_scale, double TR_scale, double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
+                        const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+                        short our_dim[8], 
+                        double TE_scale, double TR_scale, 
+                        double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
                         int do_least_sq = 1, char will_write = 0){
+
 
 	//Primary Initial value for test//
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
 	Matrix_eig_row W = Matrix_eig_row::Ones(n, 3);
-	// Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> W;			// row major - first do the other thing without error
 	//show_dim(W);
 	//show_dim(r);
+	
 	
 	// Ad hoc initial values:
 	W.col(0) = r.rowwise().mean().transpose();
@@ -284,18 +292,25 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 
 
 /*
+* Performance matrices:
+* W: 		parameter matrix:
+* test: 	test set image matrix
+* TE_test:			
+* TR_test:			
+* sigma_test:		
 * v_type 
 	1 -- compared with v
 	2 -- compared with mode of rice distn (not implemented yet - need another set of optimization)
 	3 -- compared with rice mean
 	
-  measure_type 
+* measure_type: 
   	1 -- abs deviation from mean(not median?)
   	2 -- squared deviation from mean
   
-  Scale: 
+* Scale: Scaled measure vs Unscaled measure 
   	0 -- no
   	1 -- yes
+		 Scaling factor is sd / MAD w.r.t. mean
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
 							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
@@ -358,7 +373,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 			if(measure_type == 1){
 				scale_factor = abs_dev_mean(test.col(j)); 
 			} else if (measure_type == 2){
-				scale_factor = abs_dev_mean(test.col(j));
+				scale_factor = std::sqrt(var(test.col(j)));
 			}
 			Performance_test[j] /= scale_factor;
 		}
@@ -367,9 +382,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	return Performance_test;
 }
-// Do scaled version:
-// For scaled version, RMSPE is rescaled using crude SD of j-th image
-// MAPE is rescaled using crude MAD about the mean(??? isn't it better to take median) of j-th image
+// Do scaled version: -- Done
 
 
 

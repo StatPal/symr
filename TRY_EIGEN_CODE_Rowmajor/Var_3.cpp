@@ -1,21 +1,34 @@
 /**
-* Calculating estimates of \sigma_j's
+* Calculating estimates of \sigma_j's for each image(j).
+* Compile this first before running the main program. 
+* It will store the estimated \sigma_j's at a file 
+* which is taken from command line argument. 
 
+
+* Algorithm :
+* This basically uses EM on mixture of rice models(common variance) fitted to the MRI's.
+
+Init value is little modified(see description before fn) from the algorithm shown in Dr. Maitra's paper for 
+variance estimation for rice mixture and application to MR Images.
+And EM is directly translated from Dr. Maitra's code.
+
+
+
+
+* To compile:
 g++ Var_3.cpp -o test_var -I /usr/include/eigen3 -O3
 
 g++ Var_3.cpp -o test_var -I ../eigen-3.3.7 -O3
 
 
-
+* To run:
 ./test_var ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
 
 ./test_var ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-
-Init value my code
-and EM translated from Dr. Maitra's code
-
 */
+
+
 
 
 
@@ -33,14 +46,16 @@ and EM translated from Dr. Maitra's code
 
 // Initial value part:
 
+
+/*
+* Choose points based on the prob values
+*/
 int choose_rnd_prob(const Vector_eig &p){
 
 	
 	int n = p.size(), choose;
-	// Normalize p first -- don't do this - makes the intervals very small and makes it hard to compare
-	// Vector_eig p_norm = (p/p.sum()).eval();
-	Vector_eig cum_sum_p = p; 			// p_norm;
-	for(int i = 1; i < n; ++i){
+	Vector_eig cum_sum_p = p; 			// p unnormalized - rest is taken care of
+	for(int i = 1; i < n; ++i) {
 		cum_sum_p(i) += cum_sum_p(i-1);
 	}
 	
@@ -49,8 +64,8 @@ int choose_rnd_prob(const Vector_eig &p){
 	//std::srand((unsigned int) time(0));	// https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
 	std::random_device rd{};
 	std::mt19937 gen{rd()};
-	std::uniform_real_distribution<> d{0.0, p.sum()}; // d{0.0,1.0};
-	double random_val = d(rd);	//VectorXd::Random(1)
+	std::uniform_real_distribution<> d{0.0, p.sum()};
+	double random_val = d(rd);	//VectorXd::Random(1) -- Haven't seen this before
 	
 	if(0.0 <= random_val && random_val < cum_sum_p(0)){
 		choose  = 0;
@@ -66,6 +81,9 @@ int choose_rnd_prob(const Vector_eig &p){
 }
 
 
+/*
+* Finds closest dist of mu's from R_i.
+*/
 int closest_dist(double R_i, Vector_eig mu){
 
 	Vector_eig diff = (Vector_eig::Constant(mu.size(), R_i) - mu).cwiseAbs();
@@ -77,9 +95,14 @@ int closest_dist(double R_i, Vector_eig mu){
 
 
 
-// Modified version:
-Matrix_eig Est_var_init(const Vector_eig &R, int J, 
-						double &sig_sq, Vector_eig &pi, Vector_eig &mu, int maxiter = 10){
+/*
+* Modified version of Initial value determination
+* The whole init_value part is run more than 1 time (init_iter)
+* and the mean of the voxels of that class is taken as mu 
+* (as opposed to taking a random point from that group)
+*/
+void Est_var_init(const Vector_eig &R, int J, 
+						double &sig_sq, Vector_eig &pi, Vector_eig &mu, int maxiter = 5){
 
 
 	//Declare variables:
@@ -88,7 +111,7 @@ Matrix_eig Est_var_init(const Vector_eig &R, int J,
 	Vector_eig W(n), X(n);
 	sig_sq = 0.0;
 	mu = Vector_eig::Constant(J, -100);
-	// Numerical reasons - all (-100) - so that it's easier to calculate closest mu_j
+	// Numerical reasons - all (-100) - so that it's easier to calculate closest mu_j when nothing is there
 	
 	
 	// Track the best:
@@ -108,12 +131,11 @@ Matrix_eig Est_var_init(const Vector_eig &R, int J,
 	while(iter++ < maxiter){
 		for(int j = 0; j < J-1; ++j){
 		
-			// std::cout << "\n";
 			Debug2("j = " << j);
 			
 			// Step 2:
 			for(int i = 0; i < n; ++i){
-				X(i) = R(i) - mu(W(i));		// X can be -ve.
+				X(i) = R(i) - mu(W(i));
 			}
 			sig_sq = X.squaredNorm()/(2*n);
 			Debug2("sig hat sq: " << sig_sq);
@@ -122,8 +144,8 @@ Matrix_eig Est_var_init(const Vector_eig &R, int J,
 			// Step 3:
 			int ind = choose_rnd_prob( 1 - exp( - X.array().pow(2.0) /(2*sig_sq)));
 			// mu(j) = X(ind);
-			// problem: X would be -ve also, creating -ve value of mu
-			mu(j) = R(ind);					// changed 
+			// PROBLEM: X would be -ve also, creating -ve value of mu
+			mu(j) = R(ind);					// changed -- problem solved
 			for(int i = 0; i < n; ++i){		// Getting the closest
 				W(i) = closest_dist(R(i), mu);
 			}
@@ -142,70 +164,31 @@ Matrix_eig Est_var_init(const Vector_eig &R, int J,
 					mu_tmp(j) += R(i);
 				}
 			}
-			//Debug2("In the loop: mu_tmp: " << mu_tmp.size() << "; mu_tmp: " << mu_tmp.transpose());
-			mu_tmp(j) /= pi(j);		// # of elements in that class
+			mu_tmp(j) /= pi(j);		// pi(j) is currently # of elements in that class
 		}
 		
 		
 		pi /= n;
-		Debug2("Init pi: " << pi.transpose());
+		Debug3("Init pi: " << pi.transpose());
 		
 		mu_tmp(J-1) = 0.0;
 		mu = mu_tmp;
-		Debug2("Init mu: " << mu.transpose());
+		Debug3("Init mu: " << mu.transpose());
 		
 		for(int i = 0; i < n; ++i){
 			X(i) = R(i) - mu(W(i));		// X can be -ve.
 		}
 		sig_sq = X.squaredNorm()/(2*n);
-		Debug2("Init sig hat sq: " << sig_sq << "\nInitial value done!!\n\n" );
+		Debug3("Init sig hat sq: " << sig_sq << "\nInitial value done!!\n\n" );
 	}
 	
 	
-	Matrix_eig W_mat = Matrix_eig::Zero(n, J);
-	// Somehow, the mu - sig values are not doing good - so i am feeding hard - clustered W first
-	for(int j = 0; j < J; ++j){
-		for(int i = 0; i < n; ++i){
-			W_mat(i, W(i)) = 1;
-		}
-	}
 	
-	Debug1("Init sig hat sq: " << sig_sq << "\nInit pi: " << pi.transpose() << ";\nInit mu: " << mu.transpose() << "\nInitial value done!!");
+	Debug1("Init sig hat sq: " << sig_sq << 
+			"\nInit pi: " << pi.transpose() << 
+			";\nInit mu: " << mu.transpose() << 
+			"\nInitial value done!!");
 	
-	
-	
-	//Checks:
-	/*
-	std::cout << "\n\n\n\n";
-	Debug0("Checks!\n");
-	Vector_eig tmp_mean = Vector_eig::Zero(J);
-	Vector_eig tmp_sum = W_mat.colwise().sum();
-	Vector_eig tmp_pi = W_mat.colwise().mean();
-	double tmp_sig = 0.0;
-	for(int j = 0; j < J; ++j){
-		for(int i = 0; i < n; ++i){
-			if(W_mat(i,j) == 1.0){
-				tmp_mean(j) +=  R(i);
-			}
-		}
-		tmp_mean(j) /= tmp_sum(j);
-	}
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < J; ++j){
-			if(W_mat(i,j) == 1.0){
-				tmp_sig += SQ(R(i) - tmp_mean(j));
-			}
-		}
-	}
-	tmp_sig /= 2*n;
-	Debug0("Check: tmp_pi: " << tmp_pi.transpose() << "; tmp_mean: " << tmp_mean.transpose() << 
-			"; tmp_sig:" << tmp_sig);
-	
-	
-	// Okay!
-	*/
-	
-	return W_mat;			// Check this is good or not!
 }
 
 
@@ -253,7 +236,7 @@ double dlrice(double x, double mu, double sig_sq) {
 
 /*   This is the E-Step: assigns the responsibilities of each of the k groups 
      to each of the n observations. 
-     The inputs are:
+     Inputs:
      n     = number of Ricean observations
      k     = number of components (all Rice; Rayleigh incorporated within, in 
              the last k'th component if present)
@@ -266,8 +249,8 @@ double dlrice(double x, double mu, double sig_sq) {
              belonging to the kth group. 
      RGamm = n x k matrix of posterior expectation of the product of the
              indicator (that the ith observation is in kth group) and 
-	     the cosine of angle given ith magnitude observation belongs to 
-	     the kth group
+	     	 the cosine of angle given ith magnitude observation belongs to 
+	     	 the kth group
 */
 
 void rice_estep(int n, int k, const Vector_eig &X, Matrix_eig &Gamma, Matrix_eig &RGamm,
@@ -283,27 +266,17 @@ void rice_estep(int n, int k, const Vector_eig &X, Matrix_eig &Gamma, Matrix_eig
 		sum = 0.;
 		for (l = 0; l < k; l++){
 			temp[l] = std::log(pi[l]) + dlrice(X[i], Mu[l], Sigma);
-			// I guess log(0) is creating problem in log pi case
-			// Oh! mu and sigma were interchanged - why sigma is written before mu-confusing!!!!!!!!
-			if(std::isnan(temp[l])){
-				Debug1("l: "<< l << "dlrice(X[i], Mu[l], Sigma): " << dlrice(X[i], Mu[l], Sigma) << 
-						"X[i], Sigma, Mu[l]:" << X[i] << ", " << Sigma << ", " <<  Mu[l]);
-			}
 		}
 		
 		
-		//minmax = range(temp, k); /* get the minimum and maximum values*/
 		minmax(0) = temp.array().minCoeff();
 		minmax(1) = temp.array().maxCoeff();
 		for (l = 0; l < k; l++) {
-			temp[l] -= minmax[1]; /*reduce to get smaller values*/ 
-			// Subtract maximum?? -Subrata  - check the fn - checked
+			temp[l] -= minmax[1]; 		//reduce to get smaller values 
 			sum += std::exp(temp[l]);
 		}
 		
 		for (l = 0; l < k; l++) {
-			//Gamma[i][l] = std::exp(temp[l])/sum;
-			//RGamm[i][l] = Gamma[i][l] * besselI1_I0( X[i] * Mu[l] / SQ(Sigma));
 			Gamma(i, l)= std::exp(temp[l])/sum;
 			RGamm(i, l) = Gamma(i, l) * besselI1_I0( X[i] * Mu[l] / SQ(Sigma));
 		}
@@ -311,7 +284,25 @@ void rice_estep(int n, int k, const Vector_eig &X, Matrix_eig &Gamma, Matrix_eig
 }
 
 
-void rice_mstep(const Vector_eig &X, int n, int k, Vector_eig &pi, Vector_eig &Mu, 
+
+/*   This is the M-Step: Maximize the parameters w.r.t. old ones.
+     Inputs:
+     n     = number of Ricean observations
+     k     = number of components (all Rice; Rayleigh incorporated within, in 
+             the last k'th component if present)
+     X     = vector of Ricean observations
+     pi    = vector of prior probabilities
+     Mu    = vector of Ricean-distributed means (last zero, if Rayleigh 
+             component is present)     
+     Sigma = (common) noise parameter of Rice-distributed components
+     Gamma = n x k matrix of posterior probability of observation X[i] 
+             belonging to the kth group. 
+     RGamm = n x k matrix of posterior expectation of the product of the
+             indicator (that the ith observation is in kth group) and 
+	     	 the cosine of angle given ith magnitude observation belongs to 
+	     	 the kth group
+*/
+void rice_mstep(int n, int k, const Vector_eig &X, Vector_eig &pi, Vector_eig &Mu, 
 		double &Sigma, Matrix_eig &Gamma, Matrix_eig &RGamm){
 
 	int i, ll, iRayleigh = 0;
@@ -319,7 +310,7 @@ void rice_mstep(const Vector_eig &X, int n, int k, Vector_eig &pi, Vector_eig &M
 	
 	Vector_eig sum = Vector_eig::Zero(k);
 
-	if (Mu[k - 1] == 0) iRayleigh = 1; /*this means the Rayleigh component*/
+	if (Mu[k - 1] == 0) iRayleigh = 1; //this means the Rayleigh component
 
 
 
@@ -355,17 +346,20 @@ void rice_mstep(const Vector_eig &X, int n, int k, Vector_eig &pi, Vector_eig &M
 
 
 Eigen::VectorXi classify(int n, int k, Matrix_eig &Gamma);
-
 double icl(int n, int k, const Vector_eig &X, Eigen::VectorXi &class1, 
 			Vector_eig &Mu, Vector_eig &pi, double sigma);
-
 double observedDataLogLikelihood(const Vector_eig &y, const int numPoints,
 				 const Vector_eig &p, const Vector_eig &mu,
 				 const int numClusters, const double sigma);
 
 
 
-Eigen::VectorXi rice_emcluster(int n, int k, Vector_eig &pi, const Vector_eig &X, Vector_eig &Mu, 
+/*
+* Full EM cycle:
+* llhdval is the likelihood
+* BIC is BIC
+*/
+Eigen::VectorXi rice_emcluster(int n, int k, const Vector_eig &X, Vector_eig &pi, Vector_eig &Mu, 
 								double &Sigma, int maxiter, double eps, double &llhdval,
 								double &ICL, double &BIC){
 
@@ -384,7 +378,7 @@ Eigen::VectorXi rice_emcluster(int n, int k, Vector_eig &pi, const Vector_eig &X
 		rice_estep(n, k, X, gamm, rgamm, pi, Mu, Sigma);
 		Debug2("k: " << k << " sigma est: " << Sigma << " \npi est: " << pi.transpose() << " mu est: " << Mu.transpose());
 		// show_head(gamm, 3);
-		rice_mstep(X, n, k, pi, Mu, Sigma, gamm, rgamm);
+		rice_mstep(n, k, X, pi, Mu, Sigma, gamm, rgamm);
 		oldllhd = llhdval;
 		llhdval = observedDataLogLikelihood(X, n, pi, Mu, k, Sigma);
 		iter++;
@@ -405,7 +399,8 @@ Eigen::VectorXi rice_emcluster(int n, int k, Vector_eig &pi, const Vector_eig &X
 
 
 // Change
-double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, int init_iter = 4, int EM_iter = 15, double eps = 0.0001){
+double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, 
+				int init_iter = 4, int EM_iter = 15, double eps = 0.0001){
 	
 	double sig_sq = 0.0;
 	double sig = std::sqrt(sig_sq), best_sig;
@@ -423,8 +418,9 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, int init_ite
 		Est_var_init(r_col, J+min_grp, sig_sq, pi, mu, init_iter);
 		sig = std::sqrt(sig_sq);
 	
-		rice_emcluster(n, J+min_grp, pi, r_col, mu, sig, EM_iter, eps, llhdval, ICL, BIC);
-		Debug1( "\tJ+min_grp: " << J+min_grp << ", sigma est: " << sig << " \npi est: " << pi.transpose() << "\nmu est: " << mu.transpose() << "\n");
+		rice_emcluster(n, J+min_grp, r_col, pi, mu, sig, EM_iter, eps, llhdval, ICL, BIC);
+		Debug1( "\tJ+min_grp: " << J+min_grp << ", sigma est: " << sig << 
+					" \npi est: " << pi.transpose() << "\nmu est: " << mu.transpose() << "\n");
 		BIC_vec(J) = BIC;
 		Sig_vec(J) = sig;
 	}
@@ -437,6 +433,7 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, int init_ite
 	Debug1("BIC_vec: " << BIC_vec.transpose());
 	Debug1("Sig_vec: " << Sig_vec.transpose());
 	best_sig = Sig_vec(maxRow, maxCol);
+	Debug1("Estimated Sigma: " << best_sig);
 	
 	
 	return best_sig;
@@ -467,7 +464,7 @@ int main(int argc, char * argv[]) {
 	}
 	Debug0("sd_est: " << sd_est.transpose());
 	
-	std::ofstream myfile ("Dummy_sd.txt");
+	std::ofstream myfile (sd_file);
  	if (myfile.is_open()){
  		for(int i = 0; i < r.cols(); ++i){
  			myfile << sd_est(i) << "\n";

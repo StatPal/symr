@@ -116,6 +116,16 @@ const int IF_DEBUG = 1;
 #endif
 
 
+//#define DEBUG_LEVEL_LS
+
+#ifdef DEBUG_LEVEL_LS
+#define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}
+#else
+#define DebugLS(x)
+#endif
+
+
+
 #define DEBUG_ANOTHER_LEVEL 0
 
 
@@ -953,7 +963,7 @@ SpMat J_n(int n_x){				// has determinant 0???				// When n_x =1
 
 /*
 * Eigen values of J_n
-* Be careful of the sorting order.
+* Be careful of the sorting order. This is oppositely sorted
 * https://stackoverflow.com/questions/30188482/sparse-eigenvalues-using-eigen3-sparse
 */
 Vector_eig eigenvals_J_n(int n) {
@@ -961,10 +971,9 @@ Vector_eig eigenvals_J_n(int n) {
 	//Eigen::SelfAdjointEigenSolver<Matrix_eig> es(A);
 	//return (es.eigenvalues());
 	
-	
 	Vector_eig d_vec = Vector_eig::Zero(n);
 	for(int i = 0; i < n; ++i){
-		d_vec[i] = 2*(1-std::cos(M_PI*i/n));			// Check, this is oppositely sorted - check
+		d_vec[i] = 2*(1-std::cos(M_PI*i/n));
 	}
 	return d_vec;
 }
@@ -1003,26 +1012,6 @@ class MRF_param{
 	
 	//Constructor:
 	// MRF_param(){};
-	// Might help in main file MRF - yes it resolved the problem.
-	// Without this, the errors were:
-
-/*
-scheme_new_OSL_EM_15_GEM.cpp: In instantiation of ‘MRF_optim<T>::MRF_optim(typename cppoptlib::BoundedProblem<T>::TVector) [with T = double; typename cppoptlib::BoundedProblem<T>::TVector = Eigen::Matrix<double, -1, 1>]’:
-scheme_new_OSL_EM_15_GEM.cpp:403:48:   required from here
-scheme_new_OSL_EM_15_GEM.cpp:222:49: error: no matching function for call to ‘MRF_param::MRF_param()’
-  222 |   cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
-      |                                                 ^
-In file included from scheme_new_OSL_EM_15_GEM.cpp:24:
-scheme_new_numerical.hpp:684:2: note: candidate: ‘MRF_param::MRF_param(int, int, int)’
-  684 |  MRF_param(int n_x, int n_y, int n_z) {
-      |  ^~~~~~~~~
-scheme_new_numerical.hpp:684:2: note:   candidate expects 3 arguments, 0 provided
-scheme_new_numerical.hpp:669:7: note: candidate: ‘MRF_param::MRF_param(const MRF_param&)’
-  669 | class MRF_param{
-      |       ^~~~~~~~~
-scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
-*/
-
 	// https://stackoverflow.com/questions/18971355/no-matching-function-for-call-to-class  - important
 	
 	
@@ -1076,13 +1065,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	}
 	
 	
-	// Specific row of Lambda matrix: Creates some problem.
-	/*
-	SpMat Lambda_row(Vector_eig beta, int i){
-		Lambda_init_row = beta(0)*H_1.row(i) + beta(1)*H_2.row(i) + beta(2)*H_3.row(i);
-		return(Lambda_init_row);
-	}
-	*/
+
 	
 		
 	
@@ -1139,8 +1122,8 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		for (k = 0; k < H_1.outerSize(); ++k){
 			for (SpMat::InnerIterator it(H_1,k); it; ++it){
 				// it.value();
-				// it.row();   // row index
-				// it.col();   // col index (here it is equal to k)
+				// i = it.row();   // row index
+				// j = it.col();   // col index (here it is equal to k)
 				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
 				tmp1 += tmp3 * it.value();
 			}
@@ -1150,10 +1133,8 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		tmp1 = 0.0;
 		for (k = 0; k < H_2.outerSize(); ++k){
 			for (SpMat::InnerIterator it(H_2,k); it; ++it){
-				// i = it.row(); j = it.col();
 				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
 				tmp1 += tmp3 * it.value();
-				// tmp1 += it.value() * (W.row(j).transpose() * (Psi_inv * W.row(i)));
 			}
 		}
 		tmp2 += beta(1)*tmp1;
@@ -1161,10 +1142,8 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		tmp1 = 0.0;
 		for (k = 0; k < H_3.outerSize(); ++k){
 			for (SpMat::InnerIterator it(H_3,k); it; ++it){
-				// i = it.row(); j = it.col();
 				tmp3 = (W.row(it.col()) * (Psi_inv*W.row(it.row()).transpose()));
 				tmp1 += tmp3 * it.value();
-				// tmp1 += it.value() * (W.row(j).transpose() * (Psi_inv * W.row(i)));
 			}
 		}
 		tmp2 += beta(2)*tmp1;
@@ -1175,6 +1154,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	/*
 	* gradient of likelihood w.r.t. i-th row of W.
+	* Shorten if possible - maybe using increment
 	*/
 	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
 		Vector_eig tmp1(3), tmp2(3), tmp3(3);
@@ -1208,7 +1188,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		// here k and it.col() are same;
 		// So we need 
 		// \Sum_{j \ne i1} Lambda(i1, j) [W_j * Psi_inv * ( W_i1_new - W_i1_old)']
-		// 		+ 0.5 Lambda(i1, i1) [W_i1_new * Psi_inv * W_i1_new' - W_i1_old * Psi_inv * W_i1_old']		// ... Check this line
+		// 		+ 0.5 Lambda(i1, i1) [W_i1_new * Psi_inv * W_i1_new' - W_i1_old * Psi_inv * W_i1_old']
 		
 		// it.col() is fixed at i1.
 		// it.row() is basically j
@@ -1245,6 +1225,8 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
+	
+	
 	// W'Lambda W matrix:
 	Matrix_eig Wt_L_W(const Matrix_eig_row &W, const Vector_eig &beta){
 	
@@ -1259,7 +1241,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 	
 	
 	
-	// Derivative of the likelihood
+	// Derivative of the MRF-likelihood w.r.t. MRF parameters
 	Vector_eig MRF_log_likeli_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
@@ -1268,7 +1250,7 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 		
 		Psi_grad.noalias() = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
 	
-		tmp_W_Psi_inv.noalias() = W * Psi_inv; 		// Is this direction faster?
+		tmp_W_Psi_inv.noalias() = W * Psi_inv; 		// Is this direction faster?, make another temp mat
 		double beta_x_grad = 1.5*sp_log_inv_specific(beta, 0) - 
 		                    	0.5*(W.transpose() * H_1 * tmp_W_Psi_inv).trace();
 		double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
@@ -1301,33 +1283,21 @@ scheme_new_numerical.hpp:669:7: note:   candidate expects 1 argument, 0 provided
 
 /*
 * \nu_{ij} as a mx1 vector from one row of W (and TE, TR)
+* \nu_{ij} = W_i0 * (1 - W_i1 ^ TR_j ) * W_i2 ^TE_j
 */
 Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR){
 
 	int m = TE.size();
-	Eigen::VectorXd tmp = Eigen::VectorXd::Zero(m);
+	Eigen::VectorXd tmp(m);
 	for(int j = 0; j < m; ++j) {
-		tmp(j) = W_row(0);
+		tmp(j) = W_row(0) * 
+					(1 - std::exp(TR(j)*std::log(W_row(1)))) *
+					std::exp(TE(j)*std::log(W_row(2)));
 	}
-	if(W_row(2)>0){
-		for(int j = 0; j < m; ++j) {
-			tmp(j) *= (1-std::exp(TR(j)*std::log(W_row(1))));
-		}
-	}
-	if(W_row(1)>0){
-		for(int j = 0; j < m; ++j) {
-			tmp(j) *= (1-std::exp(TR(j)*std::log(W_row(1))));
-		}
-	}
-	/*
-	if (W_row(2)>0 & W_row(1)>0) {
-		for(int j = 0; j < m; ++j) {
-			tmp(j) = W_row(0)*std::exp(TE(j)*std::log(W_row(2)))*
-		}
-	}
-	*/
 	return tmp;
 }
+// BUG --- Subrata - copy paste error happened at the time of reducing numerical error.
+// Corrected.
 
 
 
@@ -1344,13 +1314,10 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 	Matrix_eig_row tmp = Matrix_eig_row::Zero(nRow, nCol);		//check the order
 	for(int i = 0; i < nRow; ++i) {
 		for(int j = 0; j < nCol; ++j) {
-			tmp(i,j) = W(i,0);
-			if(W(i, 2)>0){								//changed
-				tmp(i,j) *= std::exp(TE(j)*std::log(W(i,2)));
-			}
-			if(W(i, 1)>0){
-				tmp(i,j) *= (1-std::exp(TR(j)*std::log(W(i,1))));
-			}
+			tmp(i,j) = W(i,0) * 
+						(1-std::exp(TR(j)*std::log(W(i,1)))) * 
+						std::exp(TE(j)*std::log(W(i,2)));
+			
 			if(std::isnan(tmp(i, j))){
 				Debug0("NAN in v_mat i:" << i << " j:" << j << " W: " << W(i,0) << ", " << W(i,1) << ", " << W(i,2)  << 
 				"\t others:" << std::exp(TE(j)*std::log(W(i,2))) << ", " << (1-std::exp(TR(j)*std::log(W(i,1)))) );
@@ -1364,12 +1331,12 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 
 /*
 * Reparametrization to W from rho, T_1, T_2
-* Have not used till now - raw rho, T_1, T_2 aree nowhere used
+* Have not used till now - raw rho, T_1, T_2 are nowhere used
 */
 //[[Rcpp::export]]
 Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
 	Matrix_eig_row W = Matrix_eig_row::Zero(rho.size(), 3);
-	W.col(0) = rho;				//as<arma::vec>(wrap(rho));
+	W.col(0) = rho;
 	for(int i = 0; i < rho.size(); ++i){
 		W(i, 1) = exp(-1/T_1(i));
 		W(i, 2) = exp(-1/T_2(i));
@@ -1381,10 +1348,12 @@ Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_e
 /*
 * Reparametrize everything to one vector of size 3*n+6+2
 * Input: W, Psi_inv(symmetric), beta_x, beta_y
-* Output: reparametrized vector (needed for the optimization)
+* Output: reparametrized vector (needed for the full set optimization)
+* Serious change is needed.
 */
 Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, double beta_y){
-	// to_vector can't handle const
+	// to_vector can't handle const - use const and hard code temp -- Subrata 
+	// Or, just use W.data() -- I guess it would work - Check
 	int n = W.rows();		// check
 	Vector_eig temp = Vector_eig::Zero(3*n+6+2);
 
@@ -1444,25 +1413,16 @@ Matrix3d_eig to_Psi_inv(const Vector_eig &temp_psi){
 
 
 /*
-* Regaining L matrix from temp_L vector (Cholesky part) -- Wait - this is symmetric - not Cholesky?
+* Regaining (lower Triangular) L matrix from temp_L vector (Cholesky part)
 */
-/*
-Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
-	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
-	L(0,0) = temp_L(0); L(0,1) = temp_L(1); L(0,2) = temp_L(2);
-	L(1,0) = temp_L(1); L(1,1) = temp_L(3); L(1,2) = temp_L(4);
-	L(2,0) = temp_L(2); L(2,1) = temp_L(4); L(2,2) = temp_L(5);
-	return L;
-}
-*/  // Not lower Triangular
-
 Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
 	L(0,0) = temp_L(0); L(0,1) = 0.0;       L(0,2) = 0.0;
 	L(1,0) = temp_L(1); L(1,1) = temp_L(3); L(1,2) = 0.0;
 	L(2,0) = temp_L(2); L(2,1) = temp_L(4); L(2,2) = temp_L(5);
 	return L;
-}																// Bug -- corrected
+}
+
 
 
 /* 
@@ -1497,6 +1457,7 @@ Matrix3d_eig from_Cholesky(const Matrix3d_eig &L){
 
 /*
 * Not used now - this hand written program creates numerical errors in sqrt part!
+* So default Cholesky decomposition function is used.
 * Input : Symmetric 3x3 matrix A
 * Output: Cholesky Decomposition of A
 * Use Matrix3d_eig L( A.llt().matrixL() );
@@ -1522,7 +1483,7 @@ Matrix3d_eig to_Cholesky(const Matrix3d_eig &A){
 * -- Recheck:
 * / 2L_0	L_1		L_2		0		0		0    \
 * | 0		L_0		0		2L_1	L_2		0    |
-* | 0		0		L_2		0		L_1		2L_2 |			// Mistake in first L_2 -> would be L_0  -- corrected
+* | 0		0		L_0		0		L_1		2L_2 |
 * | 0		0		0		2L_3	L_4		0    |
 * | 0		0		0		0		L_3		2L_4 |
 * \ 0		0		0		0		0		2L_5 /
@@ -1541,7 +1502,7 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 	
 	D(0,0) = 2*L(0);	D(0,1) = L(1);		D(0,2) = L(2);
 	D(1,1) = L(0);		D(1,3) = 2*L(1);	D(1,4) = L(2);
-	D(2,2) = L(0);		D(2,4) = L(1);		D(2,5) = 2*L(2);		//corrected - Subrata
+	D(2,2) = L(0);		D(2,4) = L(1);		D(2,5) = 2*L(2);
 	D(3,3) = 2*L(3);	D(3,4) = L(4);
 	D(4,4) = L(3);		D(4,5) = 2*L(4);
 	D(5,5) = 2*L(5);
@@ -1636,50 +1597,25 @@ double simple_dee_v_ij_dee_W_ik(const Vector_eig &W, const Vector_eig &TE, const
 	double deriv = 0.0;
 	
 	if(k == 0){
-		deriv = 1.0;
+		deriv = 1.0 * 
+				std::exp(TE(j)*std::log(W(2))) * 
+				(1 - std::exp(TR(j)*std::log(W(1))));
 	} else if(k == 1){
-		deriv = -W(0)*TR(j);
+		deriv = -W(0)*TR(j) * 
+				std::exp(TE(j)*std::log(W(2))) * 
+				std::exp((TR(j)-1)*std::log(W(1)));
 	} else if(k == 2){
-		deriv = W(0) * TE(j);
+		deriv = W(0) * TE(j) *
+				std::exp((TE(j)-1)*std::log(W(2))) * 
+				(1 - std::exp(TR(j)*std::log(W(1))));
 	}
 	
-	if(W(1) > 0){
-		if(k == 0){
-			deriv *= (1-std::exp(TR(j)*std::log(W(1))));
-		} else if(k == 1){
-			deriv *= std::exp((TR(j)-1)*std::log(W(1)));
-		} else if(k == 2){
-			deriv *= (1-std::exp(TR(j)*std::log(W(1)))) ;
-		}
-	}
-	
-	if(W(2) > 0){
-		if(k == 0){
-			deriv *= std::exp(TE(j)*std::log(W(2)));
-		} else if(k == 1){
-			deriv *= std::exp(TE(j)*std::log(W(2)));
-		} else if(k == 2){
-			deriv *= std::exp((TE(j)-1)*std::log(W(2))) ;
-		}
-	}
-	
-	return deriv;
-	
-	/*
-	if(k == 1){
-		return( std::exp(TE(j)*std::log(W(2))) * (1-std::exp(TR(j)*std::log(W(1)))) );
-	} else if(k == 2){
-		return( -W(0) * TR(j) * std::exp(TE(j)*std::log(W(2))) * std::exp((TR(j)-1)*std::log(W(1))) );
-	} else if(k == 3){
-		return( W(0) * TE(j) * std::exp((TE(j)-1)*std::log(W(2))) * (1-std::exp(TR(j)*std::log(W(1)))) );
-	} else {
-		return -10000;
-	}
-	*/
-}
-// There was a problem in indexing - C / R style confusion - corrected 
 
-// Corect the next ones!
+	return deriv;
+}
+// Put back the modifications done to avoid numerical errors.
+
+
 
 
 
@@ -1704,7 +1640,7 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &
 		return -1000000;
 	}
 }
-// There is a problem in indexing - C / R style confusion  - corrected
+
 
 
 
@@ -1739,7 +1675,6 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 		return -1000000;
 	}
 }
-// There is a problem in indexing - C / R style confusion -corrected
 // ISSUE: The TE and TR are scaled to have derivative just greater than 1
 // But here we would need the same - but > 2.
 
