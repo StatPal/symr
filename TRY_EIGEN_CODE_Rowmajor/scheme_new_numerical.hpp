@@ -30,6 +30,16 @@ g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 - Don't do it now. taking huge gch file. 
 
 
+
+
+
+
+To Do:
+Remove taking value back from 'Track the best' parts. 
+They always does not remain inside the boundary.
+However, they might give 'normal answer'
+
+
 */
 
 

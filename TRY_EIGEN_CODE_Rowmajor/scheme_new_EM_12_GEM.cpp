@@ -161,11 +161,11 @@ double Q_star_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, co
 	
 	//MRF part://
 	// likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
-	if(i == 0){
+	// if(i == 0){
 		likeli_sum += MRF_obj.MRF_log_likeli_num(W, Psi_inv, beta);
-	} else {
-		likeli_sum += MRF_obj.MRF_log_likeli_num_through_increment(W, Psi_inv, beta, i);
-	}
+	// } else {
+	// 	likeli_sum += MRF_obj.MRF_log_likeli_num_through_increment(W, Psi_inv, beta, i);
+	// }
 	
 	
 	//assert( ! std::isnan(-likeli_sum) );			// Don't assert, sobar mongol...
@@ -465,7 +465,7 @@ void likeli_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &bet
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
-	f.W = W_init;
+	f.W.noalias() = W_init;
 	Matrix_eig_row W_old = W_init;
 	f.W_old.noalias() = W_old;
 

@@ -29,6 +29,12 @@ Selectively, Matrix_eig to Matrix_eig_row
 and, Eigen::MatrixXd to Matrix_eig_row
 TMatrix to TMatrix_row
 
+
+To Do:
+Remove taking value back from 'Track the best' parts. 
+They always does not remain inside the boundary.
+However, they might give 'normal answer'
+
 * 
 */
 
@@ -540,7 +546,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
-	f.W = W_init;
+	f.W.noalias() = W_init;
 	Matrix_eig_row W_old = W_init;
 	f.W_old.noalias() = W_old;
 	
