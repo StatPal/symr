@@ -128,7 +128,6 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 
 /*
 * Negative Gradient of Penalised Q function per voxel - grad of J evaluated at old parameter
-* Check simple_dee_v_ij_dee_W_ik again.
 */
 Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                                 const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
@@ -166,8 +165,6 @@ Penalised NEGATIVE Q fn, w.r.t. parameter of MRF -- to be minimised
 * All parameters are not needed - keep them for uniformity?
 */
 double Q_star_other_param(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
-                          //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                          //const Matrix_eig_row &r, const Matrix_eig_row &W_old,
                           int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	double likeli_sum = MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
@@ -180,8 +177,6 @@ double Q_star_other_param(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
 * Negative Gradient of Penalised Q function w.r.t. other parameters
 */
 Vector_eig Q_grad_vec_other_parameter(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
-                                      //const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                                      //const Matrix_eig_row &r, const Matrix_eig_row &W_old,
                                       int n_x, int n_y, int n_z, MRF_param &MRF_obj){
 
 	Vector_eig grad = MRF_obj.MRF_log_likeli_grad(W, Psi_inv, beta);	
@@ -425,7 +420,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	lb_MRF.segment(0, 6+1+1) = -255*Vector_eig::Ones(6+1+1);
 	lb_MRF(0) = 1e-5; lb_MRF(0+3) = 1e-5; lb_MRF(0+5) = 1e-5;	// Diagonals of Cholesky to be BDD away from 0
 	lb_MRF(0+6) = 1e-5; lb_MRF(0+7) = 1e-5;						// beta forecefully made BDD away from 0
-	
 	//ub.segment(0, 6+1+1) *= 15;		// Get's sqaured
 	//lb.segment(0, 6+1+1) = 0.00001*Vector_eig::Ones(6);
 	

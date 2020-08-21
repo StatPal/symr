@@ -1152,6 +1152,26 @@ class MRF_param{
 	}
 	
 	
+	
+	
+	/* 
+	* log likelihood from the MRF part.
+	*/
+	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
+	
+		double likeli_sum = MRF_log_likeli_num(W, Psi_inv, beta);
+		likeli_sum += ( 3 * sp_log_det_specific(beta) + 
+								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
+		
+		return likeli_sum;
+		
+		// (-0.5*trace(Psi_inv*W.transpose()*Lambda(beta)*W)) 
+		// 			- 1.5*n*log(2*M_PI) + 1.5*log|Gamma^{-1}| + (n/2)*log|Psi^{-1}|
+	}
+	
+	
+	
+	
 	/*
 	* gradient of likelihood w.r.t. i-th row of W.
 	* Shorten if possible - maybe using increment
@@ -1209,30 +1229,16 @@ class MRF_param{
 	
 	
 	
-	/* 
-	* log likelihood from the MRF part.
-	*/
-	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
-	
-		double tmp_num = MRF_log_likeli_num(W, Psi_inv, beta);
-		double likeli_sum = tmp_num + ( 3 * sp_log_det_specific(beta) + 
-								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
-		
-		return likeli_sum;
-		
-		// (-0.5*trace(Psi_inv*W.transpose()*Lambda(beta)*W)) - 1.5*n*log(2*M_PI) - 
-	}
-	
-	
 	
 	
 	
 	// W'Lambda W matrix:
 	Matrix_eig Wt_L_W(const Matrix_eig_row &W, const Vector_eig &beta){
 	
-		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
+		// SpMat Gamma_inv = Lambda(beta);
+		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
-		tmp_Lambda_W.noalias() = Lambda_init*W;	// n x 3
+		tmp_Lambda_W.noalias() = Lambda_init*W;
 		
 		return W.transpose()*tmp_Lambda_W;
 	}
@@ -1244,7 +1250,8 @@ class MRF_param{
 	// Derivative of the MRF-likelihood w.r.t. MRF parameters
 	Vector_eig MRF_log_likeli_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
-		// SpMat Gamma_inv = Lambda(beta);		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
+		// SpMat Gamma_inv = Lambda(beta);
+		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
 		
 		
