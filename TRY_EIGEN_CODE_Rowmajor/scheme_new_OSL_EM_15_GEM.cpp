@@ -123,6 +123,7 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 	for(int k = 0; k < 3; ++k){
 		likeli_sum -= c_i(k) * W(i, k);
 	}
+	// c_i = (Gamma_inv * W_old * Psi_inv).row(i)
 	
 	//assert( ! std::isnan(-likeli_sum) );			// Don't assert, sobar mongol...
 	return (-likeli_sum);

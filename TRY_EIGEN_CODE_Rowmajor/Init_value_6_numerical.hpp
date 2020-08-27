@@ -331,7 +331,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		} else if (v_type == 2){
 			// Need to be done - mode of rice distn to be calculated with NR method
 		} else if (v_type == 3){
-			for(int j = 1; j < n_test; j++){
+			for(int j = 0; j < n_test; j++){
 				v_star(j) = mean_rice(v_new(j), sigma_test(j));
 			}
 		}
