@@ -40,6 +40,16 @@ They always does not remain inside the boundary.
 However, they might give 'normal answer'
 
 
+
+** Numerical fix:
+Instead of using besselI, use scaled version from gsl.
+Also, in some places, handwritten bessel function was still used which is ineffeicient. 
+Those are changed. 
+
+mean_rice function uses that scaled version. 
+
+
+
 */
 
 
@@ -62,6 +72,10 @@ However, they might give 'normal answer'
 
 #include <cmath> 	//For bessel fn if cpp17
 #include <chrono>
+
+
+
+#include <gsl/gsl_sf_bessel.h>		// Try SCALED besselI from here!
 
 
 
@@ -238,14 +252,14 @@ static double besseli(double x, int alpha){
 double our_bessel_I(double x, double nu){
 
 	if(x>=0.0){
-	/*
-#ifdef (__cplusplus == 201703L)
+	
+//#ifdef (__cplusplus == 201703L)
 	return(std::cyl_bessel_i(nu, x));
-#else
-	return(besseli(x, nu));
-#endif*/
+//#else
+	//return(besseli(x, nu));
+//#endif*/
 		
-		return(besseli(x, nu));					//return(R::bessel_i(x, nu, 1));
+		//return(besseli(x, nu));					//return(R::bessel_i(x, nu, 1));
 	} else {
 		std::cout << "neg arg in bessel function" << std::endl;
 		return -1.0e-50;
@@ -507,10 +521,12 @@ void show_head_vec(const Eigen::VectorXd &W, int n = 10, int endLine = 0){
 
 /*
 * Mean of rice distribution
+* Using GSL for SCALED besselI
 */
 double mean_rice(double nu, double sigma){
 	double x = - SQ(nu)/(2*SQ(sigma));
-	return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
+	// return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
+	return sigma * std::sqrt(M_PI/2) *( (1-x)*gsl_sf_bessel_I0_scaled(-x/2) - x * gsl_sf_bessel_I1_scaled(-x/2)) ;
 }
 
 
