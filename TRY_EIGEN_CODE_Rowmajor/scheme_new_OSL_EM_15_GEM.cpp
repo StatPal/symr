@@ -8,11 +8,11 @@
 
 * To compile:
 
-g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3
+g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3 --std=c++17 -lgsl -lgslcblas -lm
 
-g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 -std=c++11
+g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 --std=c++17 -lgsl -lgslcblas -lm
 
-g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -O3
+g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -O3 --std=c++17 -lgsl -lgslcblas -lm
 
 
 

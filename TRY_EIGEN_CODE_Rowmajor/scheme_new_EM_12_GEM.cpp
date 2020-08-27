@@ -9,9 +9,9 @@ Multiple Cycle EM (AECM) -  3 dimensional optimization for each voxel.
 
 * To compile:
 
-g++ scheme_new_EM_12_GEM.cpp -o test -I /usr/include/eigen3 -O3
+g++ scheme_new_EM_12_GEM.cpp -o test -I /usr/include/eigen3 -O3 --std=c++17 -lgsl -lgslcblas -lm
 
-g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/GEM_12_no_grad.cpp -o GEM_12_no_grad -I ~/MRI/Headers -O3 -std=c++11
+g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/GEM_12_no_grad.cpp -o GEM_12_no_grad -I ~/MRI/Headers -O3 --std=c++17 -lgsl -lgslcblas -lm
 
 
 
