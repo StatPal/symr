@@ -50,6 +50,10 @@ mean_rice function uses that scaled version.
 
 
 
+track the best is removed from the LS estimate. 
+OW the best value is going outside the constraints
+
+
 */
 
 

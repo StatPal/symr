@@ -82,10 +82,10 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
 		
 		// Track the best:
-		if(fx < current_best_val){
-			current_best_param = x;
-			current_best_val = fx;
-		}
+		//if(fx < current_best_val){
+		//	current_best_param = x;
+		//	current_best_val = fx;
+		//}
 		
 		return (fx);
 	}
@@ -188,8 +188,8 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 		// Track the best:
 		// remove if necessary
-		x = f.current_best_param;
-		fx = f.current_best_val;
+		// x = f.current_best_param;
+		// fx = f.current_best_val;
 		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
 		
 		

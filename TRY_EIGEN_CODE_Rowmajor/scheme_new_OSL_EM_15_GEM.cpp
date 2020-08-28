@@ -467,7 +467,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	//Solve:
 	solver_2.minimize(f_2, x_MRF);
 	Debug2("argmin: " << x_MRF.transpose() << ";\tf(x) in argmin:");
-	f_2(x_MRF);
+	double fx_MRF = f_2(x_MRF);
 	Debug2("Solver status: " << solver_2.status());
 	Debug2("Final criteria values: " << "\n" << solver_2.criteria());
 	Debug1("x_MRF: " << x_MRF.transpose());
@@ -475,8 +475,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	// Track the best: It's currently inside boundary
-	x_MRF.noalias() = f_2.current_best_param;
-	double fx_MRF = f_2.current_best_val;
+	// x_MRF.noalias() = f_2.current_best_param;
+	// double fx_MRF = f_2.current_best_val;
 	Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
 			"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
 	
