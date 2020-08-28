@@ -182,6 +182,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 		//Solve:
 		solver.minimize(f, x);
+		fx = f(x);
 		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
 		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
 		DebugLS("Final criteria values: " << "\n" << solver.criteria());
