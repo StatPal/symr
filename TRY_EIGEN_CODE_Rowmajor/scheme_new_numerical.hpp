@@ -1051,6 +1051,7 @@ class MRF_param{
 	MRF_param(int n_x, int n_y, int n_z) {
 	
 		n = n_x * n_y * n_z;
+		/*
 		H_1 = Kron_Sparse_eig( J_n(n_x), I_n(n_y*n_z));
 		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z));
 		H_3 = Kron_Sparse_eig( I_n(n_x*n_y), J_n(n_z));
@@ -1069,6 +1070,30 @@ class MRF_param{
 		eigenval_1 = Kron_vec_eig(eigenval_1_small, one_23);
 		eigenval_2 = Kron_vec_eig(one_1, Kron_vec_eig(eigenval_2_small, one_3) );
 		eigenval_3 = Kron_vec_eig(one_12, eigenval_3_small);
+		*/
+		
+		
+		
+		
+		H_1 = Kron_Sparse_eig( I_n(n_z*n_y), J_n(n_x));
+		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_z), J_n(n_y)), I_n(n_x));
+		H_3 = Kron_Sparse_eig( J_n(n_z), I_n(n_y*n_x));
+		
+		eigenval_1_small = eigenvals_J_n(n_x);
+		eigenval_2_small = eigenvals_J_n(n_y);
+		eigenval_3_small = eigenvals_J_n(n_z);
+		
+		one_1 = Vector_eig::Ones(n_x);
+		one_2 = Vector_eig::Ones(n_y);
+		one_3 = Vector_eig::Ones(n_z);
+		one_23 = Vector_eig::Ones(n_y*n_z);
+		one_12 = Vector_eig::Ones(n_x*n_y);
+		
+		eigenval_1 = Kron_vec_eig(one_23, eigenval_1_small);
+		eigenval_2 = Kron_vec_eig(one_3, Kron_vec_eig(eigenval_2_small, one_1) );
+		eigenval_3 = Kron_vec_eig(eigenval_3_small, one_12);
+		
+		
 		
 		final_vec = Vector_eig::Zero(n);
 		eigens    = Vector_eig::Zero(n);

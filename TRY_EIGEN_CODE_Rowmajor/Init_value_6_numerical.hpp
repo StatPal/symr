@@ -305,8 +305,8 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	3 -- compared with rice mean
 	
 * measure_type: 
-  	1 -- abs deviation from mean(not median?)
-  	2 -- squared deviation from mean
+  	1 -- abs deviation from mean(not median?)	-- MAPE
+  	2 -- squared deviation from mean			-- RMSPE
   
 * Scale: Scaled measure vs Unscaled measure 
   	0 -- no
