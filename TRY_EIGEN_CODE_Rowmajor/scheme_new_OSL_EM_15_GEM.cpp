@@ -8,7 +8,7 @@
 
 * To compile:
 
-g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 --std=c++17 -lgsl -lgslcblas -lm
 
@@ -38,7 +38,7 @@ Option: whether to add MRF in Hessian or not
 
 THERE ARE SOME PROBLEM IN THIS FILE. SEE RESERVED FILE
 
-
+In line ~670, verbose is changed to verbose2
 
 To Do:
 Remove taking value back from 'Track the best' parts. 
@@ -408,7 +408,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                const Vector_eig &sigma, const Matrix_eig_row &r, 
                int n_x, int n_y, int n_z, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
-               int maxiter = 20, int penalized = 1, double abs_diff = 1e-6, int verbose = 0) {
+               int maxiter = 20, int penalized = 1, 
+               double abs_diff = 1e-6, int verbose = 0, int verbose2 = 0) {
 // Change
 
 
@@ -667,7 +668,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			if(fx >= old_val) {								//Compares best value inside
-				if(verbose){
+				if(verbose2){
 					Debug1("Value have not decreased!!\nold x:" << W_init.row(i) << " & val: " << old_val << 
 							";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");					
 				}
