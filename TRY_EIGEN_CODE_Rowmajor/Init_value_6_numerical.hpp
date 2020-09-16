@@ -82,10 +82,10 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
 		
 		// Track the best:
-		//if(fx < current_best_val){
-		//	current_best_param = x;
-		//	current_best_val = fx;
-		//}
+		if(fx < current_best_val){
+			current_best_param = x;
+			current_best_val = fx;
+		}
 		
 		return (fx);
 	}
@@ -133,7 +133,8 @@ void least_sq_solve(Matrix_eig_row &W,
 	//Bounds of rho, W1, W2:
 	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
-	
+	Debug0("lb inside LS: " << lb.transpose());
+	Debug0("ub inside LS: " << ub.transpose());
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
@@ -173,7 +174,7 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 		f.i = i;
 		// Track the best:
-		double current_best_val = 1.0e+15;
+		// double current_best_val = 1.0e+15;
 	
 		//Print initial values:
 		DebugLS ("value of i: " << i << "\t x at first: " << x.transpose());
@@ -191,6 +192,8 @@ void least_sq_solve(Matrix_eig_row &W,
 		// remove if necessary
 		// x = f.current_best_param;
 		// fx = f.current_best_val;
+		// Can get out of the box constraints
+		
 		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
 		
 		
@@ -305,8 +308,8 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	3 -- compared with rice mean
 	
 * measure_type: 
-  	1 -- abs deviation from mean(not median?)	-- MAPE
-  	2 -- squared deviation from mean			-- RMSPE
+  	1 -- abs deviation from mean(not median?)
+  	2 -- squared deviation from mean
   
 * Scale: Scaled measure vs Unscaled measure 
   	0 -- no
@@ -315,14 +318,16 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
 							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
-							int v_type = 1, int measure_type = 1, int scale = 1){
+							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
 	int n_test = TE_test.size();
 	assert(sigma_test.size() == n_test);
 	Vector_eig Performance_test = Vector_eig::Zero(n_test);
 	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// just testing 
 	
-	for(int i = 0; i < W.rows(); ++i){
+	Vector_eig tmp(n_test);
+	
+	for(int i = 0; i < W.rows(); ++i) {
 		Vector_eig v_new = Bloch_vec(W.row(i), TE_test, TR_test);			// v_{ij}
 		Vector_eig v_star(n_test);
 		
@@ -332,12 +337,12 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		} else if (v_type == 2){
 			// Need to be done - mode of rice distn to be calculated with NR method
 		} else if (v_type == 3){
-			for(int j = 0; j < n_test; j++){
+			for(int j = 0; j < n_test; ++j){					// BUG resolved, j started from 1 - R style indexing
 				v_star(j) = mean_rice(v_new(j), sigma_test(j));
 			}
 		}
 		
-		Vector_eig tmp = (v_star - test.row(i).transpose()).array().abs();
+		tmp = (v_star - test.row(i).transpose()).array().abs();
 		
 		if(measure_type == 2){
 			for(int j = 0; j < n_test; ++j){
@@ -351,9 +356,19 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		//std::cout << tmp.transpose() << "\n";
 		Perf_mat.row(i) = v_star.transpose() - test.row(i);
 		
+		if(verbose){
+			if(i < 100){
+				Debug1("i: " << i << ", v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
+						",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
+						 ", tmp: " << tmp.transpose() << "\n");
+			}			
+		}
+		
 		
 		Performance_test = Performance_test + tmp;				// This is main
+		// Debug1("i: " << i << ", Performance_test" << Performance_test.transpose());
 	}
+	// Debug1("Performance_test" << Performance_test);
 	// std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
 	//Performance_test = Perf_mat.array().abs().colwise().mean();
 	
@@ -366,6 +381,9 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		}
 	}
 	
+	if(verbose){
+		 Debug0("Performance_test: " << Performance_test.transpose());
+	}
 	
 	
 	if(scale){

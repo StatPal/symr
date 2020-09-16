@@ -26,6 +26,7 @@ g++ Read_files_2.hpp -I /usr/include/eigen3 -O3
 #include <string>
 #include <Eigen/Dense>
 #include <Eigen/Core>
+#include <ostream>
 
 
 
@@ -85,7 +86,8 @@ Eigen::MatrixXd read_data(char* const data_file, short dim[8], float& vox_offset
 						myfile.close();
 					}
 				}
-				std::cout << "-------------------------------------------\n-------------------------------------------\n" ;
+				std::cout << "-------------------------------------------\n-------------------------------------------\n";
+				std::cout << std::flush;
 			}
 		}
 	}

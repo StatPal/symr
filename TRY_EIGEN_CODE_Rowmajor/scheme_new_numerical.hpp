@@ -35,9 +35,7 @@ g++ scheme_new.hpp -I /usr/include/eigen3 -O3
 
 
 To Do:
-Remove taking value back from 'Track the best' parts. 
-They always does not remain inside the boundary.
-However, they might give 'normal answer'
+Increase max iteration in variance estimate
 
 
 
@@ -50,9 +48,14 @@ mean_rice function uses that scaled version.
 
 
 
-track the best is removed from the LS estimate. 
-OW the best value is going outside the constraints
 
+BUG: If TE is not same as 1:k format,
+r[i,] and v_new would not match
+i.e., proper index if r is not taken.
+-- Sorry - NO BUG. r is not passed. train is passed. Hence completely Okay!
+
+BUG: Lambda * Psi 
+was negative/positive. Hessian had this BUG.
 
 */
 
@@ -78,8 +81,10 @@ OW the best value is going outside the constraints
 #include <chrono>
 
 
+extern "C" {
+#include <gsl/gsl_sf_bessel.h>		// Try SCALED besselI from here! - changed a bit
+}
 
-#include <gsl/gsl_sf_bessel.h>		// Try SCALED besselI from here!
 
 
 
@@ -94,6 +99,7 @@ typedef Eigen::MatrixXd Matrix_eig;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, RowMajor> Matrix_eig_row;	// For r, W etc	// Inside optimizer, the THessian would be changed
 typedef Eigen::VectorXd Vector_eig;
 typedef Eigen::VectorXd::Scalar Scalar_eig;
+typedef Eigen::ArrayXd Array_eig;
 
 typedef std::function<double(const Vector_eig &x)> my_function_type;
 typedef Eigen::SparseMatrix<double> SpMat;
@@ -258,12 +264,15 @@ double our_bessel_I(double x, double nu){
 	if(x>=0.0){
 	
 //#ifdef (__cplusplus == 201703L)
-	return(std::cyl_bessel_i(nu, x));
+	//return(std::cyl_bessel_i(nu, x));		// This was commented most recently
 //#else
 	//return(besseli(x, nu));
 //#endif*/
 		
 		//return(besseli(x, nu));					//return(R::bessel_i(x, nu, 1));
+		
+	return(gsl_sf_bessel_In(nu, x));
+	
 	} else {
 		std::cout << "neg arg in bessel function" << std::endl;
 		return -1.0e-50;
@@ -527,10 +536,12 @@ void show_head_vec(const Eigen::VectorXd &W, int n = 10, int endLine = 0){
 * Mean of rice distribution
 * Using GSL for SCALED besselI
 */
+
 double mean_rice(double nu, double sigma){
 	double x = - SQ(nu)/(2*SQ(sigma));
 	// return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
 	return sigma * std::sqrt(M_PI/2) *( (1-x)*gsl_sf_bessel_I0_scaled(-x/2) - x * gsl_sf_bessel_I1_scaled(-x/2)) ;
+	
 }
 
 
@@ -1056,7 +1067,6 @@ class MRF_param{
 		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z));
 		H_3 = Kron_Sparse_eig( I_n(n_x*n_y), J_n(n_z));
 		
-		
 		eigenval_1_small = eigenvals_J_n(n_x);
 		eigenval_2_small = eigenvals_J_n(n_y);
 		eigenval_3_small = eigenvals_J_n(n_z);
@@ -1071,8 +1081,6 @@ class MRF_param{
 		eigenval_2 = Kron_vec_eig(one_1, Kron_vec_eig(eigenval_2_small, one_3) );
 		eigenval_3 = Kron_vec_eig(one_12, eigenval_3_small);
 		*/
-		
-		
 		
 		
 		H_1 = Kron_Sparse_eig( I_n(n_z*n_y), J_n(n_x));
@@ -1092,6 +1100,8 @@ class MRF_param{
 		eigenval_1 = Kron_vec_eig(one_23, eigenval_1_small);
 		eigenval_2 = Kron_vec_eig(one_3, Kron_vec_eig(eigenval_2_small, one_1) );
 		eigenval_3 = Kron_vec_eig(eigenval_3_small, one_12);
+		
+		
 		
 		
 		
@@ -1170,7 +1180,7 @@ class MRF_param{
 	*/
 	double MRF_log_likeli_num(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
-		//double tmp2 = (Psi_inv*W.transpose()*Lambda(beta)*W).trace();
+		//double tmp2 = (Psi_inv * W.transpose() * Lambda(beta) * W).trace();
 		
 		int k = 0;
 		double tmp1 = 0.0, tmp2 = 0.0, tmp3 = 0.0;
@@ -1203,6 +1213,7 @@ class MRF_param{
 		}
 		tmp2 += beta(2)*tmp1;
 		
+		// Debug0("tmp2: " << tmp2);
 		return (-tmp2/2);		// -0.5*trace(Psi_inv*W.transpose()*Lambda(beta)*W);
 	}
 	
@@ -1215,8 +1226,11 @@ class MRF_param{
 	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double likeli_sum = MRF_log_likeli_num(W, Psi_inv, beta);
+		// Debug0("likeli_sum num: " << likeli_sum);
 		likeli_sum += ( 3 * sp_log_det_specific(beta) + 
 								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
+		//Debug0("likeli_sum den: "<< ( 3 * sp_log_det_specific(beta) + 
+		//						n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2  );
 		
 		return likeli_sum;
 		
@@ -1255,8 +1269,9 @@ class MRF_param{
 	
 		Vector_eig x_new = W.row(i1);
 		
-		int i = 0, j = 0, k = 0;
-		double tmp1 = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		// int i = 0, j = 0, k = 0;
+		double tmp1 = 0.0, tmp3 = 0.0;
+		// double tmp2 = 0.0;
 		Lambda_init = Lambda(beta);								// Remove later and split into H_i's
 		
 		
@@ -1602,7 +1617,7 @@ Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_ei
 		for(int j = 0; j < nCol; ++j){	//m
 			tmp1 = d(rd)*sigma(j);
 			tmp2 = d(rd)*sigma(j) + our_v_mat(i,j);		//R::rnorm(0.0, 1.0)
-			tmp3(i,j) = std::sqrt(tmp2*tmp2+tmp1*tmp1);
+			tmp3(i,j) = std::sqrt(SQ(tmp2)+SQ(tmp1));
 		}
 	}
 	return(tmp3);
@@ -1752,8 +1767,11 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 Eigen::VectorXd read_sd(char* const sd_file, int our_dim_4){
 
 	// Read sd:
-	double output[our_dim_4];		// warning: ISO C++ forbids variable length array ‘output’ [-Wvla]
-									// Change this
+	// double output[our_dim_4];		// warning: ISO C++ forbids variable length array ‘output’ [-Wvla]
+	// no need 							// Change this
+	
+	
+	
 	
 	std::fstream myfile(sd_file, std::ios_base::in);
 	Eigen::VectorXd sigma = Eigen::VectorXd::Zero(our_dim_4);
@@ -1820,20 +1838,23 @@ void show_dim_sp(SpMat A){
 * 
 * Number of non-zero elements per column: <= 7*3
 */
-/*
+
 SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
                   const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z){
+                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
 
 	
 	auto time_1_hess = std::chrono::high_resolution_clock::now();
-	Debug1("Hessian calculation started without MRF");
+	Debug1("Hessian calculation started");
 	Matrix_eig_row v = v_mat(W, TE, TR);
 	int n = n_x * n_y * n_z;	//n
 	int m = v.cols();			//m
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
-	SpMat Gamma_inv = Lambda(beta, n_x, n_y, n_z);
+	SpMat Gamma_inv;
+	if(with_MRF){
+		Gamma_inv = MRF_obj.Lambda(beta);
+	}
 	SpMat W_hess(3*n, 3*n);
 	W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
 	// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
@@ -1865,38 +1886,49 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 				}
 				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
 				
-				W_hess.insert(3 * i + k, 3 * i + k1) = temp + Gamma_inv.coeff(i, i) * Psi_inv(k, k1);
-				//https://stackoverflow.com/questions/42376127/how-to-access-a-specific-row-col-index-in-an-c-eigen-sparse-matrix
+				if(with_MRF){
+					W_hess.insert(3 * i + k, 3 * i + k1) = temp - Gamma_inv.coeff(i, i) * Psi_inv(k, k1);
+					//https://stackoverflow.com/questions/42376127/how-to-access-a-specific-row-col-index-in-an-c-eigen-sparse-matrix
+					// BUG? check negativity and positivity
+					// minus added for Gamma * Psi
+				} else {
+					W_hess.insert(3 * i + k, 3 * i + k1) = (temp);
+				}		
 			}
 		}
 	}
 	
 	
 	// Off diagonal(only) parts: //
-	
-	for(i = 0; i < n; ++i){
-		for(i1 = 0; i1 < n; ++i1){
-			if(i != i1){
-				for(k = 0; k < 3; ++k){
-					for(k1 = 0; k1 < 3; ++k1){
-						W_hess.insert(3 * i + k, 3 * i1 + k1) = Gamma_inv.coeff(i, i1) * Psi_inv(k, k1);
+	if(with_MRF){
+		for(i = 0; i < n; ++i){
+			for(i1 = 0; i1 < n; ++i1){
+				if(i != i1){
+					for(k = 0; k < 3; ++k){
+						for(k1 = 0; k1 < 3; ++k1){
+							W_hess.insert(3 * i + k, 3 * i1 + k1) = -Gamma_inv.coeff(i, i1) * Psi_inv(k, k1);
+							// minus added for Gamma * Psi
+						}
 					}
 				}
 			}
-			
 		}
 	}
+	
 	
 	W_hess.makeCompressed();
 	
 	auto time_2_hess = std::chrono::high_resolution_clock::now();
 	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
 	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
-	Debug0("Hessian calculated without MRF");
+	Debug0("Hessian calculated with MRF");
 	
-	return(W_hess);	//3nx3n
+	//show_head(W_hess);
+	
+	// return W_hess;	//3nx3n
+	return (-W_hess);	//3nx3n
 }
-*/
+
 
 
 
@@ -1917,7 +1949,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 * 0:3 + 3*i - th elements would be non-zero and they are :
 * d\nu_ij/dW_{i,0}, d\nu_ij/dW_{i,1}, d\nu_ij/dW_{i,2}
 */
-/*
+
 SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
              const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
              int n_x, int n_y, int n_z, int i, int j){
@@ -1937,26 +1969,6 @@ SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_
 	}
 	return grad;
 }
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1967,19 +1979,6 @@ SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_
 
 	// Export the result to a file:
 	//	saveAsBitmap(x, n, argv[1]);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
