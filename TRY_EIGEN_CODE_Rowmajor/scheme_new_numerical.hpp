@@ -1839,10 +1839,10 @@ void show_dim_sp(SpMat A){
 * Number of non-zero elements per column: <= 7*3
 */
 
-SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                  const Vector_eig &TE, const Vector_eig &TR, 
-                  const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
+SpMat Hessian_mat_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+                      const Vector_eig &TE, const Vector_eig &TR, 
+                      const Vector_eig &sigma, const Matrix_eig_row &r, 
+                      int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
 
 	
 	auto time_1_hess = std::chrono::high_resolution_clock::now();
@@ -1867,6 +1867,14 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
 	for(i = 0; i < n; ++i) {
+	
+		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
+		if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
+			std::cout << "\n";
+			Debug1("Hess matrix i: "<< i << ", j: " << j);
+		}
+		
+		
 		//temp_vec = W.row(i);
 		for(k = 0; k < 3; ++k) {
 			for(k1 = 0; k1 < 3; ++k1) {
@@ -1902,6 +1910,11 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	// Off diagonal(only) parts: //
 	if(with_MRF){
 		for(i = 0; i < n; ++i){
+			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
+			if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
+				std::cout << "\n";
+				Debug1("Hess matrix MRF i: "<< i << ", j: " << j);
+			}
 			for(i1 = 0; i1 < n; ++i1){
 				if(i != i1){
 					for(k = 0; k < 3; ++k){
@@ -1911,9 +1924,104 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 						}
 					}
 				}
+				
 			}
 		}
 	}
+	
+	
+	W_hess.makeCompressed();
+	
+	auto time_2_hess = std::chrono::high_resolution_clock::now();
+	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
+	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
+	Debug0("Hessian calculated with MRF");
+	
+	//show_head(W_hess);
+	
+	// return W_hess;	//3nx3n
+	return (-W_hess);	//3nx3n
+}
+
+
+
+SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+                  const Vector_eig &TE, const Vector_eig &TR, 
+                  const Vector_eig &sigma, const Matrix_eig_row &r, 
+                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
+
+	
+	auto time_1_hess = std::chrono::high_resolution_clock::now();
+	Debug1("Hessian calculation started");
+	Matrix_eig_row v = v_mat(W, TE, TR);
+	int n = n_x * n_y * n_z;
+	int m = v.cols();
+	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
+	SpMat Gamma_inv;
+	if(with_MRF){
+		Gamma_inv = MRF_obj.Lambda(beta);
+	}
+	SpMat W_hess(3*n, 3*n);
+	if(with_MRF){
+		W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
+		// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
+	} else {
+		W_hess.reserve( VectorXi::Constant(3*n, 3) );
+	}
+	Debug1("Hessian matrix allocated");
+	
+	
+	// First, the Kroneker prod term:
+	if(with_MRF){
+		SpMat Psi_inv_sp = Psi_inv.sparseView();
+		W_hess = - Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);	
+	}
+	
+	
+	// Diagonal parts //
+	int i = 0, i1 = 0, k = 0, k1 = 0, j = 0;
+	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
+	
+	for(i = 0; i < n; ++i) {
+	
+		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
+		if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
+			std::cout << "\n";
+			Debug1("Hess matrix i: "<< i << ", j: " << j);
+		}
+		
+		
+		//temp_vec = W.row(i);
+		for(k = 0; k < 3; ++k) {
+			for(k1 = 0; k1 < 3; ++k1) {
+				
+				temp = 0.;									// Missed this -- correct this - done!
+				for(j = 0; j < m ; ++j) {
+					
+					tmp2 = r(i,j)/SQ(sigma(j));
+					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
+					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
+					
+					tmp2 *= v(i,j);
+					tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
+					tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
+					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
+				}
+				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
+				
+				if(with_MRF){
+					W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
+					//https://stackoverflow.com/questions/42376127/how-to-access-a-specific-row-col-index-in-an-c-eigen-sparse-matrix
+					// BUG? check negativity and positivity
+					// minus added for Gamma * Psi
+				} else {
+					W_hess.insert(3 * i + k, 3 * i + k1) = temp;
+				}		
+			}
+		}
+	}
+	
 	
 	
 	W_hess.makeCompressed();

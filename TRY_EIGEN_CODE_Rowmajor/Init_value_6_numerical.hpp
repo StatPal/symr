@@ -71,26 +71,19 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	TVector TE, TR;
 	int i;
 	
-	// Track the best:
-	Eigen::VectorXd current_best_param;
-	double current_best_val = 1.0e+15;
 
 
+	// Objective function, to be minimized:
 	T value(const TVector &x) {
 		TVector v_new = Bloch_vec(x, TE, TR);
 		DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
-		
-		// Track the best:
-		if(fx < current_best_val){
-			current_best_param = x;
-			current_best_val = fx;
-		}
-		
+				
 		return (fx);
 	}
 
 
+	// grad of the value: 
 	void gradient(const TVector &x, TVector &grad) {
 		TVector v_new = Bloch_vec(x, TE, TR);
 		grad << 0,0,0;
@@ -118,6 +111,15 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 };
 
 
+
+
+/*
+* Least square solution
+* 	Input:  
+*			W, TE_example, TR_example, r, TE_scale, TR_scale
+* 			
+* 			W is changed
+*/
 void least_sq_solve(Matrix_eig_row &W, 
 					const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
                     const Matrix_eig_row &r, double TE_scale, double TR_scale){
@@ -133,30 +135,42 @@ void least_sq_solve(Matrix_eig_row &W,
 	//Bounds of rho, W1, W2:
 	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
-	Debug0("lb inside LS: " << lb.transpose());
-	Debug0("ub inside LS: " << ub.transpose());
+	Debug1("lb inside LS: " << lb.transpose());
+	Debug1("ub inside LS: " << ub.transpose());
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);
+	
 	double old_val = 0.0, fx;
-	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
+	int n = r.rows(), bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
 
 
 
+	
+	
 	// Declaring the solver
 	cppoptlib::LbfgsbSolver<Least_Sq_est<double>> solver;
+	cppoptlib::Criteria<double> crit_LS = cppoptlib::Criteria<double>::defaults();
+	crit_LS.iterations = 120;
+	solver.setStopCriteria(crit_LS);
 	
-	for(int i = 0; i < r.rows()/1; ++i){
+	
+	
+	
+	// Loop of 
+	for(int i = 0; i < n; ++i){
 	
 		if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
 			Debug1("i: "<< i);
 		}
 		
 		
+		f.i = i;
 		x = W.row(i);
 		
 		//Check Bounds:
+		/*
 		for(int j = 0; j < 3; ++j){
 			if(x[0]<lb[0] || x[1]<lb[1] || x[2]<lb[2]){
 				Debug1("Crossed lower bound initially!");
@@ -168,18 +182,15 @@ void least_sq_solve(Matrix_eig_row &W,
 				bad_bound_2++;
 			}
 		}
+		*/
 		
 		
-		
-		
-		f.i = i;
-		// Track the best:
-		// double current_best_val = 1.0e+15;
 	
 		//Print initial values:
 		DebugLS ("value of i: " << i << "\t x at first: " << x.transpose());
-		DebugLS ("f(x) at first: \n" << f.value(x)) ;
 		old_val = f.value(x);
+		DebugLS ("f(x) at first: \n" << old_val) ;
+		
 	
 		//Solve:
 		solver.minimize(f, x);
@@ -187,13 +198,6 @@ void least_sq_solve(Matrix_eig_row &W,
 		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
 		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
 		DebugLS("Final criteria values: " << "\n" << solver.criteria());
-	
-		// Track the best:
-		// remove if necessary
-		// x = f.current_best_param;
-		// fx = f.current_best_val;
-		// Can get out of the box constraints
-		
 		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
 		
 		
@@ -208,9 +212,6 @@ void least_sq_solve(Matrix_eig_row &W,
 		} else {
 			W.row(i) = x;
 		}
-		
-		
-		f.current_best_val = 1.0e+15;
 	}
 	
 	Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
@@ -227,7 +228,10 @@ void least_sq_solve(Matrix_eig_row &W,
 
 
 
-
+/*
+* Read the data and
+* replace the zeros by small number (0.5)
+*/
 Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char will_write = 0){
 	
 	// Load the data file first. 
@@ -247,7 +251,11 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 
 
 
-
+/*
+* Creates the initial matrix W
+* if do_least_sq is 1, 
+* 	it gives the least square solution.
+*/
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
                         const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
                         short our_dim[8], 

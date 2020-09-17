@@ -10,6 +10,8 @@
 
 g++ scheme_new_OSL_EM_15_GEM.cpp -o test -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
+g++ scheme_new_OSL_EM_15_GEM.cpp -o test_par -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+
 g++ ~/MRI/Headers/TRY_EIGEN_5_NEW/scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ~/MRI/Headers -O3 --std=c++17 -lgsl -lgslcblas -lm
 
 g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -O3 --std=c++17 -lgsl -lgslcblas -lm
@@ -18,7 +20,11 @@ g++ scheme_new_OSL_EM_15_GEM.cpp -o scheme_new_OSL_EM_15_GEM -I ../eigen-3.3.7 -
 
 
 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+OMP_NUM_THREADS=3 ./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+
 ./test ../Read_Data/small.nii Dummy_sd_3D.txt 0
+OMP_NUM_THREADS=3 ./test_par ../Read_Data/small.nii Dummy_sd_3D.txt 0
+
 ./scheme_new_OSL_EM_15_GEM ../Read_Data/new_phantom.nii Dummy_sd_phantom.txt 0
 
 
@@ -248,12 +254,6 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 		
 	
 	
-	
-	
-	// Track the best:
-	Eigen::VectorXd current_best_param;
-	double current_best_val = 1.0e+15;
-
 
 	
 	
@@ -277,11 +277,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 		//Debug2("- Q fn:" << fx);
 		Debug2("x: " << std::setprecision(6) << x.transpose() << " \t& - Q fn:" << fx);
 		
-		// Track the best
-		if(fx < current_best_val){
-			current_best_param = x;
-			current_best_val = fx;
-		}
+		
 		return (fx);
 	}
 
@@ -356,22 +352,14 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	TMatrix_row W, W_old;													// W here creating problem in optimization?
 	
 	
-	// Track the best:
-	Eigen::VectorXd current_best_param;
-	double current_best_val = 1.0e+15;
-
-
+	
 	T value(const TVector &x) {
 		W.row(i) = x.transpose();
 		//check_bounds_vec(x, lb, ub);
 		double fx = Q_OSL_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, n_x, n_y, n_z, i);
 		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
 		
-		// Track the best
-		if(fx < current_best_val){
-			current_best_param = x;
-			current_best_val = fx;
-		}
+		
 		return (fx);
 	}
 
@@ -467,11 +455,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		
-		
-		// Track the best:
-		f_2.current_best_val = 1.0e+15;
-		
 		//Print initial values:
 		Debug2 ("x_MRF at first: " << x_MRF.transpose());
 		Debug3 ("lb_MRF: " << lb_MRF.transpose());
@@ -492,9 +475,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		// Track the best: It's currently inside boundary
-		// x_MRF.noalias() = f_2.current_best_param;
-		// double fx_MRF = f_2.current_best_val;
 		Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
 				"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
 		
@@ -630,10 +610,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// check_bounds_vec(x, lb, ub);
 			
 			
-			
-			// Track the best:
-			f.current_best_val = 1.0e+15;
-			
+						
 			//Print initial values:
 			Debug2 ("value of i: " << i << "\t x at first: " << x.transpose());
 			Debug2 ("f(x) at first:");
@@ -659,10 +636,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug2("Final criteria values: " << "\n" << solver.criteria());
 			
 			
-			// Track the best:
-			// Don't do it now - best is going out of the box.(e.g., 1st elemet is going to ~6000)
-			// x = f.current_best_param;
-			// fx = f.current_best_val;
 			Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 					"\t old val: " << old_val << "\t diff: " << fx - old_val);
 			
@@ -884,8 +857,17 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	Vector_eig tmp_soln(n);
 	SpVec b(n);
 	
+	// First i or j, which would be better? - check.
+	Debug1("Hessian loop starts!");
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
+		
+			if(i == 0 || i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
+			// if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
+				std::cout << "\n";
+				Debug1("Info i: "<< i << ", j: " << j);
+			}
+			
 			b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j);
 			// Thought about the j
 			// Should it be ind [j] or something like that?
@@ -1022,9 +1004,9 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 	
 	
 	// added cases: 
-	Matrix_eig tmp_mat(n, m_test);
-	Matrix_eig sum_mat(n, m_test);
-	Matrix_eig sum_sq_mat(n, m_test);
+	Matrix_eig tmp_mat = Matrix_eig::Zero(n, m_test);
+	Matrix_eig sum_mat = Matrix_eig::Zero(n, m_test);
+	Matrix_eig sum_sq_mat = Matrix_eig::Zero(n, m_test);
 	
 	
 	for(int b = 0; b < B; ++b){
@@ -1155,9 +1137,16 @@ int main(int argc, char * argv[]) {
 		sigma_test[i] = sigma(test_ind[i]);
 	}
 	
+	Matrix_eig perf_1, perf_2, perf_3, perf_4;
+	
+	std::ofstream file_performance;
+	file_performance.open ("result/Performances.txt");
+
+
 	
 	
 	// Temp results: Performance on the Init W: 
+	/*
 	Matrix_eig_row W_1st = Matrix_eig_row::Ones(our_dim_train[1]*our_dim_train[2]*our_dim_train[3], 3);
 	W_1st.col(0) = train.rowwise().mean().transpose();
 	// Knowing first non-zero index:
@@ -1194,25 +1183,26 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Write to a file: 
-	std::ofstream file_performance;
-	file_performance.open ("result/Performances.txt");
 	file_performance << "Performances over images init: \t" << perf_1.transpose() << "\n";
 	file_performance << "Performances over images init: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images init: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images init: \t" << perf_4.transpose() << "\n\n\n";
+	*/
 	
 	
 	
 	
 	
-	// Least Sq:
+	
+	
+	//* Least Sq *//
 	// Change 
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig_row W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
 	Debug1("W initial done");
-	int nan_count_1st = check_nan_W(W_init, W_1st);
-	Debug0("NAN count at first:" << nan_count_1st);
+	// int nan_count_1st = check_nan_W(W_init, W_1st);		// Change as there is no W_1st
+	// Debug0("NAN count at first:" << nan_count_1st);
 	Debug1("W_init after LS: ");
 	show_head(W_init);
 	
@@ -1273,7 +1263,8 @@ int main(int argc, char * argv[]) {
 	// Non -penalized:
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1, 
-	          25, 0, 1e-6, 1);
+	          2, 0, 1e-6, 1);
+	//change
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
@@ -1313,7 +1304,8 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1, 
-	          25, 1, 1e-6, 1);
+	          2, 1, 1e-6, 1);
+	//change
 	// Psi_inv is already updated - So new value would not give better
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
@@ -1359,39 +1351,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Variance estimation: 
-	/*
-	// Using Info matrix + delta method:
-	Vector_eig info_var = Var_est_test(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                       train, our_dim_train[1], our_dim_train[2], our_dim_train[3], 0, MRF_obj_1,
-                                       TE_test, TR_test, sigma_test, test);
-	
-	
-	// Using Bootstrap
-	
-	//#undef DEBUG_LEVEL_1			// OW, many debugs
-	//#undef Debug1
-	//#define Debug1(x)
-	// Debug1("Test");
-	// Well, this does not help
-	
-	std::cout << "\n\n";
-	Vector_eig boot_var = para_boot_test(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                         train, our_dim_train[1], our_dim_train[2], our_dim_train[3], 0, 
-                                         TE_scale, TR_scale, MRF_obj_1,
-                                         TE_test, TR_test, sigma_test, test);
-	
-	
-	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head_vec(info_var);
-	
-	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head_vec(boot_var);
-	*/
 	
 	
 	
-	
+	//* Variance estimation *//
 	
 	// Using Info matrix + delta method:
 	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
@@ -1427,6 +1390,11 @@ int main(int argc, char * argv[]) {
 		boot_var_file << boot_var_1.row(i) << "\n";
 	}
 	boot_var_file.close();
+	
+	//* Variance estimation ends! *//
+	
+	
+	
 	
 	
 	
