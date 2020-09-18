@@ -854,13 +854,14 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 	Debug1("Parametric Bootstrap starts!!");
 	int n = W.rows();
 	int m_test = TE_test.size();
+	int m_train = TE_train.size();
 	Matrix_eig Var_est(n, m_test);
 	Matrix_eig_row W_init = W;
 	Matrix3d_eig Psi_inv_init = Psi_inv;
 	Vector_eig beta_init = beta;
 	
 	// All estimated parametrs:
-	Matrix_eig generated_r(n, test.cols());		// test columns only
+	Matrix_eig generated_r(n, m_train);		// train columns only
 	
 	
 	
@@ -874,7 +875,8 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 	for(int b = 0; b < B; ++b){
 		
 		//Generate an image matrix:
-		generated_r = Gen_r(W, TE_test, TR_test, sigma_test);
+		// generated_r = Gen_r(W, TE_test, TR_test, sigma_test);
+		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, generated_r, 
 							n_x, n_y, n_z, TE_scale, TR_scale, MRF_obj, EM_iter, 1, 1e-6, 0);
