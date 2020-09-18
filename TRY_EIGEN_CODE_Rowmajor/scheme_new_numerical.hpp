@@ -56,10 +56,9 @@ i.e., proper index if r is not taken.
 
 BUG: Lambda * Psi 
 was negative/positive. Hessian had this BUG.
+- Wait! Was it written today? then it was not a bug?
 
-Used scaled_gsl instead of my numerical approximation for very large values.
 
-BUG: Indexing problem in double derivative, some case were missed!
 
 */
 
@@ -1420,6 +1419,7 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 /*
 * Reparametrization to W from rho, T_1, T_2
 * Have not used till now - raw rho, T_1, T_2 are nowhere used
+* SHOULD BE CHANGED AS TE_SCALE AND TR_SCALE HAS ARRIVED.
 */
 //[[Rcpp::export]]
 Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
@@ -1961,7 +1961,7 @@ SpMat Hessian_mat_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, cons
 * Derivative of I_1/I_0
 */
 double h(double x){
-	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(besselI1_I0(x)) );
+	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
 	return(0.5*tmp);
 }
 
@@ -1996,7 +1996,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	// First, the Kroneker prod term:
 	if(with_MRF){
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
-		W_hess = - Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);	
+		W_hess = - Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
 	}
 	
 	
@@ -2024,13 +2024,13 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
 					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
 					
-					// This is valid
-					tmp2 *= v(i,j);
-					tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-					
+					//tmp2 *= v(i,j);
+					//tmp31 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
+					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp31;
 					// This is also valid
-					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					
+					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					// This is also valid
 					
 					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
@@ -2044,7 +2044,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 					// minus added for Gamma * Psi
 				} else {
 					W_hess.insert(3 * i + k, 3 * i + k1) = temp;
-				}		
+				}
 			}
 		}
 	}
@@ -2063,6 +2063,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	// return W_hess;	//3nx3n
 	return (-W_hess);	//3nx3n
 }
+// Check sign please
 
 
 
