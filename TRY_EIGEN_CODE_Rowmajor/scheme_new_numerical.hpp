@@ -56,9 +56,6 @@ i.e., proper index if r is not taken.
 
 BUG: Lambda * Psi 
 was negative/positive. Hessian had this BUG.
-- Wait! Was it written today? then it was not a bug?
-
-
 
 */
 
@@ -1996,7 +1993,9 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	// First, the Kroneker prod term:
 	if(with_MRF){
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
-		W_hess = - Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
+		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
+		Debug1(" kron W_hess: \n");
+		show_head(MatrixXd(W_hess));
 	}
 	
 	
@@ -2021,19 +2020,59 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 				for(j = 0; j < m ; ++j) {
 					
 					tmp2 = r(i,j)/SQ(sigma(j));
+					if(i == 0){
+						Debug0(tmp2);
+					}
 					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
+					if(i == 0){
+						Debug0(tmp3);
+					}
 					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
+					if(i == 0){
+						Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
+						Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+					}
+					
 					
 					//tmp2 *= v(i,j);
 					//tmp31 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
 					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp31;
 					// This is also valid
 					
+					
 					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
 					// This is also valid
 					
+					if(i == 0){
+						Debug0(tmp2);
+						Debug0(v(i,j));
+						Debug0(SQ(sigma(j)));
+						Debug0(tmp2*v(i, j)/SQ(sigma(j)));
+						Debug0(h(tmp2*v(i, j)/SQ(sigma(j))));
+						Debug0(tmp4);
+					}
 					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
+					if(i == 0){
+						Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
+						Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						Debug0("Added:");
+						Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+						Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
+						Debug0("\n")
+					}
+					
+					if(i == 0){
+						Debug0(temp);
+						Debug0("\n\n");
+					}
 				}
 				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
 				
@@ -2052,6 +2091,8 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	W_hess.makeCompressed();
+	Debug1("W_hess: \n");
+	show_head(MatrixXd(-W_hess));
 	
 	auto time_2_hess = std::chrono::high_resolution_clock::now();
 	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);

@@ -353,6 +353,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	
 	
+
 	T value(const TVector &x) {
 		W.row(i) = x.transpose();
 		//check_bounds_vec(x, lb, ub);
@@ -598,7 +599,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		//for(int i = 0; i < r.rows()/10000; ++i){
 		//for(int i = 73; i < 75; ++i) {
 		
-			// change
 			//if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
 			if(i % 10000 == 0 ){
 				if(verbose){
@@ -780,7 +780,8 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	Matrix_eig Var_est(n, TE_test.size());
 	
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
-	assert(A.rows() == 3*n);	
+	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
+	assert(A.rows() == 3*n);
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Lower|Upper, DiagonalPreconditioner<double>> cg;
 	cg.compute(A);
 	
@@ -802,7 +803,6 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
-			//change
 			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
 			if( i % 1000 == 0){
 				std::cout << std::endl;
@@ -1063,8 +1063,8 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Test:
-	//Matrix_eig_row W_LS = W_init;
-	//Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
+	Matrix_eig_row W_LS = W_init;
+	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 
 
 	
@@ -1175,7 +1175,7 @@ int main(int argc, char * argv[]) {
                                              train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test);
 	
-	// Write to a file: 
+	// Write to a file:
 	std::ofstream info_var_file;
 	info_var_file.open ("result/info_var.txt");
 	for(int i = 0; i < info_var_1.rows(); ++i){
@@ -1187,7 +1187,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Using Bootstrap
-	
 	std::cout << "\n\n";
 	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
                                                train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
@@ -1207,12 +1206,13 @@ int main(int argc, char * argv[]) {
 	// Write to a file: 
 	std::ofstream boot_var_file;
 	boot_var_file.open ("result/boot_var.txt");
-	for(int i = 0; i < boot_var_1.rows(); ++i){
+	for(int i = 0; i < boot_var_1.rows(); ++i) {
 		boot_var_file << boot_var_1.row(i) << "\n";
 	}
 	boot_var_file.close();
 	
-	//* Variance estimation ends! *//
+	
+		
 	
 	std::time_t t2 = std::time(nullptr);
 	std::tm tm2 = *std::localtime(&t2);
