@@ -780,7 +780,6 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	Matrix_eig Var_est(n, TE_test.size());
 	
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
-	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
 	assert(A.rows() == 3*n);
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Lower|Upper, DiagonalPreconditioner<double>> cg;
 	cg.compute(A);
@@ -803,6 +802,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
+			//change
 			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
 			if( i % 1000 == 0){
 				std::cout << std::endl;
