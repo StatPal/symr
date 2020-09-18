@@ -57,6 +57,10 @@ i.e., proper index if r is not taken.
 BUG: Lambda * Psi 
 was negative/positive. Hessian had this BUG.
 
+Used scaled_gsl instead of my numerical approximation for very large values.
+
+BUG: Indexing problem in double derivative, some case were missed!
+
 */
 
 
@@ -74,6 +78,7 @@ was negative/positive. Hessian had this BUG.
 #include <Eigen/Eigenvalues>
 #include <random>
 #include <fstream>
+#include <ostream>
 
 
 
@@ -289,11 +294,12 @@ double our_bessel_I(double x, double nu){
 */
 double ratio_bessel_10(double x){
 
-	if(x<150){
-		return (our_bessel_I(x, 1)/our_bessel_I(x, 0));
-	} else {
-		return (1.0 - 0.5/x);
-	}
+	//if(x<150){
+		//return (our_bessel_I(x, 1)/our_bessel_I(x, 0));
+	//} else {
+		return (gsl_sf_bessel_I1_scaled(x)/gsl_sf_bessel_I0_scaled(x));
+		//return (1.0 - 0.5/x);
+	//}
 }
 
 
@@ -303,12 +309,13 @@ double ratio_bessel_10(double x){
 */
 double ratio_bessel_20(double x){
 
-	if(x<150){
-		return (our_bessel_I(x, 2)/our_bessel_I(x, 0));
+	//if(x<150){
+		//return (our_bessel_I(x, 2)/our_bessel_I(x, 0));
 		//return (std::cyl_bessel_i(2, x)/std::cyl_bessel_i(0, x));
-	} else {
-		return (1.0 - 2/x);		// Take one more term
-	}
+	//} else {
+		return (gsl_sf_bessel_In_scaled(2, x)/gsl_sf_bessel_I0_scaled(x));
+		// return (1.0 - 2/x);		// Take one more term
+	//}
 }
 
 
@@ -873,7 +880,7 @@ int check_nan_vec(const Vector_eig &A){
 	int bad_count = 0;
 	for(int i = 0; i < A.size(); ++i){
 		if(std::isnan(A(i))){
-			Debug0("NAN in location: ("<< i << ") of the vector!");
+			Debug0("NAN in location: ("<< i << ") of the vector!" << std::flush);
 			bad_count++;
 		}
 	}
@@ -1389,6 +1396,10 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 	int nCol = TE.size();	//m
 	int nRow = W.rows();	//n
 	Matrix_eig_row tmp = Matrix_eig_row::Zero(nRow, nCol);		//check the order
+	
+	// Keep an eye: there is another pragma outside in the optimizer
+	// I guess that would not be a problem
+	#pragma omp parallel for
 	for(int i = 0; i < nRow; ++i) {
 		for(int j = 0; j < nCol; ++j) {
 			tmp(i,j) = W(i,0) * 
@@ -1710,14 +1721,14 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &
 	} else if(k == 1 && k1 == 1){
 		return( - W(i,0) * TR(j) * (TR(j)-1) * exp(TE(j)*log(W(i,2))) * exp((TR(j)-2)*log(W(i, 1))) );
 	} else if((k == 1 && k1 == 2)||(k == 2 && k1 == 1)){
-		return( - W(i,0) * TR(j) * TE(j) * exp((TE(j)-1)*log(W(i,1))) * exp((TR(j)-1)*log(W(i, 1))) );
+		return( - W(i,0) * TR(j) * TE(j) * exp((TE(j)-1)*log(W(i,2))) * exp((TR(j)-1)*log(W(i, 1))) );
 	} else if(k == 2 && k1 == 2){
-		return ( W(i,0) * TE(j) * (TE(j)-1) * exp((TE(j)-2)*log(W(i,1))) * (1-exp(TR(j)*log(W(i, 1)))) );
+		return ( W(i,0) * TE(j) * (TE(j)-1) * exp((TE(j)-2)*log(W(i,2))) * (1-exp(TR(j)*log(W(i, 1)))) );
 	} else {
 		return -1000000;
 	}
 }
-
+// BUG, see next
 
 
 
@@ -1745,13 +1756,15 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 	} else if(k == 1 && k1 == 1){
 		return( - W(0) * TR(j) * (TR(j)-1) * std::exp(TE(j)*std::log(W(2))) * std::exp((TR(j)-2)*std::log(W(1))) );
 	} else if((k == 1 && k1 == 2)||(k == 2 && k1 == 1)){
-		return( - W(0) * TR(j) * TE(j) * std::exp((TE(j)-1)*std::log(W(1))) * std::exp((TR(j)-1)*std::log(W(1))) );
+		return( - W(0) * TR(j) * TE(j) * std::exp((TE(j)-1)*std::log(W(2))) * std::exp((TR(j)-1)*std::log(W(1))) );
 	} else if(k == 2 && k1 == 2){
-		return ( W(0) * TE(j) * (TE(j)-1) * std::exp((TE(j)-2)*std::log(W(1))) * (1-std::exp(TR(j)*std::log(W(1)))) );
+		return ( W(0) * TE(j) * (TE(j)-1) * std::exp((TE(j)-2)*std::log(W(2))) * (1-std::exp(TR(j)*std::log(W(1)))) );
 	} else {
 		return -1000000;
 	}
 }
+// BUG in last two cases.
+// W(1) instead of W(1) 
 // ISSUE: The TE and TR are scaled to have derivative just greater than 1
 // But here we would need the same - but > 2.
 
@@ -1944,6 +1957,15 @@ SpMat Hessian_mat_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, cons
 }
 
 
+/*
+* Derivative of I_1/I_0
+*/
+double h(double x){
+	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(besselI1_I0(x)) );
+	return(0.5*tmp);
+}
+
+
 
 SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
@@ -1956,7 +1978,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	Matrix_eig_row v = v_mat(W, TE, TR);
 	int n = n_x * n_y * n_z;
 	int m = v.cols();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
+	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp31 = 0.0, tmp4 = 0.0;
 	SpMat Gamma_inv;
 	if(with_MRF){
 		Gamma_inv = MRF_obj.Lambda(beta);
@@ -2002,9 +2024,14 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
 					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
 					
+					// This is valid
 					tmp2 *= v(i,j);
 					tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
 					tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
+					
+					// This is also valid
+					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					
 					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
 				}
@@ -2056,11 +2083,15 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 * 
 * 0:3 + 3*i - th elements would be non-zero and they are :
 * d\nu_ij/dW_{i,0}, d\nu_ij/dW_{i,1}, d\nu_ij/dW_{i,2}
+* 
+* 
+* grad is changed.
+* 
 */
 
-SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
              const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-             int n_x, int n_y, int n_z, int i, int j){
+             int n_x, int n_y, int n_z, int i, int j, SpVec &grad){
 
 
 	//SpMat grad(3*n_x*n_y*n_z, 1);
@@ -2070,12 +2101,14 @@ SpVec v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_
 	//	grad.insert(i1, 1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
 	//}
 
-	SpVec grad(3*n_x*n_y*n_z);
+	// SpVec grad(3*n_x*n_y*n_z);
+	// Allocating this large vector might be cumbersome
+	grad.setZero();
 	
 	for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
 		grad.insert(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
 	}
-	return grad;
+	// return grad;
 }
 
 

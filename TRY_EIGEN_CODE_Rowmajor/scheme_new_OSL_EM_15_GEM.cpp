@@ -404,7 +404,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
-	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0;
+	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
+	int n = r.rows();
 	
 	
 	
@@ -448,7 +449,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-		crit_MRF.iterations = 120;														// number of allowed iterations
+		crit_MRF.iterations = 100;														// number of allowed iterations
 		solver_2.setStopCriteria(crit_MRF);
 		// Change -- make it min(1000*maxiter, 10000)
 		
@@ -553,8 +554,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
-	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Create a Criteria class to set the solver's stop conditions
-	crit_voxel.iterations = 100;														// Change the number of allowed iterations
+	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Criteria class
+	crit_voxel.iterations = 80;															// number of allowed iterations
 	solver.setStopCriteria(crit_voxel);
 	// Change
 	
@@ -593,17 +594,21 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// Change: 
-		for(int i = 0; i < r.rows()/1; ++i){
+		for(int i = 0; i < n; ++i){
 		//for(int i = 0; i < r.rows()/10000; ++i){
 		//for(int i = 73; i < 75; ++i) {
 		
-			if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
-				std::cout << "\n";
-				Debug1("i: "<< i);
+			// change
+			//if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
+			if(i % 10000 == 0 ){
+				if(verbose){
+					std::cout << std::endl;
+					Debug1("i: "<< i);
+				}
 			}
 			
 			f.i = i;
-			if(penalized){
+			if(penalized) {
 				f.c_i.noalias() = MRF_grad.row(i); 
 			}
 			x.noalias() = W_init.row(i);
@@ -663,6 +668,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			f.W_old.row(i) = W_init.row(i);
 			
 		}
+		std::cout << std::flush;
+		
 		if(nan_count>0){
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
@@ -745,7 +752,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	if(verbose)
 		Debug1("Time taken for whole OSL-EM: " << duration_45.count() << " seconds\n");
 	
-
 }
 
 
@@ -760,83 +766,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 * j-th image's variance(n = n_x*n_y*n_z) is to be calculated.
 * Wait, there is not train - test case???
 */
-Vector_eig Var_est(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                   const Vector_eig &TE_train, const Vector_eig &TR_train,
-                   const Vector_eig &sigma, const Matrix_eig_row &r, 
-                   int n_x, int n_y, int n_z, int j, MRF_param &MRF_obj){
-
-	int n = n_x*n_y*n_z;
-	Vector_eig Var_est(n);
-	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma, r, n_x, n_y, n_z, MRF_obj);
-	
-	
-	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Lower|Upper, DiagonalPreconditioner<double>> cg;
-	cg.compute(A);
-	
-	//if(cg.info()!=Success) {
-	//	std::cout << "No Success\n";
-	//	exit(EXIT_FAILURE);		// decomposition failed
-	//}
-	// Vector_eig x = cg.solve(b);
-	//if(cg.info()!=Success) {
-	//	std::cout << "No Solving\n";
-	//	exit(EXIT_FAILURE);		// solving failed
-	//}
-	Vector_eig tmp_soln(n);
-	SpVec b(n);
-	for(int i = 0; i < n; ++i){
-		
-		b = v_grad(W, Psi_inv, beta, TE_train, TR_train, sigma, r, n_x, n_y, n_z, i, j);
-		tmp_soln = cg.solve(b);
-		Var_est(i) = b.dot(tmp_soln);
-	}
-	
-	return Var_est;
-}
-
-
-
-
-/*
-* j-th image's variance(n = n_x*n_y*n_z) is to be calculated.
-*/
-Vector_eig Var_est_test(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                        const Vector_eig &TE_train, const Vector_eig &TR_train,
-                        const Vector_eig &sigma, const Matrix_eig_row &r, 
-                        int n_x, int n_y, int n_z, int j, MRF_param &MRF_obj,
-                        const Vector_eig &TE_test, const Vector_eig &TR_test, 
-                        const Vector_eig &sigma_test, const Matrix_eig_row &test){
-
-	int n = n_x*n_y*n_z;
-	Vector_eig Var_est(n);
-	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma, r, n_x, n_y, n_z, MRF_obj, 1);
-	
-	// test: Why these values are nagative
-	//Debug0("Test matrix, eigenvalues:");
-	//Eigen::MatrixXd B = MatrixXd(A);
-	//SelfAdjointEigenSolver<MatrixXd> es(B);
-	//show_head_vec((es.eigenvalues()), 10, 1);
-	
-	
-	
-	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Lower|Upper, DiagonalPreconditioner<double>> cg;
-	cg.compute(A);
-	
-	Vector_eig tmp_soln(n);
-	SpVec b(n);
-	
-	for(int i = 0; i < n; ++i){
-		
-		b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j);
-		tmp_soln = cg.solve(b);
-		Var_est(i) = b.dot(tmp_soln);
-	}
-	
-	return Var_est;
-}
-
 
 
 Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
@@ -851,24 +780,36 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	Matrix_eig Var_est(n, TE_test.size());
 	
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
+	assert(A.rows() == 3*n);	
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Lower|Upper, DiagonalPreconditioner<double>> cg;
 	cg.compute(A);
 	
-	Vector_eig tmp_soln(n);
-	SpVec b(n);
+	
+	
+	
+	// Vector_eig tmp_soln(n);
+	// SpVec b(n);
+	// Wait, this is a BUG - how did this went unnoticed!!!
+	Vector_eig tmp_soln(3*n);
+	SpVec b(3*n);
+	
+	
 	
 	// First i or j, which would be better? - check.
+	std::cout << std::endl << std::flush;
 	Debug1("Hessian loop starts!");
+	std::cout << std::endl << std::flush;
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
-			if(i == 0 || i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-			// if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
-				std::cout << "\n";
+			//change
+			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
+			if( i % 1000 == 0){
+				std::cout << std::endl;
 				Debug1("Info i: "<< i << ", j: " << j);
 			}
 			
-			b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j);
+			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j, b);
 			// Thought about the j
 			// Should it be ind [j] or something like that?
 			// I don't think so!
@@ -895,86 +836,6 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 * -- No, just create another set of small matrices. Otherwise in main, Psi and beta would be changed
 * wait, there are no terain - test case?
 */
-Vector_eig para_boot(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                     const Vector_eig &TE_train, const Vector_eig &TR_train, 
-                     const Vector_eig &sigma, const Matrix_eig_row &r,
-                     int n_x, int n_y, int n_z, int j, 
-                     double TE_scale, double TR_scale, MRF_param &MRF_obj, int B = 15){
-
-	int n = n_x * n_y * n_z;
-	Vector_eig Var_est(n);
-	Matrix_eig_row W_init = W;
-	Matrix3d_eig Psi_inv_init = Psi_inv;
-	Vector_eig beta_init = beta; 
-	
-	
-	// All estimated parametrs:
-	Matrix_eig all_param_est = Matrix_eig::Zero(3*n, B);
-	Matrix_eig generated_r(n, r.cols());
-	
-	for(int b = 0; b < B; ++b){
-		//Generate an image matrix:
-		generated_r = Gen_r(W, TE_train, TR_train, sigma);
-		W_init.noalias() = W;		// Not needed? - numerical stabilty?
-		OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, generated_r, 
-							n_x, n_y, n_z, TE_scale, TR_scale, MRF_obj, 2, 1, 1e-6, 0);
-		all_param_est.col(b) = v_mat(W_init, TE_train, TR_train).col(j);	// All images can be done at once. Do that
-	}
-	
-	for(int i = 0; i < n; ++i){
-		Var_est(i) = std::sqrt(var(all_param_est.row(i)));
-	}
-	
-	return Var_est;
-}
-
-
-
-
-
-
-
-/*
-* Parametric Bootstrap
-*/
-Vector_eig para_boot_test(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                          const Vector_eig &TE_train, const Vector_eig &TR_train, 
-                          const Vector_eig &sigma, const Matrix_eig_row &r,
-                          int n_x, int n_y, int n_z, int j, 
-                          double TE_scale, double TR_scale, MRF_param &MRF_obj, 
-                          const Vector_eig &TE_test, const Vector_eig &TR_test, 
-                          const Vector_eig &sigma_test, const Matrix_eig_row &test,
-                          int B = 15){
-
-	int n = n_x * n_y * n_z;
-	Vector_eig Var_est(n);
-	Matrix_eig_row W_init = W;
-	Matrix3d_eig Psi_inv_init = Psi_inv;
-	Vector_eig beta_init = beta; 
-	
-	// All estimated parametrs:
-	Matrix_eig all_param_est = Matrix_eig::Zero(n, B);
-	Matrix_eig generated_r(n, test.cols());		// test columns only
-	
-	
-	for(int b = 0; b < B; ++b){
-		//Generate an image matrix:
-		generated_r = Gen_r(W, TE_test, TR_test, sigma_test);
-		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
-		OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma, generated_r, 
-							n_x, n_y, n_z, TE_scale, TR_scale, MRF_obj, 5, 1, 1e-6, 0);
-		all_param_est.col(b) = v_mat(W_init, TE_test, TR_test).col(j);	// All images can be done at once. Do that
-	}
-	
-	for(int i = 0; i < n; ++i){
-		Var_est(i) = std::sqrt(var(all_param_est.row(i)));
-	}
-	
-	return Var_est;
-}
-
-
-
 
 
 /*
@@ -990,12 +851,13 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
                               int B = 15, int EM_iter = 10){
 
 	auto boot_1 = std::chrono::high_resolution_clock::now();
+	Debug1("Parametric Bootstrap starts!!");
 	int n = W.rows();
 	int m_test = TE_test.size();
 	Matrix_eig Var_est(n, m_test);
 	Matrix_eig_row W_init = W;
 	Matrix3d_eig Psi_inv_init = Psi_inv;
-	Vector_eig beta_init = beta; 
+	Vector_eig beta_init = beta;
 	
 	// All estimated parametrs:
 	Matrix_eig generated_r(n, test.cols());		// test columns only
@@ -1020,6 +882,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 		sum_mat += tmp_mat;
 		sum_sq_mat += tmp_mat.array().square().matrix();
 	}
+	
 	sum_mat /= B;
 	sum_sq_mat /= B;
 	sum_sq_mat -= sum_mat.array().square().matrix();
@@ -1064,8 +927,8 @@ int main(int argc, char * argv[]) {
 
 
 
-//	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
-//	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
+	//Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
+	//Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
 	// 1.01 -> 2.01
 	double TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
 	double TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
@@ -1146,56 +1009,9 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Temp results: Performance on the Init W: 
-	/*
-	Matrix_eig_row W_1st = Matrix_eig_row::Ones(our_dim_train[1]*our_dim_train[2]*our_dim_train[3], 3);
-	W_1st.col(0) = train.rowwise().mean().transpose();
-	// Knowing first non-zero index:
-	int temp1 = 0;
-	while(W_1st(temp1, 0) == 0.5){
-		temp1++;
-	}
-	Debug1("First non-zero index: "<< temp1++);
-	
-	W_1st.col(1) *= W1_init;
-	W_1st.col(2) *= W2_init;
-	for(int i = 0; i < train.rows(); ++i){
-		if(W_1st(i, 0) > 450){
-			W_1st(i, 0) = 425.0;
-		}
-	}
-	
-	// Added:
-	Debug0("W_1st: ");
-	show_head(W_1st);
-	//for(int i = 0; i < W_1st.rows(); ++i){
-		//std::cout << W_1st.row(i) << "\n";
-	//}
 	
 	
-	Matrix_eig perf_1 = Performance_test(W_1st, test, TE_test, TR_test, sigma_test, 1, 1);
-	Matrix_eig perf_2 = Performance_test(W_1st, test, TE_test, TR_test, sigma_test, 3, 1);
-	Matrix_eig perf_3 = Performance_test(W_1st, test, TE_test, TR_test, sigma_test, 1, 2);
-	Matrix_eig perf_4 = Performance_test(W_1st, test, TE_test, TR_test, sigma_test, 3, 2);
-	std::cout << "Performances over images: " << perf_1.transpose() << "\n";
-	std::cout << "Performances over images: " << perf_2.transpose() << "\n";
-	std::cout << "Performances over images: " << perf_3.transpose() << "\n";
-	std::cout << "Performances over images: " << perf_4.transpose() << "\n\n\n";
-	
-	
-	// Write to a file: 
-	file_performance << "Performances over images init: \t" << perf_1.transpose() << "\n";
-	file_performance << "Performances over images init: \t" << perf_2.transpose() << "\n";
-	file_performance << "Performances over images init: \t" << perf_3.transpose() << "\n";
-	file_performance << "Performances over images init: \t" << perf_4.transpose() << "\n\n\n";
-	*/
-	
-	
-	
-	
-	
-	
-	
-	//* Least Sq *//
+	// Least Sq:
 	// Change 
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig_row W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
@@ -1230,7 +1046,7 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images LS: " << perf_1.transpose() << "\n";
 	std::cout << "Performances over images LS: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images LS: " << perf_3.transpose() << "\n";
-	std::cout << "Performances over images LS: " << perf_4.transpose() << "\n\n\n";
+	std::cout << "Performances over images LS: " << perf_4.transpose() << "\n\n\n" << std::endl;
 	
 	
 	
@@ -1247,8 +1063,8 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Test:
-	Matrix_eig_row W_LS = W_init;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
+	//Matrix_eig_row W_LS = W_init;
+	//Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 
 
 	
@@ -1259,11 +1075,12 @@ int main(int argc, char * argv[]) {
 	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
 	Vector_eig beta_init = 0.1*Vector_eig::Ones(3);						// beta_init	// Subrata multiply by 0.1
 	
+		
 	
 	// Non -penalized:
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1, 
-	          2, 0, 1e-6, 1);
+	          8, 0, 1e-6, 1);
 	//change
 	
 	// Write to a file: 
@@ -1289,7 +1106,7 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images Likelihood: " << perf_1.transpose() << "\n";
 	std::cout << "Performances over images Likelihood: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images Likelihood: " << perf_3.transpose() << "\n";
-	std::cout << "Performances over images Likelihood: " << perf_4.transpose() << "\n\n\n";
+	std::cout << "Performances over images Likelihood: " << perf_4.transpose() << "\n\n\n" << std::endl;
 	
 	
 	file_performance << "Performances over images Likelihood: \t" << perf_1.transpose() << "\n";
@@ -1304,7 +1121,7 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], TE_scale, TR_scale, MRF_obj_1, 
-	          2, 1, 1e-6, 1);
+	          8, 1, 1e-6, 1);
 	//change
 	// Psi_inv is already updated - So new value would not give better
 	Debug1("W - Penalized Likelihood");
@@ -1339,7 +1156,7 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images Penalized: " << perf_1.transpose() << "\n";
 	std::cout << "Performances over images Penalized: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images Penalized: " << perf_3.transpose() << "\n";
-	std::cout << "Performances over images Penalized: " << perf_4.transpose() << "\n\n\n";
+	std::cout << "Performances over images Penalized: " << perf_4.transpose() << "\n\n\n" << std::endl;
 	
 	
 	file_performance << "Performances over images Penalized: \t" << perf_1.transpose() << "\n";
@@ -1351,30 +1168,12 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	
-	
-	
-	//* Variance estimation *//
+	// Variance estimation: 
 	
 	// Using Info matrix + delta method:
 	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
                                              train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test);
-	
-	// Using Bootstrap
-	std::cout << "\n\n";
-	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
-                                               TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, 200, 15);
-	
-	
-	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head(info_var_1);
-	
-	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head(boot_var_1);
-	
 	
 	// Write to a file: 
 	std::ofstream info_var_file;
@@ -1384,6 +1183,28 @@ int main(int argc, char * argv[]) {
 	}
 	info_var_file.close();
 	
+	
+	
+	
+	// Using Bootstrap
+	
+	std::cout << "\n\n";
+	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
+                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
+                                               TE_scale, TR_scale, MRF_obj_1,
+                                               TE_test, TR_test, sigma_test, test, 200, 6);
+                                               //change
+	
+	
+	std::cout << "\n\nVariance from Information matrix:\n";
+	show_head(info_var_1);
+	
+	
+	std::cout << "\nVariance from parametric bootstrap:\n";
+	show_head(boot_var_1);
+	
+	
+	// Write to a file: 
 	std::ofstream boot_var_file;
 	boot_var_file.open ("result/boot_var.txt");
 	for(int i = 0; i < boot_var_1.rows(); ++i){
@@ -1392,11 +1213,6 @@ int main(int argc, char * argv[]) {
 	boot_var_file.close();
 	
 	//* Variance estimation ends! *//
-	
-	
-	
-	
-	
 	
 	std::time_t t2 = std::time(nullptr);
 	std::tm tm2 = *std::localtime(&t2);
