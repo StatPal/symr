@@ -210,7 +210,12 @@ void least_sq_solve(Matrix_eig_row &W,
 				bad_count_o_2++;
 			}
 		} else {
-			W.row(i) = x;
+			if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
+				W.row(i) = x;
+			} else {
+				Debug0("nan in LS estimate. \n" << "i: " << i << ", x: " << x.transpose());
+				nan_count++;
+			}
 		}
 	}
 	

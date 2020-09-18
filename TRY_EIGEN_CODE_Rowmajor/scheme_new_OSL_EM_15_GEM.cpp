@@ -658,6 +658,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
 					W_init.row(i) = x;
 				} else {
+					if(verbose){
+						Debug0("nan in EM estimate. \n" << "i: " << i << ", x: " << x.transpose());
+					}
 					nan_count++;
 				}
 			}
