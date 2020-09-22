@@ -57,6 +57,10 @@ i.e., proper index if r is not taken.
 BUG: Lambda * Psi 
 was negative/positive. Hessian had this BUG.
 
+
+BUG: There was an added sigma_j^2 in the h function in some later version of the code. 
+Perviously it was correct.
+
 */
 
 
@@ -2027,7 +2031,8 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 					// This is also valid
 					
 					
-					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
 					// This is also valid
 					
 					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
