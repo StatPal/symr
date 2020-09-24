@@ -1167,11 +1167,14 @@ class MRF_param{
 		eigens.noalias() =  beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
 		
 		if(k == 0) {
-			final_vec.noalias() = beta(0) * eigenval_1;
+			// final_vec.noalias() = beta(0) * eigenval_1;
+			final_vec.noalias() = eigenval_1;
 		} else if(k == 1) {
-			final_vec.noalias() = beta(1) * eigenval_2;
+			//final_vec.noalias() = beta(1) * eigenval_2;
+			final_vec.noalias() = eigenval_2;
 		} else if(k == 2) {
-			final_vec.noalias() = beta(2) * eigenval_3;
+			//final_vec.noalias() = beta(2) * eigenval_3;
+			final_vec.noalias() = eigenval_3;
 		}
 		for(int i = 1; i < n; ++i){
 			final_vec(i) /= eigens(i);
