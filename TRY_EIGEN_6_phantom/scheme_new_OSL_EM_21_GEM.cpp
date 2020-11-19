@@ -16,6 +16,8 @@ g++ scheme_new_OSL_EM_21_GEM.cpp -o test_21_2D -I /usr/include/eigen3 -O3 -lgsl 
 
 ./test_21_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
+./test_21_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+
 nohup ./test_21_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_21_2D.out & 
 
 
@@ -114,6 +116,11 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 		likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j)*tmp3)/SQ(sigma(j));
 	}
 	
+	//Test:
+	//if(i == 99){		// i == 0 is black listed
+		//Debug0("i = " << i << ", likeli_sum: " << std::setprecision(15) << likeli_sum << std::setprecision(6) << ", penalized: " << penalized << ", W.row(i): " << W.row(i));
+	//}
+	
 	//MRF part://
 	if(penalized){
 		likeli_sum += MRF_obj.MRF_log_likeli_num_i(W, Psi_inv, beta, i);
@@ -158,8 +165,11 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 		if(penalized){
 			// W_grad(k) = temp - c_i(k);
 			W_grad(k) = temp - MRF_grad(k);
+		} else {								// This else part was not there - BUG!
+			W_grad(k) = temp;
 		}
 	}
+		
 	return (-W_grad);
 	
 }
@@ -211,7 +221,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
 		beta1 << x(0), 1, 0;
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n * 3);
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);				//  not n * 3
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
 	}
@@ -219,7 +229,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Objective function: 
 	T value(const TVector &x) {
 		beta1(0) = x(0);
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n * 3);	// I guess there would be an additional 3. Check!
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);	// I guess there would be an additional 3. Check!
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
 								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
@@ -347,6 +357,23 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
+	Eigen::VectorXi checkerboard_white = Eigen::VectorXi::Ones(n);
+	int k = 0;
+	for(int i = 0; i < MRF_obj.n_y_; ++i){
+		for(int j = 0; j < MRF_obj.n_x_; ++j){					// Check the order
+			checkerboard_white(k) = ((i % 2) + (j % 2)) % 2;
+			k++;
+		}
+	}
+	Debug0("Number of possible checkerboard white ones: " << checkerboard_white.sum());
+	
+	
+	
+	
+	
+	
+	
+	
 	///** First estimate other MRF parameters **///
 	
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
@@ -400,7 +427,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
-	f.penalized(penalized);
+	f.update_penalized(penalized);
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
@@ -919,7 +946,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Penalised:
-	
+	/*
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 1, 0.1, 1e-4, 1);
@@ -966,6 +993,7 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Penalized: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_4.transpose() << "\n\n\n";
+	*/
 	file_performance.close();
 	
 	

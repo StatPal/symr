@@ -1,11 +1,5 @@
 /**
 *
-g++ Init_value_5.cpp -o test -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-*
-./test ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
-
-./test ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-
 
 
 
@@ -25,6 +19,7 @@ g++ Init_value_5.cpp -o test_LS -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 ./test_LS ../Read_Data/new_phantom.nii Dummy_sd_3D.txt 0
 
+./test_LS ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
 
 */
@@ -69,17 +64,30 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	
 
 
-	TVector TE, TR;
+	TVector TE, TR, lb, ub;
 	int i;
-	TVector v_new = TVector::Zero(3);
-	TVector v_new_1 = TVector::Zero(3);
+	
+	// Track the best:
+	Eigen::VectorXd current_best_param;
+	double current_best_val = 1.0e+15;
 
 
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
-		Bloch_vec(x, TE, TR, v_new);
-		DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
+		TVector v_new = Bloch_vec(x, TE, TR);
+		// if(i == 0)
+		if(i == 2){				// corresponding to 3 as in R
+			DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm());
+		}
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
+		
+		// Track the best:
+		if(fx < current_best_val){
+			if(check_bounds_vec_3(x, lb, ub) == 0){
+				current_best_param = x;
+				current_best_val = fx;
+			}
+		}
 				
 		return (fx);
 	}
@@ -87,30 +95,31 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	// grad of the value: 
 	void gradient(const TVector &x, TVector &grad) {
-		Bloch_vec(x, TE, TR, v_new_1);
+		TVector v_new = Bloch_vec(x, TE, TR);
 		grad << 0,0,0;
 		int m = TR.size();
 		
 		
 		for(int j = 0; j < m; ++j){
 		
-			grad[0] -= 2*(r(i, j) - v_new_1(j)) * 
+			grad[0] -= 2*(r(i, j) - v_new(j)) * 
 						std::exp(TE(j)*std::log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 			
-			grad[1] -= 2*(v_new_1(j) - r(i, j)) * 
+			grad[1] -= 2*(v_new(j) - r(i, j)) * 
 						x(0)*TR(j) * std::exp(TE(j)*log(x(2))) * 
 						std::exp((TR(j)-1)*std::log(x(1)));
 			
-			grad[2] -= 2*(r(i, j) - v_new_1(j)) * 
+			grad[2] -= 2*(r(i, j) - v_new(j)) * 
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
-		DebugLS("grad: " << grad.transpose() << "\n" );
+		//if(i == 0)
+		if(i == 2)		// corresponding to 3 as in R
+			DebugLS("grad: " << grad.transpose() << "\n" );
 	}
-
-
 };
+
 
 
 
@@ -135,18 +144,19 @@ void least_sq_solve(Matrix_eig_row &W,
 	Eigen::VectorXd x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
-	lb << 0.0001/r_scale, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
-	ub << 450.0/r_scale, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
-	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
-	
+	for(int i = 1; i < 3; ++i){
+		if(lb[i]<1.0e-8){
+			lb[i] = 1.0e-8;
+		}
+	}
 	Debug1("lb inside LS: " << lb.transpose());
 	Debug1("ub inside LS: " << ub.transpose());
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
-	f.setLowerBound(lb);	f.setUpperBound(ub);
+	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	
 	double old_val = 0.0, fx;
 	int n = r.rows(), bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0;
@@ -158,7 +168,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Declaring the solver
 	cppoptlib::LbfgsbSolver<Least_Sq_est<double>> solver;
 	cppoptlib::Criteria<double> crit_LS = cppoptlib::Criteria<double>::defaults();
-	crit_LS.iterations = 120;
+	crit_LS.iterations = 100;
 	solver.setStopCriteria(crit_LS);
 	
 	
@@ -170,6 +180,10 @@ void least_sq_solve(Matrix_eig_row &W,
 		if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
 			Debug1("i: "<< i);
 		}
+		
+		// Track the best:
+		// double current_best_val = 1.0e+15;
+		f.current_best_val = 1.0e+15;		// This was not updated previously   Nov 8, 2.36 am
 		
 		
 		f.i = i;
@@ -201,10 +215,19 @@ void least_sq_solve(Matrix_eig_row &W,
 		//Solve:
 		solver.minimize(f, x);
 		fx = f(x);
-		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
-		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
-		DebugLS("Final criteria values: " << "\n" << solver.criteria());
-		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
+		
+		// Track the best:
+		x = f.current_best_param;
+		fx = f.current_best_val;
+		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
+		
+		//if(i == 0)
+		if(i == 2){			// corresponding to 3 as in R
+			DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
+			DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
+			DebugLS("Final criteria values: " << "\n" << solver.criteria());
+			// DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
+		}
 		
 		
 		
@@ -376,12 +399,14 @@ int main(int argc, char * argv[]) {
 	
 	
 	Vector_eig lb(3), ub(3);
-	//lb << 0.0001/r_scale, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
-	//ub << 450.0/r_scale, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
-	
+	for(int i = 1; i < 3; ++i){
+		if(lb[i]<1.0e-8){
+			lb[i] = 1.0e-8;
+		}
+	}
 	Debug0("lb:" << lb.transpose());
 	Debug0("ub:" << ub.transpose());
 	
@@ -396,9 +421,12 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
-		
-	std::vector<int> train_ind{0, 1, 2};
-	std::vector<int> test_ind{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+	
+	//std::vector<int> train_ind{0, 1, 2};
+	//std::vector<int> test_ind{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+	
+	std::vector<int> train_ind{0, 6, 13};
+	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
 	// Also, this creates 450 in the first edge - but not with non-penalized case - check
 	// Somehow only 0, 1, 2 in trainset creates Nan's. We have to look.
 	
@@ -429,7 +457,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_17_new.txt");
+	file_performance.open ("result/Performances_LS.txt");
 
 
 	

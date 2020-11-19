@@ -36,7 +36,7 @@ int main(int argc, char * argv[]){
 
 
 
-#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
+// #include "../CppNumericalSolvers/include/cppoptlib/meta.h"
 #include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
 #include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
@@ -68,16 +68,29 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	
 
 
-	TVector TE, TR;
+	TVector TE, TR, lb, ub;
 	int i;
 	
+	// Track the best:
+	Eigen::VectorXd current_best_param;
+	double current_best_val = 1.0e+15;
 
 
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
 		TVector v_new = Bloch_vec(x, TE, TR);
-		DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
+		if(i == 2){
+			DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 			
+		}
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
+		
+		// Track the best:
+		if(fx < current_best_val){
+			if(check_bounds_vec_3(x, lb, ub) == 0){
+				current_best_param = x;
+				current_best_val = fx;
+			}
+		}
 				
 		return (fx);
 	}
@@ -104,7 +117,8 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
-		DebugLS("grad: " << grad.transpose() << "\n" );
+		if(i == 2)
+			DebugLS("grad: " << grad.transpose() << "\n" );
 	}
 
 
@@ -148,7 +162,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
-	f.setLowerBound(lb);	f.setUpperBound(ub);
+	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	
 	double old_val = 0.0, fx;
 	int n = r.rows(), bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0;
@@ -160,7 +174,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Declaring the solver
 	cppoptlib::LbfgsbSolver<Least_Sq_est<double>> solver;
 	cppoptlib::Criteria<double> crit_LS = cppoptlib::Criteria<double>::defaults();
-	crit_LS.iterations = 120;
+	crit_LS.iterations = 100;
 	solver.setStopCriteria(crit_LS);
 	
 	
@@ -169,10 +183,13 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Loop of 
 	for(int i = 0; i < n; ++i){
 	
-		if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
+		if(i % 100000 == 0){
 			Debug1("i: "<< i);
 		}
 		
+		// Track the best:
+		// double current_best_val = 1.0e+15;
+		f.current_best_val = 1.0e+15;
 		
 		f.i = i;
 		x = W.row(i);
@@ -203,10 +220,18 @@ void least_sq_solve(Matrix_eig_row &W,
 		//Solve:
 		solver.minimize(f, x);
 		fx = f(x);
-		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
-		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
-		DebugLS("Final criteria values: " << "\n" << solver.criteria());
-		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
+		
+		// Track the best:
+		x = f.current_best_param;
+		fx = f.current_best_val;
+		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
+		
+		if(i == 2){
+			DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << fx) ;
+			DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
+			DebugLS("Final criteria values: " << "\n" << solver.criteria());
+			// DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
+		}
 		
 		
 		

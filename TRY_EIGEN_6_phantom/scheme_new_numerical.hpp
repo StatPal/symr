@@ -154,7 +154,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-//#define DEBUG_LEVEL_LS
+// #define DEBUG_LEVEL_LS
 
 #ifdef DEBUG_LEVEL_LS
 #define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}
@@ -841,6 +841,26 @@ void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_ei
 }
 
 
+
+int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
+
+	int bad_bound_1 = 0, bad_bound_2 = 0;
+	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
+		//std::cout << "Lower bound crossed initially!";
+		bad_bound_1++;
+	}
+	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
+		//std::cout << "Upper Bound crossed initially!";
+		bad_bound_2++;
+	}
+	return (bad_bound_1 + bad_bound_2);
+}
+
+
+
+
+
+
 /*
 * Checks whether there is NaN or not and prints the location in a matrix
 * returns number of such cases.
@@ -1063,14 +1083,23 @@ class MRF_param{
 	Matrix_eig tmp_Lambda_W;
 	Matrix_eig Psi_grad = Matrix_eig::Zero(6, 1);
 	Matrix_eig tmp_i_Psi_inv = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_new = Matrix_eig::Zero(1, 3);
+	
 	
 	// Important variables:
 	Vector_eig x_old;
 	double old_MRF_likeli = 0.0;
+	double tmp_i_coeff_1 = 0.0;
 	
 	
 	// For likeli num i
 	Matrix_eig tmp_i = Matrix_eig::Zero(1, 3);
+	
+	Matrix_eig tmp_i_1 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_2 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_1 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_2 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_final = Matrix_eig::Zero(1, 3);
 	
 	
 	Vector_eig tmp1_vec = Vector_eig::Zero(3);
@@ -1145,6 +1174,7 @@ class MRF_param{
 		tmp_Wt_L_W = Matrix_eig::Zero(3, 3);
 		tmp_Lambda_W = Matrix_eig::Zero(n, 3);
 		x_old = Vector_eig::Zero(3);
+		MRF_grad = Vector_eig::Zero(3);
 	}
 	
 	
@@ -1304,6 +1334,10 @@ class MRF_param{
 			}
 		}
 		
+		//if(i == 99){
+		//	Debug0("tmp_i: " << tmp_i);
+		//}
+		
 		tmp_row = H_2.row(i);
 		for(int k = 0; k < tmp_row.outerSize(); ++k){
 			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
@@ -1311,9 +1345,101 @@ class MRF_param{
 			}
 		}
 		
-		tmp_i_Psi_inv = tmp_i * Psi_inv;
+		tmp_i_Psi_inv.noalias() = tmp_i * Psi_inv;
+		//if(i == 99){
+		//	Debug0("W.row(i): " <<  W.row(i));
+		//	Debug0("old MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv * W.row(i).transpose()).value());
+		//}
 		return ( -0.5 * (tmp_i_Psi_inv * W.row(i).transpose()).value());
 	}
+	
+	
+	
+	
+	
+	
+	
+	/*
+	* Values are updated: 
+	* To find 
+			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv
+	*
+	* splitted in two parts:
+			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)
+		and
+			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
+	*/
+	void update_neighbours_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
+								  const Vector_eig &beta, const int i){
+	
+		tmp_i_1 = Matrix_eig::Zero(1, 3);
+		tmp_i_2 = Matrix_eig::Zero(1, 3);
+		
+		tmp_row = H_1.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				if(it.col() != i){
+					tmp_i_1 += W.row(it.col()) * it.value();		//* beta(0)
+				}
+			}
+		}
+		tmp_i_1 = tmp_i_1 * beta(0);
+		
+		
+		//if(i == 99){
+			//Debug0("tmp_i_1: " << tmp_i_1);
+			//Debug0("Check 0.1.1, i = " << i );
+		//}
+		
+		tmp_row = H_2.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				if(it.col() != i){
+					tmp_i_2 += W.row(it.col()) * it.value();
+				}
+			}
+		}
+		
+		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
+		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
+		tmp_i_Psi_inv_final = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2;
+		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + H_2.coeff(i, i);
+	}
+	
+	
+	
+	
+	
+	/* 
+	* Numerator of the log likelihood from the MRF part:
+	* w.r.t. i-th row of W.
+		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv 
+								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv + 
+								 + Lambda(i, i) * x' * Psi_inv
+	* final output is: 
+		 - tmp_i_Psi_inv_new * x / 2;
+	*/
+	double MRF_log_likeli_num_i_new(const Vector_eig &x, const Matrix3d_eig &Psi_inv) {
+	
+		//if(i == 99){
+		//	Debug0("W.row(i): " << W.row(i));
+		//	Debug0("(beta(0) * H_1.coeff(i, i) ) * x.transpose(): " << (beta(0) * H_1.coeff(i, i) ) * x.transpose());
+		//	Debug0("new MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv_new * x).value());
+		//}
+		
+		//tmp_i_Psi_inv_new.noalias() = tmp_i_Psi_inv_final + 
+		//								tmp_i_coeff_1 * (x.transpose() * Psi_inv);		// Can be little more compact here
+		tmp_i_Psi_inv_new.noalias() = (x.transpose() * Psi_inv);
+		tmp_i_Psi_inv_new = tmp_i_Psi_inv_final + tmp_i_coeff_1 * tmp_i_Psi_inv_new;
+		
+		return ( -0.5 * (tmp_i_Psi_inv_new * x).value());
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -1321,6 +1447,7 @@ class MRF_param{
 	* gradient of likelihood w.r.t. i-th row of W.
 	* Shorten if possible - maybe using increment
 	*/
+	/*
 	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
 		
 		tmp_W_Psi_inv.noalias() = W * Psi_inv;
@@ -1330,7 +1457,20 @@ class MRF_param{
 		MRF_grad.noalias() = beta(0)*tmp1_vec + beta(1)*tmp2_vec + beta(2)*tmp3_vec;
 		return MRF_grad;
 	}
+	*/
+	
+	
+	
+	void MRF_grad_fn(const Vector_eig &x, const Matrix3d_eig &Psi_inv, Vector_eig &MRF_grad){
+	
+		MRF_grad = Psi_inv * x;
+		MRF_grad *= tmp_i_coeff_1;
+		MRF_grad += 0.5 * tmp_i_Psi_inv_final.transpose();
+	}
 
+	
+	
+	
 	
 	
 	

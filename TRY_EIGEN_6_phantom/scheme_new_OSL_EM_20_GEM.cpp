@@ -16,6 +16,7 @@ g++ scheme_new_OSL_EM_20_GEM.cpp -o test_20_2D -I /usr/include/eigen3 -O3 -lgsl 
 
 ./test_20_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
+./test_20_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
 nohup ./test_20_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_20_2D.out & 
 
@@ -141,7 +142,7 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
 	Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
-		
+	
 	// Likelihood part
 	for(int k = 0; k < 3; ++k){
 		temp = 0.;
@@ -157,33 +158,6 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	
 }
 
-
-
-
-
-/*
-Penalised NEGATIVE Q fn, w.r.t. parameter of MRF -- to be minimised
-* All parameters are not needed - keep them for uniformity?
-*/
-double Q_star_other_param(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
-                          int n_x, int n_y, int n_z, MRF_param &MRF_obj){
-
-	
-	double likeli_sum = MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
-	return -likeli_sum;
-}
-
-
-
-/*
-* Negative Gradient of Penalised Q function w.r.t. other parameters
-*/
-Vector_eig Q_grad_vec_other_parameter(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
-                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj){
-	
-	Vector_eig grad = MRF_obj.MRF_log_likeli_grad(W, Psi_inv, beta);	
-	return (-grad);
-}
 
 
 
@@ -207,7 +181,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	
 
 
-  public:	
+  public:
 	MRF_optim(const TMatrix_row W1_, const MRF_param &MRF_obj_optim) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
@@ -229,7 +203,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
 		beta1 << x(0), 1, 0;
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n * 3);
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);						// not n * 3
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
 	}
@@ -237,7 +211,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Objective function: 
 	T value(const TVector &x) {
 		beta1(0) = x(0);
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n * 3);	// I guess there would be an additional 3. Check!
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);	// I guess there would be an additional 3. Check!
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
 								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
@@ -273,19 +247,33 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 	int i, n_x, n_y, n_z;
-	double beta_z = 0.0, beta_y = 1.0;												//Subrata - or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub, c_i;							// lb, ub are for extra check
+	double beta_z = 0.0, beta_y = 1.0;										//Subrata - or get the value. 
+	TVector TE, TR, sigma, beta, lb, ub, c_i;								// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
 	TMatrix_row W, W_old;													// W here creating problem in optimization?
 	
 	
+	// Track the best:
+	Eigen::VectorXd current_best_param;
+	double current_best_val = 1.0e+15;
+	
 
+	
 	T value(const TVector &x) {
 	
 		W.row(i) = x.transpose();
 		//check_bounds_vec(x, lb, ub);
 		double fx = Q_OSL_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, n_x, n_y, n_z, i);
 		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
+		
+		
+		// Track the best:
+		if(fx < current_best_val){
+			if(check_bounds_vec_3(x, lb, ub) == 0){
+				current_best_param = x;
+				current_best_val = fx;
+			}
+		}
 		
 		return (fx);
 	}
@@ -329,7 +317,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 
 
 	
-	
 	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
@@ -345,7 +332,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		}
 	}
 	Debug0("Number of possible background voxels: " << black_list.sum());
-	
 	
 	
 	
@@ -370,7 +356,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		solver_2.setStopCriteria(crit_MRF);
 		
 	//}
-
 
 
 
@@ -430,7 +415,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	
 	// ** OSL-EM loop ** //
 	
 	while(iter < maxiter){
@@ -440,7 +424,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
 		auto time_2_likeli = std::chrono::high_resolution_clock::now();
-		
 		
 		
 		
@@ -499,7 +482,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		
 		// * Loop over voxels: * //
 		
 		
@@ -509,7 +491,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Gamma_inv = MRF_obj.Lambda(beta);
 			MRF_grad = Gamma_inv * W_old * Psi_inv;
 		}
-		
 		
 		
 		// Change: 
@@ -525,6 +506,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			if(black_list(i) == 0){
+			
+				// Track the best:
+				// double current_best_val = 1.0e+15;
+				f.current_best_val = 1.0e+15;
+				
+				
 				f.i = i;
 				if(penalized) {
 					f.c_i.noalias() = MRF_grad.row(i); 
@@ -532,7 +519,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				x.noalias() = W_init.row(i);
 				// check_bounds_vec(x, lb, ub);
 				
-							
+				
 				//Print initial values:
 				Debug2 ("value of i: " << i << "\t x at first: " << x.transpose());
 				Debug2 ("f(x) at first: ---------");
@@ -549,16 +536,23 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 				*/
 				
-			
-			
+				
+				
 				//Solve:
 				solver.minimize(f, x);
 				Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 				double fx = f(x);
+				
+				
+				// Track the best:
+				x = f.current_best_param;
+				fx = f.current_best_val;
+				
+				
 				Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 				Debug2("Final criteria values: " << "\n" << solver.criteria());
 				
-			
+				
 				Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 						"\t old val: " << old_val << "\t diff: " << fx - old_val);
 				
@@ -626,11 +620,10 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj);
 		
-		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here
 				Debug1("Value not decreased in EM loop!! old val: " << old_likeli << 
-						";\t new val: " << current_best_likeli << " diff: " << current_best_likeli - old_likeli);				
+						";\t new val: " << current_best_likeli << " diff: " << current_best_likeli - old_likeli);
 			}
 			//bad_count_o++;
 		}
@@ -676,7 +669,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	if(verbose){
 		Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
 				" and worse: " << bad_count_o_2 << 
-				" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);		
+				" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);
 	}
 	
 	auto time_5_likeli = std::chrono::high_resolution_clock::now();
@@ -914,7 +907,7 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
-	    
+	
 	//std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 	//std::vector<int> test_ind{16, 17};
 	
@@ -1006,9 +999,6 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images LS: \t" << perf_4.transpose() << "\n\n\n";
 	
 	
-	
-	
-	Debug0("test: W_init.row(39628): " << W_init.row(39628));
 	
 	
 	
