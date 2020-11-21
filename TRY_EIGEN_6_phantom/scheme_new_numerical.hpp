@@ -1362,10 +1362,10 @@ class MRF_param{
 	/*
 	* Values are updated: 
 	* To find 
-			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv
+			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv				// Not exactly this -- BUG
 	*
 	* splitted in two parts:
-			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)
+			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)			// BUG this part * 2 
 		and
 			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
 	*/
@@ -1402,7 +1402,8 @@ class MRF_param{
 		
 		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
 		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
-		tmp_i_Psi_inv_final = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2;
+		tmp_i_Psi_inv_final = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2;			// This was not multiplied by 2 -- BUG
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
 		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + H_2.coeff(i, i);
 	}
 	
@@ -1413,8 +1414,8 @@ class MRF_param{
 	/* 
 	* Numerator of the log likelihood from the MRF part:
 	* w.r.t. i-th row of W.
-		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv 
-								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv + 
+		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv  					// Not this -- BUG
+								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv +  	// This line multiplied by 2
 								 + Lambda(i, i) * x' * Psi_inv
 	* final output is: 
 		 - tmp_i_Psi_inv_new * x / 2;
