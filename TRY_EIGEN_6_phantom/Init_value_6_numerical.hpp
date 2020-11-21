@@ -158,7 +158,7 @@ void least_sq_solve(Matrix_eig_row &W,
 		}
 	}
 	Debug1("lb inside LS: " << lb.transpose());
-	Debug1("ub inside LS: " << ub.transpose());
+	Debug1("ub inside LS: " << ub.transpose() << "\n");
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;

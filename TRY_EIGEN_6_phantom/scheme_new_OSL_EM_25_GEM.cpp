@@ -65,7 +65,7 @@ No change for cholesky inside the function
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-              int n_x, int n_y, int n_z, MRF_param &MRF_obj){
+              int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
 
 	Matrix_eig_row v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
@@ -83,8 +83,10 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 		}
 	}
 	
-	//MRF part://
-	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	if(penalized){
+		//MRF part://
+		likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	}
 	
 	return -likeli_sum;
 }
@@ -118,13 +120,7 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 	}
 	
 	//MRF part://
-	if(penalized){
-		
-		//if(i == 99){
-		//	Debug0("MRF_obj.MRF_log_likeli_num_i_new(W.row(i), W, Psi_inv, beta, i): " << 
-		//		MRF_obj.MRF_log_likeli_num_i_new(W.row(i), W, Psi_inv, beta, i) << "\n");
-		//}
-		
+	if(penalized){		
 		likeli_sum += MRF_obj.MRF_log_likeli_num_i_new(W.row(i), Psi_inv);
 	}
 	
@@ -148,7 +144,6 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	Vector_eig W_grad(3);
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	
 	
 	// MRF contribution part: 
@@ -163,11 +158,10 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 		for(int j = 0; j < m ; ++j){
 			tmp2 = r(i,j)/SQ(sigma(j));
 			// tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2*v_old_i(j));
-			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);						// new
+			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);
 			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
 		}
 		if(penalized){
-			// W_grad(k) = temp - c_i(k);
 			W_grad(k) = temp - MRF_grad(k);
 		} else {								// This else part was not there - BUG!
 			W_grad(k) = temp;
@@ -286,6 +280,12 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	TMatrix_row W, W_old;												// W here creating problem in optimization?
 	int penalized;
 	
+	
+	// Track the best:
+	Eigen::VectorXd current_best_param;
+	double current_best_val = 1.0e+15;
+	
+	
 	void update_penalized(int val){
 		penalized = val;
 	}
@@ -304,27 +304,85 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		}
 	}
 
-
+	
+	
+	Vector_eig v_i;
+	
+	
 	T value(const TVector &x) {
 	
-		W.row(i) = x.transpose();
-		//check_bounds_vec(x, lb, ub);
-		double fx = Q_OSL_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, Theta, 
-									n_x, n_y, n_z, i, MRF_obj_optim, penalized);
-		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
+		W.row(i) = x.transpose();		
+		v_i = Bloch_vec(W.row(i), TE, TR);
+		int m = TE.size();
+		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 		
-		return (fx);
+		//Rice part://
+		for(int j = 0; j < m; ++j) {
+			likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j) * Theta(i, j))/SQ(sigma(j));
+		}
+		
+		//MRF part://
+		if(penalized){
+			likeli_sum += MRF_obj_optim.MRF_log_likeli_num_i_new(x, Psi_inv);
+		}
+		
+		
+		
+		
+		// Track the best:
+		if((-likeli_sum) < current_best_val){
+			if(check_bounds_vec_3(x, lb, ub) == 0){
+				current_best_param = x;
+				current_best_val = -likeli_sum;
+			}
+		}
+		
+		
+		
+		Debug2("x: " << x.transpose() << " \t& - Q fn:" << likeli_sum);
+		return (-likeli_sum);
 	}
+
+
 
 // Comment this Gradient part if you don't want to feed the gradient:
 
+	Vector_eig MRF_grad = Vector_eig::Zero(3);
+
 	void gradient(const TVector &x, TVector &grad) {
+	
 		W.row(i) = x;
-		grad = Q_OSL_grad_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, Theta, 
-									n_x, n_y, n_z, i, MRF_obj_optim, penalized);
+		
+		
+		int m = TE.size();
+		double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		v_i = Bloch_vec(x, TE, TR);
+		
+	
+		
+		// MRF contribution part: 
+		if(penalized){
+			MRF_obj_optim.MRF_grad_fn(x, Psi_inv, MRF_grad);
+		}
+		
+		// Likelihood part: 
+		for(int k = 0; k < 3; ++k){
+			temp = 0.;
+			for(int j = 0; j < m ; ++j){
+				tmp2 = r(i,j)/SQ(sigma(j));
+				tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);
+				temp += tmp3 * simple_dee_v_ij_dee_W_ik(x, TE, TR, j, k);
+			}
+			if(penalized){
+				grad(k) = temp - MRF_grad(k);
+			} else {
+				grad(k) = temp;
+			}
+		}
+		
+		grad = -grad;
 		Debug2("grad: " << grad.transpose() << "\n" );
 	}
-
 };
 
 
@@ -350,12 +408,18 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                const Vector_eig &sigma, const Matrix_eig_row &r, 
                int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
-               int maxiter = 20, int penalized = 1, 
+               int maxiter = 50, int penalized = 1, 
                double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0) {
 // Change
 
-
-
+	if(verbose)
+		std::cout << "\n\n\n";
+	if(penalized){
+		Debug0("Doing AECM Estimate!");
+	} else {
+		Debug0("Doing EM Estimate!");
+	}
+	
 	
 	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
@@ -436,7 +500,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
-		if(lb[i]<1.0e-8){
+		if(lb[i] < 1.0e-8){
 			lb[i] = 1.0e-8;
 		}
 	}
@@ -454,6 +518,10 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.W.noalias() = W_init;
 	Matrix_eig_row W_old = W_init;
 	f.W_old.noalias() = W_old;
+	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized		// Not needed - change 
+	
+	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+								sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 	
 	
 	
@@ -463,19 +531,14 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
-	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Criteria class
-	crit_voxel.iterations = 80;															// number of allowed iterations
+	// Subrata - Setting the maxiter: 
+	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
+	crit_voxel.iterations = 50;
 	solver.setStopCriteria(crit_voxel);
 	// Change
 	
 	
 	
-	SpMat Gamma_inv = MRF_obj.Lambda(beta);
-	Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;
-	
-	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
-
 	
 	
 	
@@ -535,7 +598,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
-		
+			
+			
+			// Update the values inside the other class: 
+			f.beta.noalias() = beta;
+			f.Psi_inv.noalias() = Psi_inv;
+
 		}
 		
 		
@@ -551,21 +619,10 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// * Checkerboard white loop: * //
 		
-		
-		// MRF contribution part:
-		// One time per each loop - check removable or not:
-		if(penalized){
-			// Gamma_inv = MRF_obj.Lambda(beta);
-			// MRF_grad = Gamma_inv * W_old * Psi_inv;
-		}
-		
-		
-		
+				
 		
 		// Change: 
-		for(int i = 0; i < n; ++i){
-		//for(int i = 73; i < 75; ++i) {
-		
+		for(int i = 0; i < n; ++i){		
 			if(i % 10000 == 0 ){
 				if(verbose){
 					std::cout << std::endl;
@@ -577,21 +634,22 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				if(black_list(i) == 0){
 				
 					auto time_1_voxel = std::chrono::high_resolution_clock::now();
+					
+					
+					// Track the best:
+					// double current_best_val = 1.0e+15;
+					f.current_best_val = 1.0e+15;
+					
 					f.i = i;
 					if(penalized) {
-						// f.c_i.noalias() = MRF_grad.row(i); 
-						f.beta.noalias() = beta;
-						f.Psi_inv.noalias() = Psi_inv;
-						
 						f.MRF_obj_optim.update_neighbours_likeli(W_init, Psi_inv, beta, i);
-						
 					}
+					
 					auto time_3_voxel = std::chrono::high_resolution_clock::now();
 					auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
 					//if(penalized)
 					//	Debug1("Time taken for precompute: " << duration_13_voxel.count() << " microseconds\n");
 					x.noalias() = W_init.row(i);
-					// check_bounds_vec(x, lb, ub);
 					
 								
 					//Print initial values:
@@ -628,6 +686,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					Debug2("Final criteria values: " << "\n" << solver.criteria());
 					
 					
+					// Track the best:
+					x = f.current_best_param;
+					fx = f.current_best_val;
+					
+					
+					
 					Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 							"\t old val: " << old_val << "\t diff: " << fx - old_val);
 					
@@ -661,9 +725,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// E_step:
 		f.E_step_update();
-		
 		std::cout << std::flush;
-		
 		// * Checkerboard white ends * //
 		
 		
@@ -673,21 +735,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// * Checkerboard black loop: * //
 		
-		
-		// MRF contribution part:
-		// One time per each loop - check removable or not:
-		if(penalized){
-			// Gamma_inv = MRF_obj.Lambda(beta);
-			// MRF_grad = Gamma_inv * W_old * Psi_inv;
-		}
-		
-		
-		
-		
-		// Change: 
 		for(int i = 0; i < n; ++i){
-		//for(int i = 73; i < 75; ++i) {
-		
 			if(i % 10000 == 0 ){
 				if(verbose){
 					std::cout << std::endl;
@@ -698,17 +746,16 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			if(checkerboard_white(i) == 0){
 				if(black_list(i) == 0){
 				
+				
+					// Track the best:
+					f.current_best_val = 1.0e+15;
+					
 					
 					f.i = i;
 					if(penalized) {
-						// f.c_i.noalias() = MRF_grad.row(i); 
-						f.beta.noalias() = beta;
-						f.Psi_inv.noalias() = Psi_inv;
-						
 						f.MRF_obj_optim.update_neighbours_likeli(W_init, Psi_inv, beta, i);
 					}
 					x.noalias() = W_init.row(i);
-					// check_bounds_vec(x, lb, ub);
 					
 								
 					//Print initial values:
@@ -737,6 +784,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					Debug2("Final criteria values: " << "\n" << solver.criteria());
 					
 					
+					// Track the best:
+					x = f.current_best_param;
+					fx = f.current_best_val;
+					
+					
 					Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 							"\t old val: " << old_val << "\t diff: " << fx - old_val);
 					
@@ -769,9 +821,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// E_step:
 		f.E_step_update();
-		
 		std::cout << std::flush;
-		
 		// * Checkerboard black ends * //
 		
 		
@@ -786,7 +836,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		if(nan_count>0){
+		if(nan_count > 0){
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
@@ -801,12 +851,21 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		// *Checking stopping criterion with penalized negative log likelihood:* //
-		int nan_count_2 = check_nan_W(W_init, W_old);					// Check this!
-		if(nan_count_2>0)
-			Debug0("nan count in " << iter << "-th iteration: " << nan_count_2);
+		// *Checking stopping criterion:* //
+		
+		// w.r.t. W 
+		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
+			std::cout << "Stopped after " << iter << " iterations" << "\n";
+			break;
+		}
+		if(verbose)
+			Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old) - to_vector(W_init)));
+		
+		
+				
+		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj);
+									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 		
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
@@ -817,8 +876,15 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			//bad_count_o++;
 		}
 		if(verbose){
-			Debug0(" Current likeli: " << -current_best_likeli << " Old likeli: " << -old_likeli 
-							<< " diff: " << current_best_likeli - old_likeli );
+			Debug0("Current log likeli: " << -current_best_likeli << ", Old log likeli: " << -old_likeli 
+					<< ", diff.: " << current_best_likeli - old_likeli  << 
+					",  rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli));
+		}
+		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff){
+			std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
+					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ", abs diff: " 
+					<< fabs(current_best_likeli - old_likeli) << ")\n";
+			break;
 		}
 		old_likeli = current_best_likeli;
 		if(verbose)
@@ -827,14 +893,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
-			std::cout << "Stopped after " << iter << " iterations" << "\n";
-			// Debug1("W_old.row(73):" << W_old.row(73));
-			// Debug1("W_init.row(73):" << W_init.row(73));
-			break;
-		}
-		if(verbose)
-			Debug1("abs_sum(to_vector(W_old) - to_vector(W_init)):" << abs_sum(to_vector(W_old) - to_vector(W_init)));
 		
 		
 		// Restore default values  ---- check other files also
@@ -858,15 +916,20 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	// std::cout << "\n";
 	if(verbose){
-		Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
+		Debug1("Number of bad cases in optimization:" << bad_count_o << 
 				" and worse: " << bad_count_o_2 << 
 				" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);		
 	}
 	
 	auto time_5_likeli = std::chrono::high_resolution_clock::now();
 	auto duration_45 = std::chrono::duration_cast<std::chrono::seconds>(time_5_likeli - time_1_likeli);
-	if(verbose)
-		Debug1("Time taken for whole AECM: " << duration_45.count() << " seconds\n");
+	if(verbose){
+		if(penalized){
+			Debug1("Time taken for whole AECM: " << duration_45.count() << " seconds\n");
+		} else {
+			Debug1("Time taken for whole EM: " << duration_45.count() << " seconds\n");
+		}
+	}
 	
 }
 
@@ -1019,11 +1082,6 @@ int main(int argc, char * argv[]) {
 	show_head(W_init);
 	std::cout << std::flush;
 	
-	// Added:
-	//std::cout << "\n\n\n";
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	// Write to a file: 
 	std::ofstream file_LS;
@@ -1075,7 +1133,7 @@ int main(int argc, char * argv[]) {
 		
 	
 	// Non -penalized:
-	/*
+	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 0, 0.1, 1e-5, 1);
@@ -1115,7 +1173,10 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Likelihood: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_4.transpose() << "\n\n\n";
-	*/
+	
+	
+	
+	
 	
 	
 	
@@ -1140,13 +1201,6 @@ int main(int argc, char * argv[]) {
 	file_final.close();
 	
 	
-	
-	// Added
-	//std::cout << "\n\n\n";
-	//Debug1("W_init final:");
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	
 	
@@ -1183,11 +1237,4 @@ int main(int argc, char * argv[]) {
 
 	return 0;
 }
-
-
-
-
-
-
-
 
