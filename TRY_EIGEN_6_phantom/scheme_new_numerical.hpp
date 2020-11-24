@@ -154,7 +154,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-#define DEBUG_LEVEL_LS
+// #define DEBUG_LEVEL_LS
 
 #ifdef DEBUG_LEVEL_LS
 #define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}
@@ -1633,6 +1633,7 @@ class MRF_param{
 * \nu_{ij} as a mx1 vector from one row of W (and TE, TR)
 * \nu_{ij} = W_i0 * (1 - W_i1 ^ TR_j ) * W_i2 ^TE_j
 */
+/*
 Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR){
 
 	int m = TE.size();
@@ -1644,8 +1645,17 @@ Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const V
 	}
 	return tmp;
 }
-// BUG --- Subrata - copy paste error happened at the time of reducing numerical error.
-// Corrected.
+*/
+// pass the vector 
+void Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR, Vector_eig &tmp){
+
+	int m = TE.size();
+	for(int j = 0; j < m; ++j) {
+		tmp(j) = W_row(0) * 
+					(1 - std::exp(TR(j)*std::log(W_row(1)))) *
+					std::exp(TE(j)*std::log(W_row(2)));
+	}
+}
 
 
 
