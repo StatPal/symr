@@ -17,6 +17,8 @@ g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_2D -I /usr/include/eigen3 -O3 -lgsl 
 
 ./test_26_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
+./test_26_2D ../data/new_phantom.nii Dummy_sd.txt 0
+
 ./test_26_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
 nohup ./test_26_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_26_2D.out & 

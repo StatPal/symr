@@ -16,6 +16,8 @@ g++ scheme_new_OSL_EM_25_GEM.cpp -o test_25_2D -I /usr/include/eigen3 -O3 -lgsl 
 
 ./test_25_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
+./test_25_2D ../data/new_phantom.nii Dummy_sd.txt 0
+
 ./test_25_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
 nohup ./test_25_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_25_2D.out & 
@@ -644,7 +646,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					if(penalized) {
 						f.MRF_obj_optim.update_neighbours_likeli(W_init, Psi_inv, beta, i);
 					}
-					
 					auto time_3_voxel = std::chrono::high_resolution_clock::now();
 					auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
 					//if(penalized)
