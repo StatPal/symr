@@ -7,7 +7,7 @@ image(ffd)
 # tmp <- ffd[124:126, 124:127, 1, ]
 # tmp <- ffd[50:55, 57:60, 1, ]
 tmp <- ffd[74:83, 124:133, 1, ]
-# tmp <- ffd[74:83+15, 124:133+1, 1, ]
+# tmp <- ffd[74:83+1, 124:133+1, 1, ]
 dim(tmp) <- c(dim(tmp)[1], dim(tmp)[2], 1, dim(tmp)[3])
 (image1 <- nifti(tmp, datatype = datatype(ffd)))
 dim(image1)
@@ -74,6 +74,9 @@ r <- r/normalizer
 train_ind <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
 test_ind <- c(17, 18)
 
+train_ind <- c(1, 7, 14)
+test_ind <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+
 train <- r[,train_ind]
 test <- r[,test_ind]
 TE_train <- TE_example[train_ind]; TE_test <- TE_example[test_ind] 
@@ -112,6 +115,17 @@ source("~/R/Researchs/MRI/Check_R_cleaned/scheme_new_numeric.R")
 W_LS <- least_sq_solve(W_init, TE_train, TR_train, 
                        train, TE_scale, TR_scale, if_full = T)
 head(W_LS)
+
+
+## C and R gives diff results: 
+# R stops if diff in growth is very small (even though grad is quite high). 
+# But C continues and stops when grad is ~0
+# numDeriv::grad(temp_lsq_star, c(1.7411657301, 0.0000000001, 0.9280897239), side = c(NA,1,1), TE = TE_train, TR = TR_train, i = 1)
+# numDeriv::grad(temp_lsq_star, c(404.043, 1e-08, 0.054274), side = c(NA,1,1), TE = TE_train, TR = TR_train, i = 1)
+
+
+
+
 
 ## W_LS_2 is the modified version of W_LS
 W_LS_2 <- W_LS
@@ -216,8 +230,7 @@ param <- c(0.5, 0.1, 0.9, 0.1, 0.2, 0.3, 0.4)
 # ub_MRF <- rep(Inf, 7)
 # lb_MRF <- c(1e-2, -Inf, -Inf, 1e-2, -Inf, 1e-2, 1e-2)*2
 # ub_MRF <- rep(Inf, 7)
-lb_MRF <- c(1e-2, -255, -255, 1e-2, -255, 1e-2, 1e-2)
-# lb_MRF <- c(10, -255, -255, 1e-2, -255, 1e-2, 1e-2)
+lb_MRF <- c(1e-5, -255, -255, 1e-5, -255, 1e-5, 1e-5)
 ub_MRF <- rep(255, 7)
 
 
@@ -254,11 +267,6 @@ OSL_optim <- function(W1, Psi_inv, beta1, TE1, TR1, sigma1, r1,
   new_val <- Q_star_other_parameters(optim_obj_MRF$par, W = W1)
   cat("\nMRF log likeli new:", -new_val, "\n")
   
-  cat("Psi_inv: \n")
-  print(Psi_inv)
-  cat("beta:\n")
-  print(beta1)
-  
   
   
   
@@ -282,38 +290,34 @@ OSL_optim <- function(W1, Psi_inv, beta1, TE1, TR1, sigma1, r1,
     
     
     for(i1 in loop_vec){
+      if(i1 %% 1000 == 1) cat("i: ", i1, "\n")
       
-      if(any(r1[i1,] >= 50) | iter <=0){
-      # if(W_old[i1,1] <= 449.5 | iter <=0){
-        if(i1 %% 1000 == 1) cat("i: ", i1, "\n")
-        
-        c_i <- MRF_grad[i1,]
-        if(just_MLE){
-          c_i <- c(0,0,0)  ## Corresponds to MLE
-        }
-        x <- W1[i1,]
-        
-        
-        old_val <- Q_OSL_per_voxel(W1[i1,], TE = TE1, TR = TR1, sigma = sigma1, 
-                                   r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1)
-        optim_obj <- optim(W1[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
-                           lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1,
-                           r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
-                           control = list(maxit = 10000))
-        # optim_obj <- optim(W_LS_2[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
-        #                    lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1, 
-        #                    r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
-        #                    control = list(maxit = 10000)) 
-        x <- optim_obj$par; fx <- optim_obj$value
-        
-        if(fx >= old_val){ 
-          print(optim_obj$message)
-          print(fx)
-          print(old_val)
-          print(i1)
-        } else {
-          W1[i1,] <- x
-        }
+      c_i <- MRF_grad[i1,]
+      if(just_MLE){
+        c_i <- c(0,0,0)  ## Corresponds to MLE
+      }
+      x <- W1[i1,]
+      
+      
+      old_val <- Q_OSL_per_voxel(W1[i1,], TE = TE1, TR = TR1, sigma = sigma1, 
+                                 r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1)
+      optim_obj <- optim(W1[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
+                         lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1,
+                         r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
+                         control = list(maxit = 10000))
+      # optim_obj <- optim(W_LS_2[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
+      #                    lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1, 
+      #                    r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
+      #                    control = list(maxit = 10000)) 
+      x <- optim_obj$par; fx <- optim_obj$value
+      
+      if(fx >= old_val){ 
+        print(optim_obj$message)
+        print(fx)
+        print(old_val)
+        print(i1)
+      } else {
+        W1[i1,] <- x
       }
     }
     
@@ -335,10 +339,9 @@ OSL_optim <- function(W1, Psi_inv, beta1, TE1, TR1, sigma1, r1,
   return(list(W = W1, Psi_inv = Psi_inv, beta = beta1))
 }
 
-
+  
 
 Psi_inv <- Diagonal(3)
-# Psi_inv[1,1] <- 1000
 beta1 <- c(0.1, 1, 0)
 MRF_log_likeli(W_LS, Psi_inv, beta1)
 
@@ -353,7 +356,7 @@ sum(is.nan(W_MLE_obj$W))
 
 
 ## MPLE, but MRF parameters are not updated.
-# W_final_obj <- OSL_optim(W_LS, Psi_inv, beta1, TE_train, TR_train, sigma_train, train,
+# W_final_obj <- OSL_optim(W_LS, Psi_inv, beta1, TE_train, TR_train, sigma_train, train,  
 #                          TE_scale, TR_scale, maxiter = 100, just_MLE = F,
 #                          rel_diff = 1e-4,
 #                          verbose = 0)
@@ -365,136 +368,46 @@ sum(is.nan(W_MLE_obj$W))
 
 
 
+### i = 3 has some problem: 4.500000e+02 1.000906e-10 0.03423947
+i_bad <- 3
+train[i_bad,]
 
-
-### 2nd version MLE/MPLE OSL function:  #####
-## MPLE, but MRF parameters are UPDATED at each iteration
-
-# W1 <- W_LS; Psi_inv <- Diagonal(3); beta1 <- c(0.1, 1, 0); 
-# TE1 <- TE_train; TR1 <- TR_train; sigma1 <- sigma_train; r1 <- train;
-
-Psi_inv <- Diagonal(3)
-# Psi_inv[1,1] <- 1000
-# lb_MRF[1] <- 10
-
-OSL_optim_updated <- function(W1, Psi_inv, beta1, TE1, TR1, sigma1, r1,  
-                              TE_scale, TR_scale, maxiter = 10, 
-                              just_MLE = F, abs_diff = 1e-6, rel_diff = 1e-2,
-                              verbose = 0, if_full = T){
-  iter <- 0
-  W_old <- W1
-  old_log_likeli <- neg_log_l(W1, TE1, TR1, sigma1, r1, Psi_inv, beta1, just_MLE)
+W1_i <- W_LS[i_bad,]
+W_old_i <- W1_i
+iter <- 1
+maxiter <- 20
+while(iter < maxiter){
+  print(paste0(rep("-", 40), collapse="")); print(paste("Iteration", iter))
+  iter = iter + 1
+  c_i <- c(0,0,0)  ## Corresponds to MLE
   
-  while(iter < maxiter){
-    print(paste0(rep("-", 40), collapse=""))
-    print(paste("Iteration", iter))
-    iter = iter + 1
-    
-    
-    ### MRF based initial values -- inserted here now ###
-    L = t(chol(Psi_inv))
-    x_MRF <- array(dim=7); x_MRF[1:6] <- from_L_mat(L); x_MRF[7] <- beta1[1]
-    
-    old_val <- Q_star_other_parameters(x_MRF, W = W1)
-    optim_obj_MRF <- optim(x_MRF, Q_star_other_parameters, Q_grad_vec_other_parameter, W = W1, 
-                           method="L-BFGS-B", lower=lb_MRF, upper=ub_MRF,
-                           control = list(maxit = 1000))
-    
-    temp_L <- optim_obj_MRF$par[1:6]
-    L_mat <- to_L_mat(temp_L)
-    Psi_inv <- L_mat %*% t(L_mat)
-    
-    if(n_z>1){
-      beta1[1] <- optim_obj_MRF$par[7]; beta1[2] <- optim_obj_MRF$par[8]; beta1[3] <- 0.1
-    } else {
-      beta1[1] <- optim_obj_MRF$par[7]; beta1[2] <- 1; beta1[3] <- 0
-    }
-    new_val_1 <- MRF_log_likeli(W1, Psi_inv, beta1)
-    cat("MRF log likeli new:", new_val_1, "\n")
-    
-    cat("Psi_inv: \n")
-    print(Psi_inv)
-    cat("beta:\n")
-    print(beta1)
-    
-    
-    
-    
-    
-    
-    
-    ##### Voxel based optimization ###
-    
-    Gamma_inv = Lambda(beta1)
-    MRF_grad = Gamma_inv %*% W_old %*% Psi_inv
-    
-    for(i1 in 1:n){
-      
-      if(any(r1[i1,] >= 50) | iter <=0){
-        c_i <- MRF_grad[i1,]
-        if(just_MLE){
-          c_i <- c(0,0,0)  ## Corresponds to MLE
-        }
-        x <- W1[i1,]
-        
-        old_val <- Q_OSL_per_voxel(W1[i1,], TE = TE1, TR = TR1, sigma = sigma1, 
-                                   r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1)
-        optim_obj <- optim(W1[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
-                           lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1,
-                           r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
-                           control = list(maxit = 10000))
-        # optim_obj <- optim(W_LS_2[i1,], Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
-        #                    lower=lb, upper=ub, TE = TE1, TR = TR1, sigma = sigma1, 
-        #                    r_i = r1[i1,], W_old_i = W_old[i1,], c_i = c_i, i = i1,
-        #                    control = list(maxit = 10000)) 
-        x <- optim_obj$par;      fx <- optim_obj$value
-        
-        if(fx >= old_val){    ## Don't worry, this usually does not happen in 1st loop 
-          print(optim_obj$message); print(fx); print(old_val); print(i1)
-          print(paste("Value not decreased!! old x:", toString(W1[i1,]), " val: ", old_val,
-                      ";\t x: ", toString(x), " val: ", fx, " i1:", i1))   ## knew toString, other way is using collapse inside paste
-          bad_count_o = bad_count_o + 1;
-          if(fx>old_val){
-            bad_count_o_2 = bad_count_o_2 + 1;
-          }
-        } else {
-          W1[i1,] <- x
-        }
-      }
-    }
-    
-    cat("Abs diff(W):", mean(abs(W_old - W1)), "\n")
-    new_log_likeli <- neg_log_l(W1, TE1, TR1, sigma1, r1, 
-                                Psi_inv, beta1, just_MLE)
-    cat("new_log_likeli: ", new_log_likeli, ", old_log_likeli: ", old_log_likeli, "\n")
-    cat("rel_diff(lld): " , abs(new_log_likeli - old_log_likeli)/abs(new_log_likeli), "\n")
-    if(abs(new_log_likeli - old_log_likeli)/abs(new_log_likeli) < rel_diff){
-      break
-    }
-    W_old <- W1
-    old_log_likeli <- new_log_likeli
-  }
+  i1 <- i_bad
+  x <- W1_i
+  old_val <- Q_OSL_per_voxel(W1_i, TE = TE_train, TR = TR_train, sigma = sigma_train, 
+                             r_i = train[i_bad,], W_old_i = W_old_i, c_i = c_i, i = i1)
+  optim_obj <- optim(W1_i, Q_OSL_per_voxel, Q_OSL_grad_per_voxel, method="L-BFGS-B",
+                     lower=lb, upper=ub, TE = TE_train, TR = TR_train, sigma = sigma_train,
+                     r_i = train[i_bad,], W_old_i = W_old_i, c_i = c_i, i = i1,
+                     hessian = T)
+  x <- optim_obj$par; fx <- optim_obj$value
   
-  print("OSL new ends!")
-  print(paste0(rep("-", 40), collapse=""))
   
-  return(list(W = W1, Psi_inv = Psi_inv, beta = beta1))
+  cat("Grad: ")
+  print(Q_OSL_grad_per_voxel(x, TE = TE_train, TR = TR_train, sigma = sigma_train, 
+                    r_i = train[i_bad,], W_old_i = W_old_i, c_i = c_i, i = i1))
+  print(optim_obj$hessian)
+  print(optim_obj$message)
+  print(fx)
+  print(old_val)
+  print(i1)
+  W1_i <- x
+  W_old_i <- W1_i
+  cat(W1_i)
 }
 
-
-### OSL where in each iteration, MRF parameters are updated
-W_final_obj_2 <- OSL_optim_updated(W_LS, Psi_inv, beta1, TE_train, TR_train, sigma_train, train,  
-                                   TE_scale, TR_scale, maxiter = 50, just_MLE = F, 
-                                   abs_diff = 1e-2, rel_diff = 1e-4,
-                                   verbose = 0)
-W_final_obj_2$Psi_inv
-W_final_obj_2$beta
-# W_final_obj_2$W
-
-
-
-
-
+W1_i
+Bloch_vec(W_LS[i_bad,], TE_train, TR_train)
+Bloch_vec(W1_i, TE_train, TR_train)
 
 
 
@@ -565,10 +478,10 @@ tmp_img_4 <- W_final_obj_2$W[,1]
 dim(tmp_img_4) <- c(10,10)
 
 library(fields)
-image.plot(tmp_img_2,zlim=c(0, 450))
-image.plot(tmp_img,zlim=c(0, 450))
-# image.plot(tmp_img_3)
-image.plot(tmp_img_4,zlim=c(0, 450))
+image.plot(tmp_img_2)
+image.plot(tmp_img)
+image.plot(tmp_img_3)
+image.plot(tmp_img_4)
 
 ## Differences
 image.plot(tmp_img - tmp_img_3, zlim = c(-20, 10))
@@ -596,10 +509,10 @@ dim(tmp_img_3) <- c(10,10)
 dim(tmp_img_4) <- c(10,10)
 
 
-image.plot(tmp_img,zlim=c(0, 250))
-image.plot(tmp_img_2,zlim=c(0, 250))
-# image.plot(tmp_img_3,zlim=c(0, 250))
-image.plot(tmp_img_4,zlim=c(0, 250))
+image.plot(tmp_img)
+image.plot(tmp_img_2)
+image.plot(tmp_img_3)
+image.plot(tmp_img_4)
 
 
 ## difference
