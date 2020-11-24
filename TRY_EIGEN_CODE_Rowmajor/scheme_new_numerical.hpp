@@ -55,15 +55,10 @@ i.e., proper index if r is not taken.
 -- Sorry - NO BUG. r is not passed. train is passed. Hence completely Okay!
 
 BUG: Lambda * Psi 
+
+Some problem with extra added sigma_j^2 in some later versions, previously it was correct. 
+
 was negative/positive. Hessian had this BUG.
-
-
-BUG: There was an added sigma_j^2 in the h function in some later version of the code. 
-Perviously it was correct.
-
-
-TODO: 
-Replace bessel ratios using gsl
 
 */
 
@@ -543,6 +538,16 @@ void show_head_vec(const Eigen::VectorXd &W, int n = 10, int endLine = 0){
 
 
 
+void show_head_sp(const SpMat &A, int n = 10){
+	std::cout << "Head of the Sparse matrix:\n" ;
+	for(int i = 0; i < n; ++i){
+		std::cout << A.row(i) << "\n";
+	}
+}
+
+
+
+
 /*
 * Mean of rice distribution
 * Using GSL for SCALED besselI
@@ -836,12 +841,33 @@ void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_ei
 }
 
 
+
+int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
+
+	int bad_bound_1 = 0, bad_bound_2 = 0;
+	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
+		//std::cout << "Lower bound crossed initially!";
+		bad_bound_1++;
+	}
+	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
+		//std::cout << "Upper Bound crossed initially!";
+		bad_bound_2++;
+	}
+	return (bad_bound_1 + bad_bound_2);
+}
+
+
+
+
+
+
 /*
 * Checks whether there is NaN or not and prints the location in a matrix
 * returns number of such cases.
 */
-int check_nan(const Matrix_eig_row &A){
+int check_nan(const Matrix_eig_row &A, const char* mat_name = ""){
 	int bad_count = 0;
+	std::cout << mat_name;
 	for(int i = 0; i < A.rows(); ++i){
 		for(int j = 0; j < A.cols(); ++j){
 			if(std::isnan(A(i, j))){
@@ -1041,7 +1067,7 @@ Vector_eig eigenvals_J_n(int n) {
 class MRF_param{
 
   public:
-	int n_x, n_y, n_z, n;
+	int n_x_, n_y_, n_z_, n;
 	
 	SpMat H_1, H_2, H_3;
 	Vector_eig eigenval_1_small, eigenval_2_small, eigenval_3_small;
@@ -1051,14 +1077,37 @@ class MRF_param{
 	double deriv_1, deriv_2, deriv_3;
 	SpMat Lambda_init;
 	SpMat Lambda_init_row;
+	SpMat tmp_row;
 	Matrix_eig tmp_W_Psi_inv;
 	Matrix_eig tmp_Wt_L_W;
 	Matrix_eig tmp_Lambda_W;
 	Matrix_eig Psi_grad = Matrix_eig::Zero(6, 1);
+	// Matrix_eig tmp_i_Psi_inv = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_new = Matrix_eig::Zero(1, 3);
+	
+	
 	
 	// Important variables:
 	Vector_eig x_old;
 	double old_MRF_likeli = 0.0;
+	double tmp_i_coeff_1 = 0.0;
+	
+	
+	
+	// For likeli num i
+	Matrix_eig tmp_i_1 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_2 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_3 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_1 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_2 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_3 = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv_final = Matrix_eig::Zero(1, 3);
+	
+	
+	Vector_eig tmp1_vec = Vector_eig::Zero(3);
+	Vector_eig tmp2_vec = Vector_eig::Zero(3);
+	Vector_eig tmp3_vec = Vector_eig::Zero(3);
+	Vector_eig MRF_grad = Vector_eig::Zero(3);
 	
 	
 	
@@ -1072,6 +1121,7 @@ class MRF_param{
 	
 	MRF_param(int n_x, int n_y, int n_z) {
 	
+		n_x_ = n_x; n_y_ = n_y; n_z_ = n_z;
 		n = n_x * n_y * n_z;
 		/*
 		H_1 = Kron_Sparse_eig( J_n(n_x), I_n(n_y*n_z));
@@ -1122,10 +1172,12 @@ class MRF_param{
 		
 		Lambda_init = 0.1*H_1 + 0.2*H_2 + 0.3*H_3;
 		Lambda_init_row = Lambda_init.row(0);
+		tmp_row = H_1.row(0);
 		tmp_W_Psi_inv = Matrix_eig::Zero(n, 3);
 		tmp_Wt_L_W = Matrix_eig::Zero(3, 3);
 		tmp_Lambda_W = Matrix_eig::Zero(n, 3);
 		x_old = Vector_eig::Zero(3);
+		MRF_grad = Vector_eig::Zero(3);
 	}
 	
 	
@@ -1171,14 +1223,14 @@ class MRF_param{
 		eigens.noalias() =  beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
 		
 		if(k == 0) {
-			// final_vec.noalias() = beta(0) * eigenval_1;
 			final_vec.noalias() = eigenval_1;
+			// final_vec.noalias() = beta(0) * eigenval_1;
 		} else if(k == 1) {
-			//final_vec.noalias() = beta(1) * eigenval_2;
 			final_vec.noalias() = eigenval_2;
+			// final_vec.noalias() = beta(1) * eigenval_2;
 		} else if(k == 2) {
-			//final_vec.noalias() = beta(2) * eigenval_3;
 			final_vec.noalias() = eigenval_3;
+			// final_vec.noalias() = beta(2) * eigenval_3;
 		}
 		for(int i = 1; i < n; ++i){
 			final_vec(i) /= eigens(i);
@@ -1255,20 +1307,210 @@ class MRF_param{
 	
 	
 	
+	
+	
+	
+	/*
+	* Values are updated: 
+	* To find 
+			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv 				// Not exactly this -- BUG
+	*
+	* splitted in two parts:
+			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)			// BUG this part * 2 
+		and
+			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
+	*/
+	void update_neighbours_likeli_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
+								      const Vector_eig &beta, const int i){
+	
+		tmp_i_1 = Matrix_eig::Zero(1, 3);
+		tmp_i_2 = Matrix_eig::Zero(1, 3);
+		tmp_i_3 = Matrix_eig::Zero(1, 3);
+		
+		tmp_row = H_1.row(i);							//Check this can be omitted or not - might take some time
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				if(it.col() != i){
+					tmp_i_1 += W.row(it.col()) * it.value();		//* beta(0)
+				}
+			}
+		}
+		tmp_i_1 = tmp_i_1 * beta(0);
+		
+		
+		//if(i == 99){
+			//Debug0("tmp_i_1: " << tmp_i_1);
+			//Debug0("Check 0.1.1, i = " << i );
+		//}
+		
+		tmp_row = H_2.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				if(it.col() != i){
+					tmp_i_2 += W.row(it.col()) * it.value();
+				}
+			}
+		}
+		tmp_i_2 = tmp_i_2 * beta(1);
+		
+		
+		
+		tmp_row = H_3.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				if(it.col() != i){
+					tmp_i_3 += W.row(it.col()) * it.value();
+				}
+			}
+		}
+		
+		/*
+		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
+		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
+		tmp_i_Psi_inv_3.noalias() = tmp_i_3 * Psi_inv;
+		tmp_i_Psi_inv_final.noalias() = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2 + tmp_i_Psi_inv_3; //Was not multiplied by 2 -- BUG
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
+		*/
+		
+		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 + tmp_i_3;
+		tmp_i_Psi_inv_final = tmp_i_Psi_inv_final * Psi_inv;
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
+		
+		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + beta(1) * H_2.coeff(i, i) + H_3.coeff(i, i);
+	}
+	
+	
+	
+	
+	
+	
+	/*
+	* Values are updated: 
+	* To find 
+			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv 				// Not exactly this -- BUG
+	*
+	* splitted in two parts:
+			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)			// BUG this part * 2 
+		and
+			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
+	*/
+	void update_neighbours_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
+								  const Vector_eig &beta, const int i){
+	
+		tmp_i_1 = Matrix_eig::Zero(1, 3);
+		tmp_i_2 = Matrix_eig::Zero(1, 3);
+		tmp_i_3 = Matrix_eig::Zero(1, 3);
+		
+		for (SpMat::InnerIterator it(H_1, i); it; ++it){
+			if(it.row() != i){
+				tmp_i_1 += W.row(it.row()) * it.value();		//* beta(0)
+			}
+		}
+		tmp_i_1 = tmp_i_1 * beta(0);
+		
+		
+		
+		for (SpMat::InnerIterator it(H_2, i); it; ++it){
+			if(it.row() != i){
+				tmp_i_2 += W.row(it.row()) * it.value();
+			}
+		}
+		tmp_i_2 = tmp_i_2 * beta(1);
+		
+		
+		
+		for (SpMat::InnerIterator it(H_3, i); it; ++it){
+			if(it.row() != i){
+				tmp_i_3 += W.row(it.row()) * it.value();
+			}
+		}
+		
+		
+		/*
+		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
+		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
+		tmp_i_Psi_inv_3.noalias() = tmp_i_3 * Psi_inv;
+		tmp_i_Psi_inv_final.noalias() = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2 + tmp_i_Psi_inv_3; //Was not multiplied by 2 -- BUG
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
+		*/
+		
+		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 + tmp_i_3;
+		tmp_i_Psi_inv_final = tmp_i_Psi_inv_final * Psi_inv;
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
+		
+		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + beta(1) * H_2.coeff(i, i) + H_3.coeff(i, i);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/* 
+	* Numerator of the log likelihood from the MRF part:
+	* w.r.t. i-th row of W.
+		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv 					// Not this -- BUG
+								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv + 	// This line multiplied by 2
+								 + Lambda(i, i) * x' * Psi_inv
+	* final output is: 
+		 - tmp_i_Psi_inv_new * x / 2;
+	*/
+	double MRF_log_likeli_num_i_new(const Vector_eig &x, const Matrix3d_eig &Psi_inv) {
+	
+		//if(i == 99){
+		//	Debug0("W.row(i): " << W.row(i));
+		//	Debug0("(beta(0) * H_1.coeff(i, i) ) * x.transpose(): " << (beta(0) * H_1.coeff(i, i) ) * x.transpose());
+		//	Debug0("new MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv_new * x).value());
+		//}
+		
+		//tmp_i_Psi_inv_new.noalias() = tmp_i_Psi_inv_final + 
+		//								tmp_i_coeff_1 * (x.transpose() * Psi_inv);		// Can be little more compact here
+		tmp_i_Psi_inv_new.noalias() = (x.transpose() * Psi_inv);
+		tmp_i_Psi_inv_new = tmp_i_Psi_inv_final + tmp_i_coeff_1 * tmp_i_Psi_inv_new;
+		
+		return ( -0.5 * (tmp_i_Psi_inv_new * x).value());
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/*
 	* gradient of likelihood w.r.t. i-th row of W.
 	* Shorten if possible - maybe using increment
 	*/
-	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
-		Vector_eig tmp1(3), tmp2(3), tmp3(3);
+	Vector_eig MRF_grad_fn_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
+		
 		tmp_W_Psi_inv.noalias() = W * Psi_inv;
-		tmp1 = H_1.row(i) * tmp_W_Psi_inv;
-		tmp2 = H_2.row(i) * tmp_W_Psi_inv;
-		tmp3 = H_3.row(i) * tmp_W_Psi_inv;
-		Vector_eig MRF_grad = beta(0)*tmp1 + beta(1)*tmp2 + beta(2)*tmp3;
+		tmp1_vec.noalias() = H_1.row(i) * tmp_W_Psi_inv;
+		tmp2_vec.noalias() = H_2.row(i) * tmp_W_Psi_inv;
+		tmp3_vec.noalias() = H_3.row(i) * tmp_W_Psi_inv;
+		MRF_grad.noalias() = beta(0)*tmp1_vec + beta(1)*tmp2_vec + beta(2)*tmp3_vec;
 		return MRF_grad;
 	}
+	
+	
+	
+	
+	void MRF_grad_fn(const Vector_eig &x, const Matrix3d_eig &Psi_inv, Vector_eig &MRF_grad){
+	
+		MRF_grad = Psi_inv * x;
+		MRF_grad *= tmp_i_coeff_1;
+		MRF_grad += 0.5 * tmp_i_Psi_inv_final.transpose();
+	}
 
+	
+	
 	
 	
 	
@@ -1844,6 +2086,98 @@ void show_dim_sp(SpMat A){
 ****************************************************/
 
 
+/*
+* Derivative of I_1/I_0
+*/
+double h(double x){
+	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
+	return(0.5*tmp);
+}
+
+
+
+
+
+
+
+
+// Compressed Column (or Row) Storage schemes (CCS or CRS)
+// https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
+// https://eigen.tuxfamily.org/dox/classEigen_1_1SparseMatrix.html
+
+void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_triplet
+				// , int if_nnz = 1
+				){
+	
+	
+	// _Scalar is double here
+	// _StorageIndex default is int
+	// change if necessary.
+	
+	
+	std::ofstream file_connection;
+	file_connection.open(file_name);
+	// Use std::setprecision(8) if necessary
+
+	sm.makeCompressed();
+	
+	
+	
+	if(if_triplet){
+		for (int k = 0; k < sm.outerSize(); ++k) {
+			for (SpMat::InnerIterator it(sm,k); it; ++it) {
+				file_connection << it.row() << ", "; // row index
+				file_connection << it.col() << ", "; // col index
+				file_connection << it.value() << std::endl;
+			}
+		}
+	} else {
+		std::cout << "mat.innerSize: " << sm.innerSize() << "\n";
+		std::cout << "mat.outerSize: " << sm.outerSize() << "\n";
+		std::cout << "mat.nonZeros: " << sm.nonZeros() << "\n";
+ 	
+	
+		double* Values = sm.valuePtr();		  	// Pointer to the values
+		int* InnerIndices = sm.innerIndexPtr();	// Pointer to the indices.
+		int* OuterStarts = sm.outerIndexPtr();		// Pointer to the beginning of each inner vector
+		// int* InnerNNZs = sm.innerNonZeroPtr();	// Not needed for compressed case
+		
+		
+		
+		for(int i = 0; i < sm.nonZeros(); ++i){
+			file_connection << *(Values+i) << " ";
+		}
+		file_connection << std::endl;
+		for(int i = 0; i < sm.nonZeros(); ++i){
+			file_connection << *(InnerIndices+i) << " ";
+		}
+		file_connection << std::endl;
+		for(int i = 0; i <= sm.outerSize(); ++i){
+			file_connection << *(OuterStarts+i) << " ";
+		}
+		/*
+		if(if_nnz){
+			std::cout << std::endl;
+			for(int i = 0; i < sm.innerSize(); ++i){
+				std::cout << (*(InnerNNZs+i)) << " ";
+			}
+		}
+		*/
+	}
+	
+	
+	
+	file_connection << "\n";
+	file_connection.close();
+}
+
+
+
+
+
+
+
+
 
 /**
 * W is a nx3 matrix.
@@ -1859,126 +2193,10 @@ void show_dim_sp(SpMat A){
 * 
 * Number of non-zero elements per column: <= 7*3
 */
-
-SpMat Hessian_mat_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                      const Vector_eig &TE, const Vector_eig &TR, 
-                      const Vector_eig &sigma, const Matrix_eig_row &r, 
-                      int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
-
-	
-	auto time_1_hess = std::chrono::high_resolution_clock::now();
-	Debug1("Hessian calculation started");
-	Matrix_eig_row v = v_mat(W, TE, TR);
-	int n = n_x * n_y * n_z;	//n
-	int m = v.cols();			//m
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
-	SpMat Gamma_inv;
-	if(with_MRF){
-		Gamma_inv = MRF_obj.Lambda(beta);
-	}
-	SpMat W_hess(3*n, 3*n);
-	W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
-	// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
-	Debug1("Hessian matrix allocated");
-	
-	
-	// Diagonal parts //
-	
-	int i = 0, i1 = 0, k = 0, k1 = 0, j = 0;
-	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
-	
-	for(i = 0; i < n; ++i) {
-	
-		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-		if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
-			std::cout << "\n";
-			Debug1("Hess matrix i: "<< i << ", j: " << j);
-		}
-		
-		
-		//temp_vec = W.row(i);
-		for(k = 0; k < 3; ++k) {
-			for(k1 = 0; k1 < 3; ++k1) {
-				
-				temp = 0.;									// Missed this -- correct this - done!
-				for(j = 0; j < m ; ++j) {
-					
-					tmp2 = r(i,j)/SQ(sigma(j));
-					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
-					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
-					
-					tmp2 *= v(i,j);
-					tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
-				}
-				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
-				
-				if(with_MRF){
-					W_hess.insert(3 * i + k, 3 * i + k1) = temp - Gamma_inv.coeff(i, i) * Psi_inv(k, k1);
-					//https://stackoverflow.com/questions/42376127/how-to-access-a-specific-row-col-index-in-an-c-eigen-sparse-matrix
-					// BUG? check negativity and positivity
-					// minus added for Gamma * Psi
-				} else {
-					W_hess.insert(3 * i + k, 3 * i + k1) = (temp);
-				}		
-			}
-		}
-	}
-	
-	
-	// Off diagonal(only) parts: //
-	if(with_MRF){
-		for(i = 0; i < n; ++i){
-			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-			if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
-				std::cout << "\n";
-				Debug1("Hess matrix MRF i: "<< i << ", j: " << j);
-			}
-			for(i1 = 0; i1 < n; ++i1){
-				if(i != i1){
-					for(k = 0; k < 3; ++k){
-						for(k1 = 0; k1 < 3; ++k1){
-							W_hess.insert(3 * i + k, 3 * i1 + k1) = -Gamma_inv.coeff(i, i1) * Psi_inv(k, k1);
-							// minus added for Gamma * Psi
-						}
-					}
-				}
-				
-			}
-		}
-	}
-	
-	
-	W_hess.makeCompressed();
-	
-	auto time_2_hess = std::chrono::high_resolution_clock::now();
-	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
-	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
-	Debug0("Hessian calculated with MRF");
-	
-	//show_head(W_hess);
-	
-	// return W_hess;	//3nx3n
-	return (-W_hess);	//3nx3n
-}
-
-
-/*
-* Derivative of I_1/I_0
-*/
-double h(double x){
-	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
-	return(0.5*tmp);
-}
-
-
-
 SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
                   const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1){
+                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1, int verbose = 1){
 
 	
 	auto time_1_hess = std::chrono::high_resolution_clock::now();
@@ -2004,7 +2222,11 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	// First, the Kroneker prod term:
 	if(with_MRF){
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
-		W_hess = - Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
+		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
+		//Debug1(" kron W_hess: \n");
+		//show_head(MatrixXd(W_hess));
+		// show_head_sp(W_hess);
+		Debug0("MRF part done of Hessian!");
 	}
 	
 	
@@ -2012,10 +2234,11 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	int i = 0, i1 = 0, k = 0, k1 = 0, j = 0;
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
+	
 	for(i = 0; i < n; ++i) {
 	
 		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-		if(i==10000 || i==30000 || i==50000 || i==70000 || i==90000 ){
+		if(i % 10000 == 0){
 			std::cout << "\n";
 			Debug1("Hess matrix i: "<< i << ", j: " << j);
 		}
@@ -2023,37 +2246,105 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		
 		//temp_vec = W.row(i);
 		for(k = 0; k < 3; ++k) {
-			for(k1 = 0; k1 < 3; ++k1) {
+			//for(k1 = 0; k1 < 3; ++k1) {
+			for(k1 = k; k1 < 3; ++k1){
 				
-				temp = 0.;									// Missed this -- correct this - done!
+				temp = 0.;
 				for(j = 0; j < m ; ++j) {
 					
 					tmp2 = r(i,j)/SQ(sigma(j));
+					//if(i == 0){
+						//Debug0(tmp2);
+					//}
 					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
+					//if(i == 0){
+						//Debug0(tmp3);
+					//}
 					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
+					//if(i == 0){
+						//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
+						//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+					//}
+					
 					
 					//tmp2 *= v(i,j);
-					//tmp31 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp31;
+					//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
+					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
 					// This is also valid
 					
 					
-					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
+					
+					
+					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));  // BUG
 					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
 					// This is also valid
 					
+					//if(i == 0){
+					//	Debug0(tmp2);
+					//	Debug0(v(i,j));
+					//	Debug0(SQ(sigma(j)));
+					//	Debug0(tmp2*v(i, j)/SQ(sigma(j)));
+					//	Debug0(h(tmp2*v(i, j)/SQ(sigma(j))));
+					//	Debug0(tmp4);
+					//}
 					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
+					//if(i == 0){
+					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
+					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+					//	Debug0("Added:");
+					//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+					//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+					//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+					//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
+					//	Debug0("\n")
+					//}
+					//if(i == 0){
+					//	Debug0(temp);
+					//	Debug0("\n\n");
+					//}
+					
+					if(k == k1 && temp > 0.1){
+						Debug0("i: " << i << ", j: " << j << ", k: " << k);
+						Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
+						Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
+						Debug0("Added: 1st part: " << tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1)
+								<< ", 2nd part: " << tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						Debug0("final: " << (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) << "\n");
+						if(temp > 100){
+							Debug0("very high!!");
+							// exit(EXIT_FAILURE);
+							// change
+						}
+					}
+					
 				}
 				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
 				
 				if(with_MRF){
-					W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
-					//https://stackoverflow.com/questions/42376127/how-to-access-a-specific-row-col-index-in-an-c-eigen-sparse-matrix
-					// BUG? check negativity and positivity
-					// minus added for Gamma * Psi
+					if(k == k1){
+						W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
+						// BUG? check negativity and positivity
+						// minus added for Gamma * Psi						
+					} else {
+						W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
+						W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
+					}
 				} else {
-					W_hess.insert(3 * i + k, 3 * i + k1) = temp;
+					if(k == k1){
+						W_hess.insert(3 * i + k, 3 * i + k) = temp;
+					} else {
+						W_hess.insert(3 * i + k, 3 * i + k1) = temp;
+						W_hess.insert(3 * i + k1, 3 * i + k) = temp;
+					}
 				}
 			}
 		}
@@ -2062,6 +2353,9 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	W_hess.makeCompressed();
+	//Debug1("W_hess: \n");
+	//show_head(MatrixXd(-W_hess));
+	// show_head_sp(-W_hess);
 	
 	auto time_2_hess = std::chrono::high_resolution_clock::now();
 	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
@@ -2116,13 +2410,13 @@ void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_e
 	// Allocating this large vector might be cumbersome
 	grad.setZero();
 	
+	
 	for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
+		// grad(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
 		grad.insert(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
 	}
 	// return grad;
 }
-
-
 
 
 

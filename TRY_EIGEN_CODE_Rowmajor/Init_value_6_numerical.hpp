@@ -68,10 +68,13 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	
 
 
-	TVector TE, TR;
+	TVector TE, TR, lb, ub;
 	int i;
 	
-
+	// Track the best:
+	Eigen::VectorXd current_best_param;
+	double current_best_val = 1.0e+15;
+	
 
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
@@ -79,6 +82,14 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 
 		double fx = (r.row(i).transpose() - v_new).squaredNorm();
 				
+		// Track the best:
+		if(fx < current_best_val){
+			if(check_bounds_vec_3(x, lb, ub) == 0){
+				current_best_param = x;
+				current_best_val = fx;
+			}
+		}
+		
 		return (fx);
 	}
 
@@ -116,13 +127,13 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 /*
 * Least square solution
 * 	Input:  
-*			W, TE_example, TR_example, r, TE_scale, TR_scale
+*			W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale
 * 			
 * 			W is changed
 */
 void least_sq_solve(Matrix_eig_row &W, 
 					const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
-                    const Matrix_eig_row &r, double TE_scale, double TR_scale){
+                    const Matrix_eig_row &r, double r_scale, double TE_scale, double TR_scale){
 
 
 	Debug0("Doing Least Square Estimate!");
@@ -133,17 +144,22 @@ void least_sq_solve(Matrix_eig_row &W,
 	Eigen::VectorXd x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
-	lb << 0.0, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
+	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
+	for(int i = 1; i < 3; ++i){
+		if(lb[i]<1.0e-8){
+			lb[i] = 1.0e-8;
+		}
+	}
 	Debug1("lb inside LS: " << lb.transpose());
-	Debug1("ub inside LS: " << ub.transpose());
+	Debug1("ub inside LS: " << ub.transpose() << "\n");
 	
 	
 	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
-	f.setLowerBound(lb);	f.setUpperBound(ub);
+	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	
 	double old_val = 0.0, fx;
-	int n = r.rows(), bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0;
+	int n = r.rows(), bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0;
 
 
 
@@ -152,7 +168,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Declaring the solver
 	cppoptlib::LbfgsbSolver<Least_Sq_est<double>> solver;
 	cppoptlib::Criteria<double> crit_LS = cppoptlib::Criteria<double>::defaults();
-	crit_LS.iterations = 120;
+	crit_LS.iterations = 100;
 	solver.setStopCriteria(crit_LS);
 	
 	
@@ -161,9 +177,13 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Loop of 
 	for(int i = 0; i < n; ++i){
 	
-		if(i==100000 || i==200000 || i==300000 || i==400000 || i==500000 || i==600000 || i==700000 || i==800000 || i==900000 ){
+		if(i % 100000 == 0 ){
 			Debug1("i: "<< i);
 		}
+		
+		// Track the best:
+		// double current_best_val = 1.0e+15;
+		f.current_best_val = 1.0e+15;
 		
 		
 		f.i = i;
@@ -175,11 +195,13 @@ void least_sq_solve(Matrix_eig_row &W,
 			if(x[0]<lb[0] || x[1]<lb[1] || x[2]<lb[2]){
 				Debug1("Crossed lower bound initially!");
 				bad_bound_1++;
+				exit(EXIT_FAILURE);
 			}
 			if(x[0]>ub[0] || x[1]>ub[1] || x[2]>ub[2]){
 				Debug1("Crossed upper Bound initially!");
 				Debug1("x " << x.transpose() << " ub: " << ub.transpose());
 				bad_bound_2++;
+				exit(EXIT_FAILURE);
 			}
 		}
 		*/
@@ -195,6 +217,14 @@ void least_sq_solve(Matrix_eig_row &W,
 		//Solve:
 		solver.minimize(f, x);
 		fx = f(x);
+		
+		
+		// Track the best:
+		x = f.current_best_param;
+		fx = f.current_best_val;
+		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
+		
+		
 		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
 		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
 		DebugLS("Final criteria values: " << "\n" << solver.criteria());
@@ -213,7 +243,10 @@ void least_sq_solve(Matrix_eig_row &W,
 			if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
 				W.row(i) = x;
 			} else {
-				Debug0("nan in LS estimate. \n" << "i: " << i << ", x: " << x.transpose());
+				Debug0("nan in LS estimate. \n" << "i: " << i << ", x: " << x.transpose() << 
+						"\n W.row(i): " << W.row(i) << ", old_val: " << old_val << ", fx: " << fx  <<
+						"\n r.row(i): " << r.row(i) << "\n lb: " << lb.transpose() << "; ub:" << ub.transpose());
+				Debug0("Solver status: " << solver.status() );
 				nan_count++;
 			}
 		}
@@ -264,7 +297,7 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
                         const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
                         short our_dim[8], 
-                        double TE_scale, double TR_scale, 
+                        double r_scale, double TE_scale, double TR_scale, 
                         double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
                         int do_least_sq = 1, char will_write = 0){
 
@@ -281,6 +314,10 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	W.col(1) *= W_1_init;
 	W.col(2) *= W_2_init;
 	for(int i = 0; i < r.rows(); ++i){
+	//	if(W(i, 0)>450/r_scale){
+	//		W(i, 0) = 425/r_scale;
+	//	}
+		
 		if(W(i, 0)>450){
 			W(i, 0) = 425;
 		}
@@ -293,7 +330,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		show_head(W);
 	}
 	if(do_least_sq){
-		least_sq_solve(W, TE_example, TR_example, r, TE_scale, TR_scale);
+		least_sq_solve(W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale);
 	}
 	if(DEBUG_ANOTHER_LEVEL){
 		std::cout << "After the operation:";
