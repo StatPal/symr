@@ -33,7 +33,7 @@ Black listed pixels
 MRF estimation in a new way
 
 
-Takes 169 sec for LS, then 51 sec for MLE(1e-5), then 155 sec for AECM MPLE(1e-4)
+Takes 169 sec for LS, then 51 sec for MLE(1e-5), then 155 sec for AECM MPLE(1e-4) without new Bloch_vec
 
 Look: 
 When enters in the AECM, it takes a lot of memory - see that is negotiable or not
@@ -102,91 +102,6 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
-/*
-NEGATIVE Q_OSL fn, w.r.t. parameter per voxel -- to be minimised
-Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
-*/
-double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                       const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                       const Matrix_eig_row &r, const Matrix_eig_row &W_old, const Vector_eig &c_i,
-                       const Matrix_eig_row &Theta, 
-                       int n_x, int n_y, int n_z, int i,
-                       MRF_param &MRF_obj, int penalized){
-
-	
-	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	int m = TE.size();
-	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-	
-	//Rice part://
-	for(int j = 0; j < m; ++j) {
-		// tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
-		// tmp3 = besselI1_I0(tmp2);
-		likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j) * Theta(i, j))/SQ(sigma(j));	// new
-	}
-	
-	//MRF part://
-	if(penalized){
-		
-		//if(i == 98){
-		//	Debug0("MRF_obj.MRF_log_likeli_num_i_new(W.row(i), Psi_inv): " << 
-		//		MRF_obj.MRF_log_likeli_num_i_new(W.row(i), Psi_inv) << "\n");
-		//}
-		
-		likeli_sum += MRF_obj.MRF_log_likeli_num_i_new(W.row(i), Psi_inv);
-	}
-	
-	return (-likeli_sum);
-}
-
-
-
-/*
-* Negative Gradient of Penalised Q function per voxel - grad of J evaluated at old parameter
-*/
-Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                                const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                                const Matrix_eig_row &r, const Matrix_eig_row &W_old, const Vector_eig &c_i,
-                                const Matrix_eig_row &Theta, 
-                                int n_x, int n_y, int n_z, int i,
-                                MRF_param &MRF_obj, int penalized){
-
-	int m = TE.size();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-	Vector_eig W_grad(3);
-	
-	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	
-	
-	// MRF contribution part: 
-	Vector_eig MRF_grad(3);
-	if(penalized){
-		MRF_obj.MRF_grad_fn(W.row(i), Psi_inv, MRF_grad);
-	}
-	
-	// Likelihood part
-	for(int k = 0; k < 3; ++k){
-		temp = 0.;
-		for(int j = 0; j < m ; ++j){
-			tmp2 = r(i,j)/SQ(sigma(j));
-			// tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2*v_old_i(j));
-			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);						// new
-			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
-		}
-		if(penalized){
-			// W_grad(k) = temp - c_i(k);
-			W_grad(k) = temp - MRF_grad(k);
-		} else {								// This else part was not there - BUG!
-			W_grad(k) = temp;
-		}
-	}
-	return (-W_grad);
-	
-}
-
-
-
-
 
 
 
@@ -232,7 +147,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
-		beta1 << x(0), x(1), 0;
+		beta1 << x(0), x(1), 1;									// BUG: was x(0), x(1), 0
 		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3 )/MRF_obj_optim.n;
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
@@ -312,7 +227,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		int m = TE.size(), n = W.rows();
 		Vector_eig v_old_i = Vector_eig::Zero(m);
 		for(int i = 0; i < n; ++i){
-			v_old_i.noalias() = Bloch_vec(W_old.row(i), TE, TR);
+			Bloch_vec(W_old.row(i), TE, TR, v_old_i);
 			for(int j = 0; j < m; ++j) {
 				tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
 				Theta(i, j) = besselI1_I0(tmp2);
@@ -324,11 +239,15 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	Vector_eig v_i;
 	
+	void update_size(){
+	 	v_i = Vector_eig::Zero(TE.size());
+	}
+
 	
 	T value(const TVector &x) {
 	
 		W.row(i) = x.transpose();		
-		v_i = Bloch_vec(W.row(i), TE, TR);
+		Bloch_vec(W.row(i), TE, TR, v_i);
 		int m = TE.size();
 		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 		
@@ -355,7 +274,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		
 		
 		
-		Debug2("x: " << x.transpose() << " \t& - Q fn:" << likeli_sum);
+		Debug2("x: " << x.transpose() << " \t&  Q fn:" << likeli_sum);
 		return (-likeli_sum);
 	}
 
@@ -372,7 +291,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		
 		int m = TE.size();
 		double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-		v_i = Bloch_vec(x, TE, TR);
+		Bloch_vec(x, TE, TR, v_i);
 		
 	
 		
@@ -534,6 +453,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	f.update_size();
 	f.W.noalias() = W_init;
 	Matrix_eig_row W_old = W_init;
 	f.W_old.noalias() = W_old;

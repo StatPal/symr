@@ -99,74 +99,6 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
-/*
-NEGATIVE Q_OSL fn, w.r.t. parameter per voxel -- to be minimised
-Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
-*/
-double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                       const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                       const Matrix_eig_row &r, const Matrix_eig_row &W_old, const Vector_eig &c_i,
-                       const Matrix_eig_row &Theta,
-                       int n_x, int n_y, int n_z, int i){
-
-	
-	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	int m = TE.size();
-	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-	
-	//Rice part://
-	for(int j = 0; j < m; ++j) {
-		// tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
-		// tmp3 = besselI1_I0(tmp2);
-		likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j) * Theta(i, j))/SQ(sigma(j));	// new
-	}
-	
-	//MRF part://
-	for(int k = 0; k < 3; ++k){
-		likeli_sum -= c_i(k) * W(i, k);
-	}
-	// c_i = (Gamma_inv * W_old * Psi_inv).row(i)
-	return (-likeli_sum);
-}
-
-
-
-
-/*
-* Negative Gradient of Penalised Q function per voxel - grad of J evaluated at old parameter
-*/
-Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                                const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, 
-                                const Matrix_eig_row &r, const Matrix_eig_row &W_old, const Vector_eig &c_i,
-                                const Matrix_eig_row &Theta,
-                                int n_x, int n_y, int n_z, int i){
-
-	
-	int m = TE.size();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
-	Vector_eig W_grad(3);
-	
-	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	
-	// Likelihood part
-	for(int k = 0; k < 3; ++k){
-		temp = 0.;
-		for(int j = 0; j < m ; ++j){
-			tmp2 = r(i,j)/SQ(sigma(j));
-			// tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2*v_old_i(j));
-			tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);						// new
-			temp += tmp3 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k);
-		}
-		W_grad(k) = temp - c_i(k);
-	}
-	
-	return (-W_grad);
-	
-}
-
-
-
-
 
 
 /*
@@ -210,7 +142,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
-		beta1 << x(0), x(1), 0;
+		beta1 << x(0), x(1), 1;								// BUG: was x(0), x(1), 0
 		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3 )/MRF_obj_optim.n;
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
@@ -261,12 +193,17 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	TVector TE, TR, sigma, beta, lb, ub, c_i;								// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
 	TMatrix_row W, W_old;													// W here creating problem in optimization?
+	int penalized;
 	
 	
 	// Track the best:
 	Eigen::VectorXd current_best_param;
 	double current_best_val = 1.0e+15;
 	
+	void update_penalized(int val){
+		penalized = val;
+	}
+
 
 
 	
@@ -275,7 +212,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		int m = TE.size(), n = W.rows();
 		Vector_eig v_old_i = Vector_eig::Zero(m);
 		for(int i = 0; i < n; ++i){
-			v_old_i.noalias() = Bloch_vec(W_old.row(i), TE, TR);
+			Bloch_vec(W_old.row(i), TE, TR, v_old_i);
 			for(int j = 0; j < m; ++j) {
 				tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
 				Theta(i, j) = besselI1_I0(tmp2);
@@ -286,30 +223,76 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 	
+	Vector_eig v_i;
+	
+	void update_size(){
+	 	v_i = Vector_eig::Zero(TE.size());
+	}
+	
+	
+	// Do not forget to update c_i for each i
 	T value(const TVector &x) {
 	
 		W.row(i) = x.transpose();
-		//check_bounds_vec(x, lb, ub);
-		double fx = Q_OSL_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, Theta, n_x, n_y, n_z, i);
-		Debug2("x: " << x.transpose() << " \t& - Q fn:" << fx);
+		Bloch_vec(W.row(i), TE, TR, v_i);
+		int m = TE.size();
+		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		
+		//Rice part://
+		for(int j = 0; j < m; ++j) {
+			likeli_sum += v_i(j)*(- 0.5*v_i(j) + r(i,j) * Theta(i, j))/SQ(sigma(j));
+		}
+		
+		//MRF part://
+		if(penalized){
+			for(int k = 0; k < 3; ++k){
+				likeli_sum -= c_i(k) * W(i, k);
+			}
+			// c_i = (Gamma_inv * W_old * Psi_inv).row(i)
+		}
+
 		
 		
 		// Track the best:
-		if(fx < current_best_val){
+		if((-likeli_sum) < current_best_val){
 			if(check_bounds_vec_3(x, lb, ub) == 0){
 				current_best_param = x;
-				current_best_val = fx;
+				current_best_val = -likeli_sum;
 			}
 		}
-		
-		return (fx);
+
+		Debug2("x: " << x.transpose() << " \t&  Q fn:" << likeli_sum);
+		return (-likeli_sum);
 	}
 
 // Comment this Gradient part if you don't want to feed the gradient:
 
 	void gradient(const TVector &x, TVector &grad) {
+		
 		W.row(i) = x;
-		grad = Q_OSL_grad_per_voxel(W, Psi_inv, beta, TE, TR, sigma, r, W_old, c_i, Theta, n_x, n_y, n_z, i);
+				
+		int m = TE.size();
+		double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		Bloch_vec(x, TE, TR, v_i);
+		
+		
+		// Likelihood part: 
+		for(int k = 0; k < 3; ++k){
+			temp = 0.;
+			for(int j = 0; j < m ; ++j){
+				tmp2 = r(i,j)/SQ(sigma(j));
+				tmp3 = -v_i(j)/SQ(sigma(j)) + tmp2 * Theta(i, j);
+				temp += tmp3 * simple_dee_v_ij_dee_W_ik(x, TE, TR, j, k);
+			}
+			if(penalized){
+				grad(k) = temp - c_i(k);
+			} else {
+				grad(k) = temp;
+			}
+		}
+		
+		grad = -grad;
+		
 		Debug2("grad: " << grad.transpose() << "\n" );
 	}
 
@@ -426,9 +409,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
+	f.update_penalized(penalized);
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
 	f.sigma.noalias() = sigma;	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	f.update_size();
 	f.W.noalias() = W_init;
 	Matrix_eig_row W_old = W_init;
 	f.W_old.noalias() = W_old;
@@ -448,7 +433,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	SpMat Gamma_inv = MRF_obj.Lambda(beta);
-	Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;
+	Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;					// Subrata - change to Matrix_eig_row and check
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
 	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,

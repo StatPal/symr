@@ -7,18 +7,26 @@ Revised version.
 
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
 The header files location must be with the proper PATH, or PATH should be added in time of compilation.
-Th optimizer also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
+The optimizer also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
 
 Locations:
-* The file to be executed for ECM: ./TRY_EIGEN_CODE/scheme_new_EM_12_GEM.cpp
-
+* The file to be executed for 3D ECM: ./TRY_EIGEN_CODE_Rowmajor/scheme_new_OSL_EM_25_GEM.cpp
     To compile:
-        g++ scheme_new_EM_12_GEM.cpp -o test -I /usr/include/eigen3 -O3
-
+        g++ scheme_new_OSL_EM_25_GEM.cpp -o test_25_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
     To run:
-        ./test ../data/new_phantom.nii ../data/Dummy_sd.txt 0
+        ./test_25_3D ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-* The file to be executed for EM: ./TRY_EIGEN_CODE/scheme_new_EM_5_numerical_cholesky.cpp
+* The file to be executed for 2D ECM: ./TRY_EIGEN_6_phantom/scheme_new_OSL_EM_25_GEM.cpp
+    To compile:
+        g++ scheme_new_OSL_EM_25_GEM.cpp -o test_25_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+    To run:
+        ./test_25_2D ../data/new_phantom.nii Dummy_sd.txt 0
+
+
+* The file to be executed for OSL-EM: 
+	./TRY_EIGEN_CODE_Rowmajor/scheme_new_OSL_EM_26_GEM.cpp
+	and 
+	./TRY_EIGEN_CODE_Rowmajor/scheme_new_OSL_EM_26_GEM.cpp
 * The data: ./data/ZHRTS1.nii
 
 	OR
