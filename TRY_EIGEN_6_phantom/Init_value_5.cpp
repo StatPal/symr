@@ -207,9 +207,11 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 	
 		//Print initial values:
-		DebugLS ("value of i: " << i << "\t x at first: " << x.transpose());
+		if(i == 2)
+			DebugLS ("value of i: " << i << "\t x at first: " << x.transpose());
 		old_val = f.value(x);
-		DebugLS ("f(x) at first: \n" << old_val) ;
+		if(i == 2)
+			DebugLS ("f(x) at first: \n" << old_val) ;
 		
 	
 		//Solve:
@@ -219,7 +221,8 @@ void least_sq_solve(Matrix_eig_row &W,
 		// Track the best:
 		x = f.current_best_param;
 		fx = f.current_best_val;
-		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
+		if(i == 2)
+			DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
 		
 		//if(i == 0)
 		if(i == 2){			// corresponding to 3 as in R

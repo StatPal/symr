@@ -110,7 +110,6 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	int m = TE.size();
 	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	

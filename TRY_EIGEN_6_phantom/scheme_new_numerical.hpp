@@ -154,7 +154,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-// #define DEBUG_LEVEL_LS
+#define DEBUG_LEVEL_LS
 
 #ifdef DEBUG_LEVEL_LS
 #define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}

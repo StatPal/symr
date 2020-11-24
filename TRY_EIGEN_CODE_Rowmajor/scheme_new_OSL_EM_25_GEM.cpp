@@ -33,6 +33,11 @@ Black listed pixels
 MRF estimation in a new way
 
 
+Takes 169 sec for LS, then 51 sec for MLE(1e-5), then 155 sec for AECM MPLE(1e-4)
+
+Look: 
+When enters in the AECM, it takes a lot of memory - see that is negotiable or not
+The consumed memory is little different in AECM and OSL-EM
 
 * 
 */
@@ -110,7 +115,6 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	int m = TE.size();
 	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	
@@ -152,7 +156,6 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	Vector_eig W_grad(3);
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	
 	
 	// MRF contribution part: 
@@ -1185,7 +1188,7 @@ int main(int argc, char * argv[]) {
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 1, 0.1, 1e-5, 1);
+	          500, 1, 0.1, 1e-4, 1);
 	//change
 	check_nan(W_init, "W matrix Penalized, nan: \n");
 	// Psi_inv is already updated - So new value would not give better

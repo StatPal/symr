@@ -109,7 +109,6 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	int m = TE.size();
 	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	
@@ -146,7 +145,6 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	Vector_eig W_grad(3);
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	
 	// Likelihood part
 	for(int k = 0; k < 3; ++k){

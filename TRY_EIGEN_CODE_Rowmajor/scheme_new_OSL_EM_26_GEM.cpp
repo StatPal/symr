@@ -69,7 +69,7 @@ No change for cholesky inside the function
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-              int n_x, int n_y, int n_z, MRF_param &MRF_obj){
+              int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
 
 	Matrix_eig_row v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
@@ -87,8 +87,10 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 		}
 	}
 	
-	//MRF part://
-	likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	if(penalized){
+		//MRF part://
+		likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
+	}
 	
 	return -likeli_sum;
 }
@@ -109,7 +111,6 @@ double Q_OSL_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, con
 
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	int m = TE.size();
 	double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
 	
@@ -146,7 +147,6 @@ Vector_eig Q_OSL_grad_per_voxel(const Matrix_eig_row &W, const Matrix3d_eig &Psi
 	Vector_eig W_grad(3);
 	
 	Vector_eig v_i = Bloch_vec(W.row(i), TE, TR);
-	// Vector_eig v_old_i = Bloch_vec(W_old.row(i), TE, TR);
 	
 	// Likelihood part
 	for(int k = 0; k < 3; ++k){
@@ -452,7 +452,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
 	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj);
+									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 	
 	
 	
@@ -673,7 +673,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj);
+									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here
@@ -734,8 +734,13 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	auto time_5_likeli = std::chrono::high_resolution_clock::now();
 	auto duration_45 = std::chrono::duration_cast<std::chrono::seconds>(time_5_likeli - time_1_likeli);
-	if(verbose)
-		Debug1("Time taken for whole OSL-EM: " << duration_45.count() << " seconds\n");
+	if(verbose){
+		if(penalized){
+			Debug1("Time taken for whole OSL-EM: " << duration_45.count() << " seconds\n");
+		} else {
+			Debug1("Time taken for whole EM: " << duration_45.count() << " seconds\n");
+		}
+	}
 	
 }
 
@@ -1081,7 +1086,7 @@ int main(int argc, char * argv[]) {
 		
 	
 	// Non -penalized:
-	/*
+	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 0, 0.1, 1e-5, 1);
@@ -1120,7 +1125,7 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Likelihood: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_4.transpose() << "\n\n\n";
-	*/
+	
 	
 	
 	
@@ -1129,7 +1134,7 @@ int main(int argc, char * argv[]) {
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 1, 0.1, 1e-5, 1);
+	          500, 1, 0.1, 1e-4, 1);
 	//change
 	check_nan(W_init, "W matrix Penalized, nan: \n");
 	// Psi_inv is already updated - So new value would not give better
@@ -1181,49 +1186,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Variance estimation: 
-	/*
-	// Using Info matrix + delta method:
 	
-	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
-                                             TE_test, TR_test, sigma_test, test);
-	
-	// Write to a file:
-	std::ofstream info_var_file;
-	info_var_file.open ("result/info_var_26.txt");
-	for(int i = 0; i < info_var_1.rows(); ++i){
-		info_var_file << info_var_1.row(i) << "\n";
-	}
-	info_var_file.close();
-	
-	
-	
-	
-	// Using Bootstrap
-	std::cout << "\n\n";
-	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
-                                               r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, 200, 500, 1e-4);
-                                               //change
-	
-	
-	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head(info_var_1);
-	
-	
-	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head(boot_var_1);
-	
-	
-	// Write to a file: 
-	std::ofstream boot_var_file;
-	boot_var_file.open ("result/boot_var_26.txt");
-	for(int i = 0; i < boot_var_1.rows(); ++i) {
-		boot_var_file << boot_var_1.row(i) << "\n";
-	}
-	boot_var_file.close();
-	*/
 	
 	
 	
