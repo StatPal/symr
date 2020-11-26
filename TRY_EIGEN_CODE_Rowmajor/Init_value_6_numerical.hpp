@@ -59,20 +59,18 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TMatrix_row r;
-	TVector r2;
 
 
   public:
-	Least_Sq_est(const TVector y_) : 
-		cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	Least_Sq_est() : 
+		cppoptlib::BoundedProblem<T>(3){}
 	
 
 
-	TVector TE, TR, lb, ub;
+	TVector TE, TR, lb, ub, v_new;
 	int i;
 	
 	
-	TVector v_new;
 	
 	void update_size(){
 		v_new = TVector::Zero(TE.size());
@@ -147,8 +145,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug0("Doing Least Square Estimate!");
 	auto time_1_lsq = std::chrono::high_resolution_clock::now();
 	
-	Eigen::VectorXd r2 = Eigen::VectorXd::Ones(3) * 0.5;
-	Least_Sq_est<double> f(r2);
+	Least_Sq_est<double> f;
 	Eigen::VectorXd x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
@@ -183,7 +180,10 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 	
 	
+	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
+	
 	// Loop of 
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, std::cout)
 	for(int i = 0; i < n; ++i){
 	
 		if(i % 100000 == 0 ){
@@ -225,7 +225,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 		//Solve:
 		solver.minimize(f, x);
-		fx = f(x);
+		fx = f.value(x);
 		
 		
 		// Track the best:
@@ -390,6 +390,9 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	Vector_eig v_star(n_test);
 
 	
+	// Not exactly correct: Subrata - Check
+	
+	#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < W.rows(); ++i) {
 		Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 		
@@ -416,7 +419,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		
 		
 		//std::cout << tmp.transpose() << "\n";
-		Perf_mat.row(i) = v_star.transpose() - test.row(i);
+		// Perf_mat.row(i) = v_star.transpose() - test.row(i);
 		
 		if(verbose){
 			if(i < 100){
@@ -427,7 +430,8 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		}
 		
 		
-		Performance_test = Performance_test + tmp;				// This is main
+		Perf_mat.row(i) = tmp;
+		// Performance_test = Performance_test + tmp;				// This is main
 		// Debug1("i: " << i << ", Performance_test" << Performance_test.transpose());
 	}
 	// Debug1("Performance_test" << Performance_test);
@@ -435,7 +439,10 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	//Performance_test = Perf_mat.array().abs().colwise().mean();
 	
 	
-	Performance_test = Performance_test/W.rows();
+	// Performance_test = Performance_test/W.rows();
+	Performance_test = Perf_mat.array().colwise().mean();
+	
+	
 	
 	if(measure_type == 2){
 		for(int j = 0; j < n_test; ++j){

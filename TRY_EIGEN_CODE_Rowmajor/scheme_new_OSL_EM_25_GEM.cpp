@@ -34,6 +34,10 @@ MRF estimation in a new way
 
 
 Takes 169 sec for LS, then 51 sec for MLE(1e-5), then 155 sec for AECM MPLE(1e-4) without new Bloch_vec
+168, 51, 177 sec with new Bloch_vec
+
+Just adding -fopenmp with OMP_NUM_THREADS=2, 202 sec, 61 sec, 198 sec
+
 
 Look: 
 When enters in the AECM, it takes a lot of memory - see that is negotiable or not

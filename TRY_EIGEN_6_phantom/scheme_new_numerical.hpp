@@ -2456,6 +2456,45 @@ void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_e
 
 
 
+int choose(int n, int r){
+	int tmp = n;
+	for(int i = 1; i < r; ++i){
+		tmp *= (n-i);
+		tmp /= (i+1);
+	}
+	return tmp;
+}
+
+
+// https://stackoverflow.com/a/9430993
+Matrix_eig combi(int n, int r){
+
+	std::vector<bool> v(n);
+	std::fill(v.begin(), v.begin() + r, true);
+	int m = choose(n, r);
+	Matrix_eig tmp = Matrix_eig::Zero(m, r);
+	
+	int k1 = 0, k2 = 0;
+	
+	do {
+		k2 = 0;
+		for (int i = 0; i < n; ++i) {
+			if (v[i]) {
+				std::cout << (i + 1) << " ";
+				tmp(k1, k2) = i; // + 1;
+				k2++;
+			}
+		}
+		k1++;
+	} while (std::prev_permutation(v.begin(), v.end()));
+	
+	return tmp;
+}
+
+
+
+
+
 
 
 

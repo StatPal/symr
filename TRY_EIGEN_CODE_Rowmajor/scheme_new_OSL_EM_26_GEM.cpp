@@ -12,6 +12,8 @@
 
 g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
+g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+
 
 
 
@@ -179,13 +181,12 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TMatrix_row r;
-	TVector r2;
 	
 	TMatrix_row Theta;		// new
 
 
   public:
-	Likeli_optim(const TVector y_) : cppoptlib::BoundedProblem<T>(y_.size()), r2(y_){}
+	Likeli_optim() : cppoptlib::BoundedProblem<T>(3){}
 
 
 	int i, n_x, n_y, n_z;
@@ -335,7 +336,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 
 	
-	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
+	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
@@ -386,7 +387,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// * Voxel based initial values * //
 	
 	int iter = 0;
-	Likeli_optim<double> f(Eigen::VectorXd::Ones(3));
+	Likeli_optim<double> f;
 	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	
 	// * Voxel based initial values * //
@@ -520,6 +521,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// Change: 
+		// Little bit different answer: - Subrata
+		#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
 		for(int i = 0; i < n; ++i){
 			if(i % 100000 == 0 ){
 				if(verbose){
@@ -568,7 +571,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				//Solve:
 				solver.minimize(f, x);
 				Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
-				double fx = f(x);
+				double fx = f.value(x);
 				
 				
 				// Track the best:
