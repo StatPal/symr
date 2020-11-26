@@ -13,8 +13,8 @@ int main(int argc, char * argv[]){
 	data_file = argv[1];	sd_file = argv[2];	char will_write = *(argv[3])-48;		// Converted from ascii
 	short our_dim[8];
 	// Values of TE and TR (in seconds)
-	Eigen::VectorXd TE_example((Eigen::VectorXd(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	Eigen::VectorXd TR_example((Eigen::VectorXd(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
 	
 	// Main step:
 	int do_least_sq = 1;
@@ -78,7 +78,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	
 
 	// Track the best:
-	Eigen::VectorXd current_best_param;
+	Vector_eig current_best_param;
 	double current_best_val = 1.0e+15;
 
 
@@ -141,7 +141,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 * 			W is changed
 */
 void least_sq_solve(Matrix_eig_row &W, 
-					const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+					const Vector_eig &TE_example, const Vector_eig &TR_example, 
                     const Matrix_eig_row &r, double r_scale, double TE_scale, double TR_scale){
 
 
@@ -149,11 +149,9 @@ void least_sq_solve(Matrix_eig_row &W,
 	auto time_1_lsq = std::chrono::high_resolution_clock::now();
 	
 	Least_Sq_est<double> f;
-	Eigen::VectorXd x(3), lb(3), ub(3); 
+	Vector_eig x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
-	// lb << 0.0001/r_scale, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
-	// ub << 450.0/r_scale, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
@@ -305,7 +303,7 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 * 	it gives the least square solution.
 */
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
-                        const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+                        const Vector_eig &TE_example, const Vector_eig &TR_example, 
                         short our_dim[8], 
                         double r_scale, double TE_scale, double TR_scale, 
                         double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
@@ -382,7 +380,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 
 
 	
-	int n_test = TE_test.size();
+	int n_test = TE_test.size(), n = W.rows();
 	assert(sigma_test.size() == n_test);
 	Vector_eig Performance_test = Vector_eig::Zero(n_test);
 	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// just testing 
@@ -396,7 +394,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	// Not exactly correct: Subrata - Check
 	
 	#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
-	for(int i = 0; i < W.rows(); ++i) {
+	for(int i = 0; i < n; ++i) {
 		Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 		
 		
@@ -405,12 +403,8 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		} else if (v_type == 2){
 			// Need to be done - mode of rice distn to be calculated with NR method
 		} else if (v_type == 3){
-			for(int j = 0; j < n_test; ++j){					// BUG resolved, j started from 1 - R style indexing
+			for(int j = 0; j < n_test; ++j){
 				v_star(j) = mean_rice(v_new(j), sigma_test(j));
-				//if(std::isnan(v_star(j))){
-					//Debug0("v_new(j) :" << v_new(j) << ", sigma_test(j): " <<  sigma_test(j) <<
-					//", mean_rice(v_new(j), sigma_test(j)): " << mean_rice(v_new(j), sigma_test(j)));
-				//}
 			}
 		}
 		
@@ -422,11 +416,6 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 			}
 		}
 		
-		
-		
-		
-		//std::cout << tmp.transpose() << "\n";
-		// Perf_mat.row(i) = v_star.transpose() - test.row(i);
 		
 		if(verbose){
 			if(i < 100){
@@ -452,14 +441,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 		
 		Perf_mat.row(i) = tmp;
 		// Performance_test = Performance_test + tmp;				// This is main
-		//if(i < 100){
-			//Debug1("i: " << i << ", Performance_test" << Performance_test.transpose() << "\n");
-		//}
-	}
-	// Debug1("Performance_test" << Performance_test);
-	// std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
-	//Performance_test = Perf_mat.array().abs().colwise().mean();
-	
+	}	
 	
 	// Performance_test = Performance_test/W.rows();
 	Performance_test = Perf_mat.array().colwise().mean();
@@ -496,7 +478,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	return Performance_test;
 }
-// Do scaled version: -- Done
+
 
 
 

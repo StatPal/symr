@@ -183,7 +183,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
 	// Loop of 
-	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, std::cout)
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
 	for(int i = 0; i < n; ++i){
 	
 		if(i % 100000 == 0 ){
@@ -392,7 +392,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	// Not exactly correct: Subrata - Check
 	
-	#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
+	//#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < W.rows(); ++i) {
 		Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 		

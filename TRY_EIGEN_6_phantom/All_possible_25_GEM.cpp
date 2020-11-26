@@ -185,16 +185,14 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TMatrix_row r;
-	TVector r2;
 	MRF_param MRF_obj_optim;
 	
 	TMatrix_row Theta;		// new
 
 
   public:
-	Likeli_optim(const TVector y_, const MRF_param &MRF_obj_optim) : 
+	Likeli_optim(const MRF_param &MRF_obj_optim) : 
 		cppoptlib::BoundedProblem<T>(y_.size()), 
-		r2(y_), 
 		MRF_obj_optim(MRF_obj_optim) {}
 
 
@@ -360,7 +358,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	Eigen::VectorXi black_list = Eigen::VectorXi::Ones(n);
+	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
@@ -374,7 +372,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	Eigen::VectorXi checkerboard_white = Eigen::VectorXi::Zero(n);
+	Eigen::Matrix<char, Dynamic, 1> checkerboard_white = Eigen::Matrix<char, Dynamic, 1>::Zero(n);
 	int k = 0;
 	for(int i = 0; i < MRF_obj.n_y_; ++i){
 		for(int j = 0; j < MRF_obj.n_x_; ++j){					// Check the order
@@ -422,7 +420,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// * Voxel based initial values * //
 	
 	int iter = 0;
-	Likeli_optim<double> f(Eigen::VectorXd::Ones(3), MRF_obj);
+	Likeli_optim<double> f(MRF_obj);
 	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	
 	// * Voxel based initial values * //

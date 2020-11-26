@@ -340,7 +340,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::VectorXi black_list = Eigen::VectorXi::Ones(n);
+	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){

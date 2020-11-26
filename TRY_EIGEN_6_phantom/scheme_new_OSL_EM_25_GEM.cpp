@@ -182,16 +182,14 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TMatrix_row r;
-	TVector r2;
 	MRF_param MRF_obj_optim;
 	
 	TMatrix_row Theta;		// new
 
 
   public:
-	Likeli_optim(const TVector y_, const MRF_param &MRF_obj_optim) : 
+	Likeli_optim(const MRF_param &MRF_obj_optim) : 
 		cppoptlib::BoundedProblem<T>(y_.size()), 
-		r2(y_), 
 		MRF_obj_optim(MRF_obj_optim) {}
 
 
@@ -207,7 +205,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	
 	// Track the best:
-	Eigen::VectorXd current_best_param;
+	Vector_eig current_best_param;
 	double current_best_val = 1.0e+15;
 	
 	
@@ -351,13 +349,13 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	}
 	
 	
-	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15;
+	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
 	
 	
-	Eigen::VectorXi black_list = Eigen::VectorXi::Ones(n);
+	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
@@ -371,7 +369,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	Eigen::VectorXi checkerboard_white = Eigen::VectorXi::Zero(n);
+	Eigen::Matrix<char, Dynamic, 1> checkerboard_white = Eigen::Matrix<char, Dynamic, 1>::Zero(n);
 	int k = 0;
 	for(int i = 0; i < MRF_obj.n_y_; ++i){
 		for(int j = 0; j < MRF_obj.n_x_; ++j){					// Check the order
@@ -419,12 +417,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// * Voxel based initial values * //
 	
 	int iter = 0;
-	Likeli_optim<double> f(Eigen::VectorXd::Ones(3), MRF_obj);
+	Likeli_optim<double> f(MRF_obj);
 	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
-	
-	// * Voxel based initial values * //
-	
-	Eigen::VectorXd x(3), lb(3), ub(3);
+	Vector_eig x(3), lb(3), ub(3);
 	
 	//Bounds of rho, W1, W2:
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
@@ -493,7 +488,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		if(penalized){
 		
-			// f_2.W.noalias() = W_init;
 			f_2.update_tmp(W_init);
 			
 			//Print initial values:
@@ -568,7 +562,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					
 					
 					// Track the best:
-					// double current_best_val = 1.0e+15;
 					f.current_best_val = 1.0e+15;
 					
 					f.i = i;
@@ -611,7 +604,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					
 					
 					Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
-					double fx = f(x);
+					fx = f(x);
 					Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 					Debug2("Final criteria values: " << "\n" << solver.criteria());
 					
