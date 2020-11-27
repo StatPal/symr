@@ -15,12 +15,16 @@ http://www.mriquestions.com/complete-list-of-questions.html
 
 
 
-g++ Init_value_5.cpp -o test_LS -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+g++ Init_value_7.cpp -o test_LS_7 -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
-./test_LS ../Read_Data/new_phantom.nii Dummy_sd_3D.txt 0
+./test_LS_7 ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./test_LS ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+./test_LS_7 ../data/new_phantom.nii Dummy_sd.txt 0
 
+./test_LS_7 ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+
+
+11 sec for LS
 
 */
 
@@ -54,7 +58,8 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	TMatrix_row r;
+	//TMatrix_row r;
+	TVector r_row;
 
 
   public:
@@ -65,6 +70,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	TVector TE, TR, lb, ub, v_new;
 	int i;
+	double fx;
 	
 	
 	void update_size(){
@@ -82,9 +88,9 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		Bloch_vec(x, TE, TR, v_new);
 		// if(i == 0)
 		if(i == 2){				// corresponding to 3 as in R
-			DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm());
+			DebugLS("x: " << x.transpose() << "; value: " << (r_row - v_new).squaredNorm());
 		}
-		double fx = (r.row(i).transpose() - v_new).squaredNorm();
+		fx = (r_row - v_new).squaredNorm();
 		
 		// Track the best:
 		if(fx < current_best_val){
@@ -107,15 +113,15 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		
 		for(int j = 0; j < m; ++j){
 		
-			grad[0] -= 2*(r(i, j) - v_new(j)) * 
+			grad[0] -= 2*(r_row(j) - v_new(j)) * 
 						std::exp(TE(j)*std::log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 			
-			grad[1] -= 2*(v_new(j) - r(i, j)) * 
+			grad[1] -= 2*(v_new(j) - r_row(j)) * 
 						x(0)*TR(j) * std::exp(TE(j)*log(x(2))) * 
 						std::exp((TR(j)-1)*std::log(x(1)));
 			
-			grad[2] -= 2*(r(i, j) - v_new(j)) * 
+			grad[2] -= 2*(r_row(j) - v_new(j)) * 
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
@@ -159,7 +165,8 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug1("ub inside LS: " << ub.transpose());
 	
 	
-	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	// f.r.noalias() = r;	
+	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
 	
@@ -181,7 +188,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
 	// Loop of 
-	#pragma omp parallel for default(none) firstprivate(f) private (x, solver, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
 	for(int i = 0; i < n; ++i){
 	
 		if(i % 100000 == 0 ){
@@ -195,6 +202,8 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 		f.i = i;
 		x = W.row(i);
+		
+		f.r_row = r.row(i);
 		
 		//Check Bounds:
 		/*

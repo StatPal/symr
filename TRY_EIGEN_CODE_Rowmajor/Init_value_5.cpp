@@ -17,9 +17,11 @@ http://www.mriquestions.com/complete-list-of-questions.html
 
 g++ Init_value_5.cpp -o test_LS -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
-./test_LS ../Read_Data/new_phantom.nii Dummy_sd_3D.txt 0
+./test_LS ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-./test_LS ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+./test_LS ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+
+./test_LS ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
 
 */
@@ -373,7 +375,7 @@ int main(int argc, char * argv[]) {
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
-	r_scale = 10.0;
+	r_scale = 1.0;
 	r.array() /= r_scale;
 	sigma.array() /= r_scale;
 	
@@ -388,18 +390,13 @@ int main(int argc, char * argv[]) {
 	
 
 
-	//Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	//Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
-
-
-
-
-	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
-	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
+	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+	
 	// 1.01 -> 2.01
 	double TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
 	double TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
-	// Debug0("r_scale: " << r_scale);
+	Debug0("r_scale: " << r_scale);
 	Debug0("TE scale: " << TE_scale);
 	Debug0("TR scale: " << TR_scale);
 	TE_example *= TE_scale;
@@ -409,11 +406,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	Vector_eig lb(3), ub(3);
-	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
-		if(lb[i]<1.0e-8){
+		if(lb[i] < 1.0e-8){
 			lb[i] = 1.0e-8;
 		}
 	}
@@ -431,14 +427,8 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
-	
-	//std::vector<int> train_ind{0, 1, 2};
-	//std::vector<int> test_ind{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-	
-	std::vector<int> train_ind{0, 6, 13};
-	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
-	// Also, this creates 450 in the first edge - but not with non-penalized case - check
-	// Somehow only 0, 1, 2 in trainset creates Nan's. We have to look.
+	std::vector<int> train_ind{0, 9, 11};
+	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
 	
 	
 	Matrix_eig_row train(r.rows(), train_ind.size());

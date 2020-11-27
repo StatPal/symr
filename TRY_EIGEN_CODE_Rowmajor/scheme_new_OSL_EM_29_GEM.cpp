@@ -129,20 +129,20 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	typedef Matrix_eig_row TMatrix_row;
 	
 	
-	TMatrix_row W1;
-	MRF_param MRF_obj_optim;
+	const TMatrix_row &W1;
+	MRF_param &MRF_obj_optim;
 	TMatrix tmp1, tmp2, tmp3;
 	
 
 
   public:	
-	MRF_optim(const TMatrix_row W1_, const MRF_param &MRF_obj_optim) : 
+	MRF_optim(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
-		MRF_obj_optim(MRF_obj_optim), 
-		tmp1(W1.transpose() * MRF_obj_optim.H_1 * W1),
-		tmp2(W1.transpose() * MRF_obj_optim.H_2 * W1),
-		tmp3(W1.transpose() * MRF_obj_optim.H_3 * W1) {}
+		MRF_obj_optim(MRF_obj_optim_), 
+		tmp1(W1.transpose() * MRF_obj_optim_.H_1 * W1),
+		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1),
+		tmp3(W1.transpose() * MRF_obj_optim_.H_3 * W1) {}
 	
 
 	TMatrix Psi_est, Psi_inv_est;

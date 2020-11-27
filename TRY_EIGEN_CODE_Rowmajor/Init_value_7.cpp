@@ -15,12 +15,16 @@ http://www.mriquestions.com/complete-list-of-questions.html
 
 
 
-g++ Init_value_5.cpp -o test_LS -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+g++ Init_value_7.cpp -o test_LS_7 -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
-./test_LS ../Read_Data/new_phantom.nii Dummy_sd_3D.txt 0
+./test_LS_7 ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-./test_LS ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+./test_LS_7 ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
+./test_LS_7 ../Read_Data/small.nii Dummy_sd_3D.txt 0
+
+
+11 sec for LS
 
 */
 
@@ -54,7 +58,8 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	TMatrix_row r;
+	//TMatrix_row r;
+	TVector r_row;
 
 
   public:
@@ -65,6 +70,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	TVector TE, TR, lb, ub, v_new;
 	int i;
+	double fx;
 	
 	
 	void update_size(){
@@ -82,9 +88,9 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		Bloch_vec(x, TE, TR, v_new);
 		// if(i == 0)
 		if(i == 2){				// corresponding to 3 as in R
-			DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm());
+			DebugLS("x: " << x.transpose() << "; value: " << (r_row - v_new).squaredNorm());
 		}
-		double fx = (r.row(i).transpose() - v_new).squaredNorm();
+		fx = (r_row - v_new).squaredNorm();
 		
 		// Track the best:
 		if(fx < current_best_val){
@@ -107,15 +113,15 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		
 		for(int j = 0; j < m; ++j){
 		
-			grad[0] -= 2*(r(i, j) - v_new(j)) * 
+			grad[0] -= 2*(r_row(j) - v_new(j)) * 
 						std::exp(TE(j)*std::log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 			
-			grad[1] -= 2*(v_new(j) - r(i, j)) * 
+			grad[1] -= 2*(v_new(j) - r_row(j)) * 
 						x(0)*TR(j) * std::exp(TE(j)*log(x(2))) * 
 						std::exp((TR(j)-1)*std::log(x(1)));
 			
-			grad[2] -= 2*(r(i, j) - v_new(j)) * 
+			grad[2] -= 2*(r_row(j) - v_new(j)) * 
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
@@ -159,7 +165,8 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug1("ub inside LS: " << ub.transpose());
 	
 	
-	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	// f.r.noalias() = r;	
+	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
 	
@@ -181,7 +188,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
 	// Loop of 
-	#pragma omp parallel for default(none) firstprivate(f) private (x, solver, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
 	for(int i = 0; i < n; ++i){
 	
 		if(i % 100000 == 0 ){
@@ -195,6 +202,8 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 		f.i = i;
 		x = W.row(i);
+		
+		f.r_row = r.row(i);
 		
 		//Check Bounds:
 		/*
@@ -373,7 +382,7 @@ int main(int argc, char * argv[]) {
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
-	r_scale = 10.0;
+	r_scale = 1.0;
 	r.array() /= r_scale;
 	sigma.array() /= r_scale;
 	
@@ -388,18 +397,13 @@ int main(int argc, char * argv[]) {
 	
 
 
-	//Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	//Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
-
-
-
-
-	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
-	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
+	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+	
 	// 1.01 -> 2.01
 	double TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
 	double TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
-	// Debug0("r_scale: " << r_scale);
+	Debug0("r_scale: " << r_scale);
 	Debug0("TE scale: " << TE_scale);
 	Debug0("TR scale: " << TR_scale);
 	TE_example *= TE_scale;
@@ -409,11 +413,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	Vector_eig lb(3), ub(3);
-	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
-		if(lb[i]<1.0e-8){
+		if(lb[i] < 1.0e-8){
 			lb[i] = 1.0e-8;
 		}
 	}
@@ -431,14 +434,8 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
-	
-	//std::vector<int> train_ind{0, 1, 2};
-	//std::vector<int> test_ind{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-	
-	std::vector<int> train_ind{0, 6, 13};
-	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
-	// Also, this creates 450 in the first edge - but not with non-penalized case - check
-	// Somehow only 0, 1, 2 in trainset creates Nan's. We have to look.
+	std::vector<int> train_ind{0, 9, 11};
+	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
 	
 	
 	Matrix_eig_row train(r.rows(), train_ind.size());

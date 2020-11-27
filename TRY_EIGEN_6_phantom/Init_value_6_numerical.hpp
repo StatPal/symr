@@ -58,7 +58,9 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	TMatrix_row r;
+	// TMatrix_row r;
+	TVector r_row;
+	double fx;
 
 
   public:
@@ -86,9 +88,9 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	T value(const TVector &x) {
 		Bloch_vec(x, TE, TR, v_new);
 		if(i == 2){
-			DebugLS("x: " << x.transpose() << "; value: " << (r.row(i).transpose() - v_new).squaredNorm()); 			
+			DebugLS("x: " << x.transpose() << "; value: " << (r_row - v_new).squaredNorm()); 			
 		}
-		double fx = (r.row(i).transpose() - v_new).squaredNorm();
+		fx = (r_row - v_new).squaredNorm();
 		
 		// Track the best:
 		if(fx < current_best_val){
@@ -111,15 +113,15 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 		
 		for(int j = 0; j < m; ++j){
 		
-			grad[0] -= 2*(r(i, j) - v_new(j)) * 
+			grad[0] -= 2*(r_row(j) - v_new(j)) * 
 						std::exp(TE(j)*std::log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 			
-			grad[1] -= 2*(v_new(j) - r(i, j)) * 
+			grad[1] -= 2*(v_new(j) - r_row(j)) * 
 						x(0)*TR(j) * std::exp(TE(j)*log(x(2))) * 
 						std::exp((TR(j)-1)*std::log(x(1)));
 			
-			grad[2] -= 2*(r(i, j) - v_new(j)) * 
+			grad[2] -= 2*(r_row(j) - v_new(j)) * 
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
@@ -164,7 +166,8 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug1("ub inside LS: " << ub.transpose() << "\n");
 	
 	
-	f.r.noalias() = r;	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
+	// f.r.noalias() = r;	
+	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
 	
@@ -200,6 +203,8 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 		f.i = i;
 		x = W.row(i);
+		
+		f.r_row = r.row(i);
 		
 		//Check Bounds:
 		/*
