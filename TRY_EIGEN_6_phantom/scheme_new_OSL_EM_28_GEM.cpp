@@ -9,18 +9,18 @@
 
 * To compile:
 
-g++ scheme_new_OSL_EM_27_GEM.cpp -o test_27_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+g++ scheme_new_OSL_EM_28_GEM.cpp -o test_28_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 
 
 
-./test_27_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./test_28_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./test_27_2D ../data/new_phantom.nii Dummy_sd.txt 0
+./test_28_2D ../data/new_phantom.nii Dummy_sd.txt 0
 
-./test_27_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+./test_28_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
-nohup ./test_27_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_27_2D.out & 
+nohup ./test_28_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_28_2D.out & 
 
 
 
@@ -33,6 +33,7 @@ Black listed pixels
 MRF estimation in a new way
 
 
+Rewriting everything in a new way for parallel
 
 * 
 */
@@ -410,10 +411,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// *MRF based initial values:* //
-		Vector_eig x_MRF(1), lb_MRF(1), ub_MRF(1), x_MRF_old(1);
+		Vector_eig x_MRF(1), lb_MRF(1), ub_MRF(1);
 		lb_MRF(0) = 1e-5; ub_MRF(0) = 1e+5;	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
 		x_MRF(0) = beta(0);
-		x_MRF_old.noalias() = x_MRF;
 
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
 		crit_MRF.iterations = 50;
@@ -444,27 +444,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	}
 	
 	
-	// lb, ub, n_x, etc would be shared
-	// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
-	// 
-	Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
-							sigma, TE_example, TR_example, beta, Psi_inv);
-	
-	
-	
-	f.setLowerBound(lb);	f.setUpperBound(ub);
-	f.update_size();
-	
-	f.E_step_update();			// E_step: would give initial nonzero Theta  -- Why still theta is 0???????
-	
-	
-	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
-	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
-	crit_voxel.iterations = 50;
-	solver.setStopCriteria(crit_voxel);
-	// Change
-	
-	
 	
 	
 	
@@ -487,13 +466,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(penalized){
 		
 			f_2.update_tmp(W_init);
-			
-			//Print initial values:
-			Debug2 ("x_MRF at first: " << x_MRF.transpose());
-			Debug3 ("lb_MRF: " << lb_MRF.transpose());
-			Debug3 ("ub_MRF: " << ub_MRF.transpose());
-			Debug2 ("f(x) at first:");
-			old_val = f_2.value(x_MRF_old);
+			old_val = f_2.value(x_MRF);
 			
 			//Solve:
 			solver_2.minimize(f_2, x_MRF);
@@ -505,7 +478,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			Debug2("best_param" << x_MRF.transpose() << "\t f(best_param): " << fx_MRF << 
 					"\t old val:" << old_val << "\t diff: " << fx_MRF - old_val);
-			
 			if(fx_MRF >= old_val) {								//Compares best value inside
 				Debug1("Value have not decreased!!\n" << " val: " << old_val << "; val: " << fx_MRF  << "\n");
 				bad_count_o++;
@@ -518,16 +490,25 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			beta(0) = x_MRF(0); beta(1) = 1.0; beta(2) = 0.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
 			Debug0("MRF optimization done!");
-			
 			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
-			
 		}
 		
 		
 		
 		
+		// f.E_step_update();			// E_step: would give initial nonzero Theta
 		
+		double tmp2 = 0.0;
+		// int m = TE.size(), n = W.rows();
+		Vector_eig v_old_i = Vector_eig::Zero(m);
+		for(int i = 0; i < n; ++i){
+			Bloch_vec(W_old.row(i), TE_example, TR_example, v_old_i);
+			for(int j = 0; j < m; ++j) {
+				tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
+				Theta(i, j) = besselI1_I0(tmp2);
+			}
+		}
 		
 		
 		
@@ -541,6 +522,24 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Change: 
 		for(int i = 0; i < n; ++i){
+		
+			// lb, ub, n_x, etc would be shared
+			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
+			// 
+			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
+									sigma, TE_example, TR_example, beta, Psi_inv);
+			f.setLowerBound(lb);	f.setUpperBound(ub);
+			f.update_size();
+
+	
+			cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
+			cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
+			crit_voxel.iterations = 50;
+			solver.setStopCriteria(crit_voxel);
+			
+			
+			
+			
 			if(i % 10000 == 0 ){
 				if(verbose){
 					std::cout << std::endl;
@@ -646,7 +645,15 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		}
 		
 		// E_step:
-		f.E_step_update();
+		// f.E_step_update();
+		for(int i = 0; i < n; ++i){
+			Bloch_vec(W_old.row(i), TE_example, TR_example, v_old_i);
+			for(int j = 0; j < m; ++j) {
+				tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
+				Theta(i, j) = besselI1_I0(tmp2);
+			}
+		}
+		
 		std::cout << std::flush;
 		// * Checkerboard white ends * //
 		
@@ -658,6 +665,26 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// * Checkerboard black loop: * //
 		
 		for(int i = 0; i < n; ++i){
+		
+		
+			// lb, ub, n_x, etc would be shared
+			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
+			// 
+			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
+									sigma, TE_example, TR_example, beta, Psi_inv);
+			f.setLowerBound(lb);	f.setUpperBound(ub);
+			f.update_size();
+
+	
+			cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
+			cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
+			crit_voxel.iterations = 50;
+			solver.setStopCriteria(crit_voxel);
+			
+			
+			
+			
+			
 			if(i % 10000 == 0 ){
 				if(verbose){
 					std::cout << std::endl;
@@ -747,7 +774,17 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		}
 		
 		// E_step:
-		f.E_step_update();
+		// f.E_step_update();
+		
+		tmp2 = 0.0;
+		for(int i = 0; i < n; ++i){
+			Bloch_vec(W_old.row(i), TE_example, TR_example, v_old_i);
+			for(int j = 0; j < m; ++j) {
+				tmp2 = r(i,j)*v_old_i(j)/SQ(sigma(j));
+				Theta(i, j) = besselI1_I0(tmp2);
+			}
+		}
+		
 		std::cout << std::flush;
 		// * Checkerboard black ends * //
 		
@@ -988,7 +1025,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_27.txt");
+	file_performance.open ("result/Performances_28.txt");
 
 
 	
@@ -1012,7 +1049,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_LS;
-	file_LS.open ("result/W_LS_27.txt");
+	file_LS.open ("result/W_LS_28.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -1069,7 +1106,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
-	file_Likeli.open ("result/W_Likeli_27.txt");
+	file_Likeli.open ("result/W_Likeli_28.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -1121,7 +1158,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_final;
-	file_final.open ("result/W_final_27.txt");
+	file_final.open ("result/W_final_28.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_final << W_init.row(i) << "\n";
 	}
