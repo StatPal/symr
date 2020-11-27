@@ -1120,26 +1120,6 @@ class MRF_param{
 	
 		n_x_ = n_x; n_y_ = n_y; n_z_ = n_z;
 		n = n_x * n_y * n_z;
-		/*
-		H_1 = Kron_Sparse_eig( J_n(n_x), I_n(n_y*n_z));
-		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z));
-		H_3 = Kron_Sparse_eig( I_n(n_x*n_y), J_n(n_z));
-		
-		eigenval_1_small = eigenvals_J_n(n_x);
-		eigenval_2_small = eigenvals_J_n(n_y);
-		eigenval_3_small = eigenvals_J_n(n_z);
-		
-		one_1 = Vector_eig::Ones(n_x);
-		one_2 = Vector_eig::Ones(n_y);
-		one_3 = Vector_eig::Ones(n_z);
-		one_23 = Vector_eig::Ones(n_y*n_z);
-		one_12 = Vector_eig::Ones(n_x*n_y);
-		
-		eigenval_1 = Kron_vec_eig(eigenval_1_small, one_23);
-		eigenval_2 = Kron_vec_eig(one_1, Kron_vec_eig(eigenval_2_small, one_3) );
-		eigenval_3 = Kron_vec_eig(one_12, eigenval_3_small);
-		*/
-		
 		
 		H_1 = Kron_Sparse_eig( I_n(n_z*n_y), J_n(n_x));
 		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_z), J_n(n_y)), I_n(n_x));
@@ -1214,7 +1194,9 @@ class MRF_param{
 	/*
 	* The ratio of eigenvalue sum part of Lambda(beta, n_x, n_y, n_z) for the derivative
 	* Depends on the value of k (0, 1, 2 - corresponding to derivative wt beta_1, beta_2, beta_3)
+	* Needed for the derivative only
 	*/
+	/*
 	double sp_log_inv_specific(const Vector_eig &beta, int k, double thres = 0.000001){
 	
 		eigens.noalias() =  beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
@@ -1235,7 +1217,7 @@ class MRF_param{
 		double temp = (double)final_vec.sum();
 		return (temp);
 	}
-	
+	*/
 	
 	
 	/* 
@@ -1289,11 +1271,8 @@ class MRF_param{
 	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double likeli_sum = MRF_log_likeli_num(W, Psi_inv, beta);
-		// Debug0("likeli_sum num: " << likeli_sum);
 		likeli_sum += ( 3 * sp_log_det_specific(beta) + 
 								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
-		//Debug0("likeli_sum den: "<< ( 3 * sp_log_det_specific(beta) + 
-		//						n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2  );
 		
 		return likeli_sum;
 		
@@ -1305,10 +1284,12 @@ class MRF_param{
 	
 	/* 
 	* Numerator of the log likelihood from the MRF part:
-	* w.r.t. i-th row of W.
+	* just w.r.t. i-th row of W.
+	* Not used now
 	*/
+	/*
 	double MRF_log_likeli_num_i(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
-								const Vector_eig &beta, const int i) {
+									const Vector_eig &beta, const int i) {
 	
 		//Lambda_init_row = beta(0)*H_1.row(i) + 
 		//					beta(1)*H_2.row(i) + 
@@ -1352,7 +1333,7 @@ class MRF_param{
 		//}
 		return ( -0.5 * (tmp_i_Psi_inv * W.row(i).transpose()).value());
 	}
-	
+	*/
 	
 	
 	
@@ -1368,7 +1349,10 @@ class MRF_param{
 			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)			// BUG this part * 2 
 		and
 			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
+	*
+	* Not used now
 	*/
+	/*
 	void update_neighbours_likeli_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
 								      const Vector_eig &beta, const int i){
 	
@@ -1406,6 +1390,9 @@ class MRF_param{
 		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
 		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + H_2.coeff(i, i);
 	}
+	*/
+	
+	
 	
 	
 	/*
@@ -1441,10 +1428,6 @@ class MRF_param{
 		}
 		
 		
-		//tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
-		//tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
-		//tmp_i_Psi_inv_final.noalias() = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2;			// This was not multiplied by 2 -- BUG
-		
 		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 ;
 		tmp_i_Psi_inv_final = tmp_i_Psi_inv_final * Psi_inv;
 		
@@ -1467,11 +1450,6 @@ class MRF_param{
 	*/
 	double MRF_log_likeli_num_i_new(const Vector_eig &x, const Matrix3d_eig &Psi_inv) {
 	
-		//if(i == 99){
-		//	Debug0("W.row(i): " << W.row(i));
-		//	Debug0("(beta(0) * H_1.coeff(i, i) ) * x.transpose(): " << (beta(0) * H_1.coeff(i, i) ) * x.transpose());
-		//	Debug0("new MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv_new * x).value());
-		//}
 		
 		//tmp_i_Psi_inv_new.noalias() = tmp_i_Psi_inv_final + 
 		//								tmp_i_coeff_1 * (x.transpose() * Psi_inv);		// Can be little more compact here
@@ -1492,6 +1470,7 @@ class MRF_param{
 	/*
 	* gradient of likelihood w.r.t. i-th row of W.
 	* Shorten if possible - maybe using increment
+	* Not used now
 	*/
 	/*
 	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
@@ -1580,6 +1559,7 @@ class MRF_param{
 	
 	
 	// Derivative of the MRF-likelihood w.r.t. MRF parameters
+	/*
 	Vector_eig MRF_log_likeli_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);
@@ -1607,6 +1587,7 @@ class MRF_param{
 	
 		return grad;
 	}
+	*/
 	
 	
 	
@@ -1673,7 +1654,7 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 	
 	// Keep an eye: there is another pragma outside in the optimizer
 	// I guess that would not be a problem
-	#pragma omp parallel for
+	// #pragma omp parallel for
 	for(int i = 0; i < nRow; ++i) {
 		for(int j = 0; j < nCol; ++j) {
 			tmp(i,j) = W(i,0) * 
