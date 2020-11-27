@@ -182,28 +182,30 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TMatrix_row r;
-	MRF_param MRF_obj_optim;
+	MRF_param& MRF_obj_optim;
 	
 	TMatrix_row Theta;		// new
 	
 	
 	int i, n_x, n_y, n_z;
-	double beta_z = 0.0, beta_y = 1.0;									//Subrata - or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub, v_i;							// lb, ub are for extra check
+	double beta_z = 0.0, beta_y = 1.0;
+	const TVector TE, TR, sigma, lb, ub;										// lb, ub are for extra check
+	TVector beta, v_i;
 	Matrix3d_eig Psi_inv;
-	TMatrix_row W, W_old;												// W here creating problem in optimization?
+	TMatrix_row W, W_old;
 	int penalized;
 	TVector MRF_grad = TVector::Zero(3);
 
-
+/*
   public:
-	Likeli_optim(const MRF_param &MRF_obj_optim, const TMatrix_row &r_, TMatrix_row &Theta_, 
+	Likeli_optim(MRF_param &MRF_obj_optim_, const TMatrix_row &r_, TMatrix_row Theta_, 
 				TMatrix_row &W_, TMatrix_row &W_old_,
 				int n_x_, int n_y_, int n_z_, int penalized_,
 				const TVector &lb_, const TVector &ub_, 
 				const TVector &sigma_, const TVector &TE_, const TVector &TR_,
 				TVector &beta_, Matrix3d_eig &Psi_inv_) : 
 		cppoptlib::BoundedProblem<T>(3), 
+		MRF_obj_optim(MRF_obj_optim_),
 		r(r_),
 		Theta(Theta_),
 		W(W_),
@@ -212,8 +214,13 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		lb(lb_), ub(ub_),
 		sigma(sigma_), TE(TE_), TR(TR_),
 		beta(beta_),
-		Psi_inv(Psi_inv_),
-		MRF_obj_optim(MRF_obj_optim) {}
+		Psi_inv(Psi_inv_){}
+*/
+	
+  public:
+	Likeli_optim(MRF_param &MRF_obj_optim_) : 
+		cppoptlib::BoundedProblem<T>(3), 
+		MRF_obj_optim(MRF_obj_optim_){}
 	
 	
 	// Track the best:
@@ -427,7 +434,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 
 	
 	// * Voxel based initial values * //
-	
 	int iter = 0;
 	Matrix_eig_row W_old = W_init;
 	Matrix_eig_row Theta = Matrix_eig_row::Zero(n, m);
@@ -446,11 +452,32 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// lb, ub, n_x, etc would be shared
 	// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
 	// 
+	/*
 	Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
 							sigma, TE_example, TR_example, beta, Psi_inv);
+	*/
+	Likeli_optim<double> f(MRF_obj);
+	
+	
+	
 	f.setLowerBound(lb);	f.setUpperBound(ub);
 	f.update_size();
-	f.E_step_update();			// E_step: would give initial nonzero Theta
+	
+	Debug0("Check Theta:");
+	show_head(Theta, 10);
+	Debug0("Check f.Theta:");
+	show_head(f.Theta, 10);
+	
+	f.E_step_update();			// E_step: would give initial nonzero Theta  -- Why still theta is 0???????
+	
+	// Test: 
+	f.Theta(0,0) = 5.1;
+	
+	Debug0("Check Theta:");
+	show_head(Theta, 10);
+	Debug0("Check f.Theta:");
+	show_head(f.Theta, 10);
+	
 	
 	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
@@ -516,11 +543,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 			
-			
-			// Update the values inside the other class: 
-			f.beta.noalias() = beta;
-			f.Psi_inv.noalias() = Psi_inv;
-
 		}
 		
 		
@@ -539,7 +561,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 		
 		// Change: 
-		for(int i = 0; i < n; ++i){		
+		for(int i = 0; i < n; ++i){
 			if(i % 10000 == 0 ){
 				if(verbose){
 					std::cout << std::endl;
@@ -555,6 +577,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					
 					// Track the best:
 					f.current_best_val = 1.0e+15;
+					
+					
+					f.beta.noalias() = beta;
+					f.Psi_inv.noalias() = Psi_inv;
+					
+					
 					
 					f.i = i;
 					if(penalized) {
@@ -664,6 +692,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 					// Track the best:
 					f.current_best_val = 1.0e+15;
+					
+					
+					f.beta.noalias() = beta;
+					f.Psi_inv.noalias() = Psi_inv;
+					
 					
 					
 					f.i = i;
