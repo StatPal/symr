@@ -1018,11 +1018,6 @@ int main(int argc, char * argv[]) {
 	show_head(W_init);
 	std::cout << std::flush;
 	
-	// Added:
-	//std::cout << "\n\n\n";
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	// Write to a file: 
 	std::ofstream file_LS;
@@ -1074,10 +1069,10 @@ int main(int argc, char * argv[]) {
 		
 	
 	// Non -penalized:
-	
+	/*
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 0, 0.1, 1e-5, 1);
+	          500, 0, 0.1, 1e-4, 1);
 	//change
 	check_nan(W_init, "W matrix non-penalized, nan: \n");
 	
@@ -1113,7 +1108,10 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Likelihood: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_4.transpose() << "\n\n\n";
+	*/
 	
+	
+	std::cin.get();
 	
 	
 	
@@ -1139,12 +1137,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Added
-	//std::cout << "\n\n\n";
-	//Debug1("W_init final:");
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	
 	

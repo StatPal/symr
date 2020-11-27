@@ -512,7 +512,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Change: 
 		// Little bit different answer: - Subrata
-		#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
+		#pragma omp parallel for default(none) firstprivate(f, solver, TE_example, TR_example) private (x, old_val, fx) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
 		for(int i = 0; i < n; ++i){
 		//for(int i = 73; i < 75; ++i) {
 		

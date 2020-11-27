@@ -6,6 +6,8 @@
 * Some more advancement in MRF likeli num for faster AECM
 * E step is done seperately in that class of optimization. 
 
+Trying to do the parallel
+
 
 * To compile:
 
@@ -181,20 +183,20 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	const TMatrix_row& r;
+	
 	MRF_param& MRF_obj_optim;
+	const TMatrix_row &r;
+	TMatrix_row &Theta;		// new
 	
-	TMatrix_row& Theta;		// new
 	
-	
+	TMatrix_row &W, &W_old;
 	int i, n_x, n_y, n_z;
 	double beta_z = 0.0, beta_y = 1.0;
-	const TVector& TE, TR, sigma, lb, ub;										// lb, ub are for extra check
+	const TVector& TE, &TR, &sigma, &lb, &ub;										// lb, ub are for extra check
 	TVector& beta;
-	TVector v_i;
 	Matrix3d_eig& Psi_inv;
-	TMatrix_row &W, W_old;
 	int penalized;
+	TVector v_i;
 	TVector MRF_grad = TVector::Zero(3);
 
 	

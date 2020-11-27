@@ -242,7 +242,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		W.row(i) = x.transpose();		
 		Bloch_vec(W.row(i), TE, TR, v_i);
 		int m = TE.size();
-		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		double likeli_sum = 0.0;
 		
 		//Rice part://
 		for(int j = 0; j < m; ++j) {

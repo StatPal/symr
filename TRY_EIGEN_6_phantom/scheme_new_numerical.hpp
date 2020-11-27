@@ -1363,7 +1363,7 @@ class MRF_param{
 		for(int k = 0; k < tmp_row.outerSize(); ++k){
 			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
 				if(it.col() != i){
-					tmp_i_1 += W.row(it.col()) * it.value();		//* beta(0)
+					tmp_i_1 += W.row(it.col()) * it.value();		// * beta(0)
 				}
 			}
 		}
@@ -2210,7 +2210,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	Matrix_eig_row v = v_mat(W, TE, TR);
 	int n = n_x * n_y * n_z;
 	int m = v.cols();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp31 = 0.0, tmp4 = 0.0;
+	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
 	SpMat Gamma_inv;
 	if(with_MRF){
 		Gamma_inv = MRF_obj.Lambda(beta);
@@ -2237,7 +2237,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	// Diagonal parts //
-	int i = 0, i1 = 0, k = 0, k1 = 0, j = 0;
+	int i = 0, k = 0, k1 = 0, j = 0;
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
 	

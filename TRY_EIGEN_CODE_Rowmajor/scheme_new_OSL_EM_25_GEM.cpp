@@ -202,7 +202,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
   public:
 	Likeli_optim(const MRF_param &MRF_obj_optim) : 
-		cppoptlib::BoundedProblem<T>(y_.size()), 
+		cppoptlib::BoundedProblem<T>(3), 
 		MRF_obj_optim(MRF_obj_optim) {}
 
 
