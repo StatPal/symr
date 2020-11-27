@@ -6,22 +6,24 @@
 * Some more advancement in MRF likeli num for faster AECM
 * E step is done seperately in that class of optimization. 
 
+* Parallelized
+
 
 * To compile:
 
-g++ scheme_new_OSL_EM_29_GEM.cpp -o test_29_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+g++ scheme_new_OSL_EM_29_GEM.cpp -o test_29_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+
+g++ scheme_new_OSL_EM_29_GEM.cpp -o test_29_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
 
 
+./test_29_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./test_29_3D ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./test_29_2D ../data/new_phantom.nii Dummy_sd.txt 0
 
-./test_29_3D ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./test_29_2D ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
-./test_29_3D ../Read_Data/small.nii Dummy_sd_3D.txt 0
-
-nohup ./test_29_3D ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > test_29_3D.out & 
-
+nohup ./test_29_2D ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > test_29_2D.out & 
 
 
 
@@ -1097,7 +1099,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_27.txt");
+	file_performance.open ("result/Performances_29.txt");
 
 
 	
@@ -1121,7 +1123,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_LS;
-	file_LS.open ("result/W_LS_27.txt");
+	file_LS.open ("result/W_LS_29.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -1178,7 +1180,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
-	file_Likeli.open ("result/W_Likeli_27.txt");
+	file_Likeli.open ("result/W_Likeli_29.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -1230,7 +1232,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_final;
-	file_final.open ("result/W_final_27.txt");
+	file_final.open ("result/W_final_29.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_final << W_init.row(i) << "\n";
 	}

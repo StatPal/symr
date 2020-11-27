@@ -6,6 +6,8 @@
 * Some more advancement in MRF likeli num for faster AECM
 * E step is done seperately in that class of optimization. 
 
+* Parallelized
+
 
 * To compile:
 
