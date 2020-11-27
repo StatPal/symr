@@ -189,7 +189,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	int i, n_x, n_y, n_z;
 	double beta_z = 0.0, beta_y = 1.0;									//Subrata - or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub, c_i, v_i;							// lb, ub are for extra check
+	TVector TE, TR, sigma, beta, lb, ub, v_i;							// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
 	TMatrix_row W, W_old;												// W here creating problem in optimization?
 	int penalized;
@@ -198,12 +198,21 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
   public:
 	Likeli_optim(const MRF_param &MRF_obj_optim, const TMatrix_row &r_, TMatrix_row &Theta_, 
-				TMatrix_row &W_, TMatrix_row &W_old_) : 
+				TMatrix_row &W_, TMatrix_row &W_old_,
+				int n_x_, int n_y_, int n_z_, int penalized_,
+				const TVector &lb_, const TVector &ub_, 
+				const TVector &sigma_, const TVector &TE_, const TVector &TR_,
+				TVector &beta_, Matrix3d_eig &Psi_inv_) : 
 		cppoptlib::BoundedProblem<T>(3), 
 		r(r_),
 		Theta(Theta_),
 		W(W_),
 		W_old(W_old_),
+		n_x(n_x_), n_y(n_y_), n_z(n_z_), penalized(penalized_),
+		lb(lb_), ub(ub_),
+		sigma(sigma_), TE(TE_), TR(TR_),
+		beta(beta_),
+		Psi_inv(Psi_inv_),
 		MRF_obj_optim(MRF_obj_optim) {}
 	
 	
@@ -354,6 +363,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
+	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+							sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 	
 	
 	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
@@ -421,10 +432,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Matrix_eig_row W_old = W_init;
 	Matrix_eig_row Theta = Matrix_eig_row::Zero(n, m);
 	
-	Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old);
-	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	Vector_eig x(3), lb(3), ub(3);
-	
 	//Bounds of rho, W1, W2:
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
@@ -433,41 +441,22 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			lb[i] = 1.0e-8;
 		}
 	}
+	
+	
+	// lb, ub, n_x, etc would be shared
+	// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
+	// 
+	Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
+							sigma, TE_example, TR_example, beta, Psi_inv);
 	f.setLowerBound(lb);	f.setUpperBound(ub);
-	f.lb.noalias() = lb;	f.ub.noalias() = ub;								// Extra checks
-	Debug2("lb: " << lb.transpose());
-	Debug2("ub: " << ub.transpose());
-	
-	
-	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
-	f.update_penalized(penalized);
-	f.beta.noalias() = beta;
-	f.Psi_inv.noalias() = Psi_inv;
-	f.sigma.noalias() = sigma;	//f.r.noalias() = r;	
-	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.update_size();
-	//f.W.noalias() = W_init;
+	f.E_step_update();			// E_step: would give initial nonzero Theta
 	
-	//f.W_old.noalias() = W_old;
-	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized		// Not needed - change 
-	
-	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-								sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
-	
-	
-	// E_step: would give initial nonzero Theta
-	f.E_step_update();
-	
-	
-	
-	// Subrata - Setting the maxiter: 
+	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
 	crit_voxel.iterations = 50;
 	solver.setStopCriteria(crit_voxel);
 	// Change
-	
-	
-	
 	
 	
 	
