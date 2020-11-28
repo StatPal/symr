@@ -1057,6 +1057,27 @@ Vector_eig eigenvals_J_n(int n) {
 }
 
 
+/* 
+* Indicator of duplicate elements in a vector
+*/
+int not_unique(const Vector_eig &x){
+	
+	int tmp = 0, i, j, n = x.size();
+	
+	for(i = 0; i < n-1; ++i){
+		for(j = i+1; j < n; ++j){
+			if(x(i) == x(j)){
+				tmp++;
+				break;
+			}
+		}
+		if(tmp > 0)
+			break;
+	}
+	return tmp;
+}
+
+
 
 
 
