@@ -103,6 +103,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
+
 /*
 * Optim template for rows of W using partial fn:
 */
@@ -115,19 +116,20 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	typedef Matrix_eig_row TMatrix_row;
 	
 	
-	TMatrix_row W1;
-	MRF_param MRF_obj_optim;
+	const TMatrix_row &W1;
+	MRF_param &MRF_obj_optim;
 	TMatrix tmp1, tmp2;
+	double fx;
 	
 
 
   public:	
-	MRF_optim(const TMatrix_row W1_, const MRF_param &MRF_obj_optim) : 
+	MRF_optim(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
-		MRF_obj_optim(MRF_obj_optim), 
-		tmp1(W1.transpose() * MRF_obj_optim.H_1 * W1),
-		tmp2(W1.transpose() * MRF_obj_optim.H_2 * W1) {}
+		MRF_obj_optim(MRF_obj_optim_), 
+		tmp1(W1.transpose() * MRF_obj_optim_.H_1 * W1),
+		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1) {}
 	
 
 	TMatrix Psi_est, Psi_inv_est;
@@ -152,9 +154,11 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	T value(const TVector &x) {
 		beta1(0) = x(0);
 		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);	// I guess there would be an additional 3. Check!
-		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
-		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
-								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+//		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
+//		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
+//								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
+								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
 		return (fx);
 	}

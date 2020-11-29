@@ -111,11 +111,6 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 * Optim template for rows of W using partial fn:
 */
 // Class definition with template
-
-/*
-* Optim template for rows of W using partial fn:
-*/
-// Class definition with template
 template<typename T>
 class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
@@ -127,6 +122,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	const TMatrix_row &W1;
 	MRF_param &MRF_obj_optim;
 	TMatrix tmp1, tmp2;
+	double fx;
 	
 
 
@@ -161,9 +157,11 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	T value(const TVector &x) {
 		beta1(0) = x(0);
 		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);	// I guess there would be an additional 3. Check!
-		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
-		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
-								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+//		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
+//		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
+//								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
+								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
 		return (fx);
 	}
@@ -1065,6 +1063,7 @@ int main(int argc, char * argv[]) {
 //	for(int r1 = 1; r1 < m_total - 3; ++r1){			// r1 is the test set size
 		
 		int m_choose_r1 = choose(m_total, r1);
+		Debug0("m_choose_r: " << m_choose_r1);
 		Matrix_eig tmp_combi = combi(m_total, r1);
 		
 		std::vector<int> train_ind = {};
