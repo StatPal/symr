@@ -14,6 +14,7 @@
 
 g++ All_possible_29_GEM.cpp -o all_29_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
+g++ All_possible_29_GEM.cpp -o all_29_3D -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
 
 
@@ -21,9 +22,11 @@ g++ All_possible_29_GEM.cpp -o all_29_3D -I /usr/include/eigen3 -O3 -lgsl -lgslc
 
 ./all_29_3D ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
+OMP_NUM_THREADS=19 ./all_29_3D ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+
 ./all_29_3D ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
-nohup ./all_29_3D ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > all_29_3D.out & 
+OMP_NUM_THREADS=19 nohup ./all_29_3D ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > all_29_3D.out & 
 
 
 
@@ -1059,7 +1062,7 @@ int main(int argc, char * argv[]) {
 
 	// To be stored in the file: 
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_29_all.txt");
+	file_performance.open ("result/Performances_29_all_3.csv");
 	
 	
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
@@ -1070,7 +1073,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	int m_total = 12;
-//	int m_total = 11;
 	std::vector<int> whole_ind = {};
 	for(int i = 0; i < m_total; ++i){
 //		if(i != 6){
@@ -1137,8 +1139,8 @@ int main(int argc, char * argv[]) {
 			std::set<double> TR_unique_train{TR_train.data(), TR_train.data() + TR_train.size()};
 			
 			
-			if( ( TE_unique_train.size() >= 3 ) && (TR_unique_train.size() >= 3)){
-				
+//			if( ( TE_unique_train.size() >= 3 ) && (TR_unique_train.size() >= 3)){
+			if( ( TE_unique_train.size() >= 2 ) && (TR_unique_train.size() >= 2)){
 				
 				std::cout << "\ntrain: \t";
 				for(int n1 : train_ind) {

@@ -702,7 +702,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						if(fx >= old_val) {								//Compares best value inside
 							if(verbose2){
 								Debug1("Value have not decreased!!\nold x:" << W_init.row(i) << " & val: " << old_val << 
-										";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");					
+										";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");
 							}
 							bad_count_o++;
 							if(fx > old_val){
@@ -1186,7 +1186,7 @@ int main(int argc, char * argv[]) {
 	file_Likeli.close();
 	
 	Matrix_eig_row W_likeli = W_init;
-	// W_init = W_LS;
+	W_init.noalias() = W_LS;
 	show_head(W_likeli);
 	
 	

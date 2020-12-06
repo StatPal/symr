@@ -193,15 +193,15 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	MRF_param &MRF_obj_optim;
 	const TMatrix_row &r;
 	
-	TMatrix_row& Theta;		// new
+	TMatrix_row &Theta;		// new
 	
 	TMatrix_row &W, &W_old;
 	
 	int i, n_x, n_y, n_z, penalized;
 	double beta_z = 1.0;
 	const TVector &lb, &ub, &sigma, &TE, &TR;										// lb, ub are for extra check
-	TVector& beta;
-	Matrix3d_eig& Psi_inv;
+	TVector &beta;
+	Matrix3d_eig &Psi_inv;
 	TVector v_i;
 
 	
@@ -1042,7 +1042,7 @@ int main(int argc, char * argv[]) {
 
 	// To be stored in the file: 
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_29_all.txt");
+	file_performance.open ("result/Performances_29_all_3.csv");
 	
 	
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
@@ -1189,6 +1189,9 @@ int main(int argc, char * argv[]) {
 				
 				
 				
+				Matrix_eig_row W_LS = W_init;
+				
+				
 				
 				// Likelihood Based optimization:
 				
@@ -1234,6 +1237,7 @@ int main(int argc, char * argv[]) {
 				
 				
 				
+				W_init.noalias() = W_LS;
 				
 				
 				

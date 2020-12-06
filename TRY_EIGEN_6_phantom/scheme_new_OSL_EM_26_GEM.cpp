@@ -1005,11 +1005,6 @@ int main(int argc, char * argv[]) {
 	show_head(W_init);
 	std::cout << std::flush;
 	
-	// Added:
-	//std::cout << "\n\n\n";
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	// Write to a file: 
 	std::ofstream file_LS;
@@ -1061,7 +1056,7 @@ int main(int argc, char * argv[]) {
 		
 	
 	// Non -penalized:
-	/*
+	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 0, 0.1, 1e-5, 1);
@@ -1077,7 +1072,7 @@ int main(int argc, char * argv[]) {
 	file_Likeli.close();
 	
 	Matrix_eig_row W_likeli = W_init;
-	// W_init = W_LS;
+	W_init = W_LS;
 	show_head(W_likeli);
 	
 	
@@ -1100,7 +1095,6 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Likelihood: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_4.transpose() << "\n\n\n";
-	*/
 	
 	
 	
@@ -1125,13 +1119,6 @@ int main(int argc, char * argv[]) {
 	file_final.close();
 	
 	
-	
-	// Added
-	//std::cout << "\n\n\n";
-	//Debug1("W_init final:");
-	//for(int i = 0; i < W_init.rows(); ++i){
-		//std::cout << W_init.row(i) << "\n";
-	//}
 	
 	
 	
@@ -1161,49 +1148,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Variance estimation: 
-	/*
-	// Using Info matrix + delta method:
-	
-	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
-                                             TE_test, TR_test, sigma_test, test);
-	
-	// Write to a file:
-	std::ofstream info_var_file;
-	info_var_file.open ("result/info_var_26_new.txt");
-	for(int i = 0; i < info_var_1.rows(); ++i){
-		info_var_file << info_var_1.row(i) << "\n";
-	}
-	info_var_file.close();
-	
-	
-	
-	
-	// Using Bootstrap
-	std::cout << "\n\n";
-	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
-                                               r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, 200, 500, 1e-4);
-                                               //change
-	
-	
-	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head(info_var_1);
-	
-	
-	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head(boot_var_1);
-	
-	
-	// Write to a file: 
-	std::ofstream boot_var_file;
-	boot_var_file.open ("result/boot_var_26_new.txt");
-	for(int i = 0; i < boot_var_1.rows(); ++i) {
-		boot_var_file << boot_var_1.row(i) << "\n";
-	}
-	boot_var_file.close();
-	*/
 	
 	
 	

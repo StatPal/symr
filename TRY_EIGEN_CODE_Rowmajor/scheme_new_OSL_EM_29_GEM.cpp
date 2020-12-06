@@ -1155,10 +1155,9 @@ int main(int argc, char * argv[]) {
 	
 	
 	// Test:
-	/*
 	Matrix_eig_row W_LS = W_init;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
-	*/
+	// Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
+	
 
 	
 	
@@ -1187,7 +1186,7 @@ int main(int argc, char * argv[]) {
 	file_Likeli.close();
 	
 	Matrix_eig_row W_likeli = W_init;
-	// W_init = W_LS;
+	W_init = W_LS;
 	show_head(W_likeli);
 	
 	
@@ -1223,7 +1222,6 @@ int main(int argc, char * argv[]) {
 	          500, 1, 0.1, 1e-4, 1);
 	//change
 	check_nan(W_init, "W matrix Penalized, nan: \n");
-	// Psi_inv is already updated - So new value would not give better
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
 	
