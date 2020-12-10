@@ -1115,8 +1115,8 @@ int main(int argc, char * argv[]) {
 			std::set<double> TR_unique_train{TR_train.data(), TR_train.data() + TR_train.size()};
 			
 			
-			if( ( TE_unique_train.size() >= 3 ) && (TR_unique_train.size() >= 3)){
-				
+//			if( ( TE_unique_train.size() >= 3 ) && (TR_unique_train.size() >= 3)){
+			if( ( TE_unique_train.size() >= 2 ) && (TR_unique_train.size() >= 2)){
 				
 				std::cout << "\ntrain: \t";
 				for(int n1 : train_ind) {
@@ -1127,7 +1127,7 @@ int main(int argc, char * argv[]) {
 	    	 	   std::cout << n1 << ' ';
 	    		}
 				std::cout << "\n" << std::flush;
-			/*
+				/*
 				file_performance << "\ntrain: \t";
 				for(int n1 : train_ind) {
 	    	 	   file_performance << n1 << ' ';
@@ -1137,7 +1137,7 @@ int main(int argc, char * argv[]) {
 	    	 	   file_performance << n1 << ' ';
 	    		}
 				file_performance << "\n" << std::flush;
-			*/
+				*/
 				
 				for(int n1 : train_ind) {
 	    	 	   file_performance << n1 << ", ";
@@ -1246,7 +1246,7 @@ int main(int argc, char * argv[]) {
 				
 				OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 				          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-			          500, 1, 0.1, 1e-5, 1);
+				          500, 1, 0.1, 1e-5, 1);
 				//change
 				Debug1("W - Penalized Likelihood");
 				show_head(W_init);
