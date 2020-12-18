@@ -8,6 +8,10 @@ head(abc)
 our_order <- order(abc[,test_dim+11]+abc[,test_dim+12]) ## Avg RMPSE
 
 
+cat("The sample is:")
+abc[our_order[1],1:test_dim]
+
+
 abc[our_order[1],test_dim+9+0:3]
 rowMeans(abc[our_order[1],test_dim+9+0:1])
 

@@ -667,7 +667,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << 
 					"\t abs diff:" << fabs(current_best_likeli - old_likeli));
 		}
-		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff){
+		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
 			std::cout << "Stopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ") abs diff:" 
 					<< fabs(current_best_likeli - old_likeli) << "\n";

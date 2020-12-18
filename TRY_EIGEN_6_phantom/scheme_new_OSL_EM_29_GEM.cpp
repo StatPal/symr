@@ -917,7 +917,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					<< ", diff.: " << current_best_likeli - old_likeli  << 
 					",  rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli));
 		}
-		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff){
+		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
 			std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ", abs diff: " 
 					<< fabs(current_best_likeli - old_likeli) << ")\n";
@@ -1045,9 +1045,6 @@ int main(int argc, char * argv[]) {
 	}
 	Debug0("lb:" << lb.transpose());
 	Debug0("ub:" << ub.transpose());
-	
-	
-	
 	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
 	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
@@ -1057,19 +1054,12 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
-	  
-        
-	//std::vector<int> train_ind{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	//std::vector<int> test_ind{16, 17};
-	
 	
 	std::vector<int> train_ind{0, 6, 13};
 	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
 	
 	//std::vector<int> train_ind{0, 1, 2, 3, 4, 5};
 	//std::vector<int> test_ind{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-	// Also, this creates 450 in the first edge - but not with non-penalized case - check
-	// Somehow only 0, 1, 2 in trainset creates Nan's. We have to look.
 	
 	
 	Matrix_eig_row train(r.rows(), train_ind.size());
@@ -1103,7 +1093,6 @@ int main(int argc, char * argv[]) {
 
 	
 	
-	// Temp results: Performance on the Init W: 
 	
 	
 	// Least Sq:
@@ -1111,10 +1100,6 @@ int main(int argc, char * argv[]) {
 	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
 	Matrix_eig_row W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             r_scale, TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
-	Debug1("W initial done");
-	check_nan(W_init, "W matrix init, nan: \n");
-	// int nan_count_1st = check_nan_W(W_init, W_1st);		// Change as there is no W_1st
-	// Debug0("NAN count at first:" << nan_count_1st);
 	Debug1("W_init after LS: ");
 	show_head(W_init);
 	std::cout << std::flush;
@@ -1151,13 +1136,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	
 	
 	// Test:
 	Matrix_eig_row W_LS = W_init;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
-
 
 	
 	
@@ -1167,6 +1149,8 @@ int main(int argc, char * argv[]) {
 	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
 	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);
 	
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
 		
 	
 	// Non -penalized:
@@ -1175,7 +1159,6 @@ int main(int argc, char * argv[]) {
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 0, 0.1, 1e-5, 1);
 	//change
-	check_nan(W_init, "W matrix non-penalized, nan: \n");
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
@@ -1222,10 +1205,8 @@ int main(int argc, char * argv[]) {
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 1, 0.1, 1e-4, 1);
+	          500, 1, 0.1, 1e-5, 1);
 	//change
-	check_nan(W_init, "W matrix Penalized, nan: \n");
-	// Psi_inv is already updated - So new value would not give better
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
 	
@@ -1263,8 +1244,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	
-	// Variance estimation: 
 	
 	
 	

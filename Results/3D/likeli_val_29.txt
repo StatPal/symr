@@ -1,0 +1,10 @@
+DEBUG 0: Current log likeli: -8.33557e+06, Old log likeli: -8.40603e+06, diff.: -70456,  rel. diff.: 0.00845245
+DEBUG 0: Current log likeli: -8.33435e+06, Old log likeli: -8.33557e+06, diff.: -1227.17,  rel. diff.: 0.000147242
+DEBUG 0: Current log likeli: -8.33393e+06, Old log likeli: -8.33435e+06, diff.: -418.053,  rel. diff.: 5.01628e-05
+DEBUG 0: Current log likeli: -8.33381e+06, Old log likeli: -8.33393e+06, diff.: -118.19,  rel. diff.: 1.41819e-05
+DEBUG 0: Current log likeli: -8.33373e+06, Old log likeli: -8.33381e+06, diff.: -79.1771,  rel. diff.: 9.5008e-06
+DEBUG 0: Current log likeli: -1.20772e+07, Old log likeli: -4.36131e+09, diff.: -4.34923e+09,  rel. diff.: 360.12
+DEBUG 0: Current log likeli: -1.20463e+07, Old log likeli: -1.20772e+07, diff.: -30863.6,  rel. diff.: 0.00256208
+DEBUG 0: Current log likeli: -1.20446e+07, Old log likeli: -1.20463e+07, diff.: -1688.47,  rel. diff.: 0.000140184
+DEBUG 0: Current log likeli: -1.20445e+07, Old log likeli: -1.20446e+07, diff.: -184.414,  rel. diff.: 1.53111e-05
+DEBUG 0: Current log likeli: -1.20444e+07, Old log likeli: -1.20445e+07, diff.: -34.6387,  rel. diff.: 2.87591e-06

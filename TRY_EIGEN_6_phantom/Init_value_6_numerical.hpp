@@ -270,8 +270,8 @@ void least_sq_solve(Matrix_eig_row &W,
 			" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);
 	
 	auto time_2_lsq = std::chrono::high_resolution_clock::now();
-	auto duration_lsq = std::chrono::duration_cast<std::chrono::seconds>(time_2_lsq - time_1_lsq);
-	Debug1("Time taken total Least Square: " << duration_lsq.count() << " seconds\n");
+	auto duration_lsq = std::chrono::duration_cast<std::chrono::microseconds>(time_2_lsq - time_1_lsq);
+	Debug1("Time taken total Least Square: " << duration_lsq.count() << " microseconds\n");
 }
 
 

@@ -1,0 +1,2448 @@
+Current time: Tue Dec 15 16:11:35 2020 CST
+----------------
+Reading header:
+----------------
+4 dimensions
+Dim 1(X): 256
+Dim 2(Y): 256
+Dim 3(Z): 20
+Dim 4(T): 12
+Dim 5   : 1
+Dim 6   : 1
+Dim 7   : 1
+Datatype code: 4;	Bits per pixel: 16
+Bytes offset to data file: 352
+Read 348 bytes.
+-----------------------
+Reading 15728640 voxels
+1-th set have size:1310720;  mean: 29.6967
+2-th set have size:1310720;  mean: 27.276
+3-th set have size:1310720;  mean: 24.907
+4-th set have size:1310720;  mean: 41.4174
+5-th set have size:1310720;  mean: 28.7606
+6-th set have size:1310720;  mean: 25.3325
+7-th set have size:1310720;  mean: 58.3215
+8-th set have size:1310720;  mean: 36.0111
+9-th set have size:1310720;  mean: 21.3618
+10-th set have size:1310720;  mean: 65.7626
+11-th set have size:1310720;  mean: 31.8415
+12-th set have size:1310720;  mean: 19.9851
+-------------------------------------------
+-------------------------------------------
+DEBUG 1: Preprocessing done!
+DEBUG 0: Read the sd file
+----------------
+
+DEBUG 0: sigma: 1.99146 1.81265 1.82837 2.30221 1.63414 1.71876 3.13695 1.77141 1.55651 2.72191 1.63068  1.4359
+DEBUG 0: r_scale: 1
+DEBUG 0: TE scale: 201
+DEBUG 0: TR scale: 3.35
+DEBUG 0: lb:    0.0001      1e-08 0.00690766
+DEBUG 0: ub:     450  0.92809 0.975431
+DEBUG 1: 1st level preprocess of initial value done!
+----------------
+----------------
+
+DEBUG 0: Doing Least Square Estimate!
+DEBUG 1: lb inside LS:      1e-06      1e-08 0.00690766
+DEBUG 1: ub inside LS:      450  0.92809 0.975431
+
+DEBUG 1: i: 0
+DEBUG 1: i: 200000
+DEBUG 1: i: 400000
+DEBUG 1: i: 600000
+DEBUG 1: i: 800000
+DEBUG 1: i: 1000000
+DEBUG 1: i: 1200000
+DEBUG 1: i: 100000
+DEBUG 1: i: 300000
+DEBUG 1: i: 500000
+DEBUG 1: i: 700000
+DEBUG 1: i: 900000
+DEBUG 1: i: 1100000
+DEBUG 1: i: 1300000
+DEBUG 0: Number of bad cases in Initial value determination:0 and worse: 0 and bad init bounds:0 and 0
+DEBUG 1: Time taken total Least Square: 13 seconds
+
+DEBUG 1: Initial value done!
+----------------
+
+DEBUG 1: W initial done
+W matrix init, nan: 
+DEBUG 1: W_init after LS: 
+Head of the matrix:
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+DEBUG 0: Avg perfs LS: 0.08499, 0.0959156, 0.134307, 0.136366
+Performances over images LS:  0.0169789  0.0779988  0.0898958  0.0846591    0.10012   0.113806   0.150059  0.0936036  0.0233944 0.00771449   0.108343   0.153307
+Performances over images LS: 0.0352309 0.0889124  0.101731 0.0960377  0.109376   0.12312  0.162885   0.10151 0.0376986 0.0204762  0.115155  0.158854
+Performances over images LS: 0.0480221  0.108531  0.123776  0.136959   0.14688  0.160888  0.279508  0.141041 0.0600443 0.0170164  0.163054  0.225959
+Performances over images LS: 0.0552097  0.110101   0.12524  0.138678  0.147657  0.160966   0.28012  0.141681 0.0627752 0.0265294  0.163053  0.224378
+
+
+
+DEBUG 1: abs diff between W's: 0
+
+
+
+DEBUG 0: Doing EM Estimate!
+DEBUG 0: Number of possible background voxels: Ñ
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 1
+
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):211014
+DEBUG 0:  Current likeli: -8.33557e+06 Old likeli: -8.40603e+06 diff: -70456
+DEBUG 0: rel. diff.: 0.00845245	 abs diff:70456
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 2
+
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):20608
+DEBUG 0:  Current likeli: -8.33441e+06 Old likeli: -8.33557e+06 diff: -1163.26
+DEBUG 0: rel. diff.: 0.000139573	 abs diff:1163.26
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 3
+
+
+
+DEBUG 1: i: DEBUG 1: i: 200000
+600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):3509.03
+DEBUG 0:  Current likeli: -8.33403e+06 Old likeli: -8.33441e+06 diff: -379.48
+DEBUG 0: rel. diff.: 4.55338e-05	 abs diff:379.48
+Stopped after 3 iterations (rel. diff.: 4.55338e-05) abs diff:379.48
+DEBUG 0: Number of bad cases in Initial value determination:283350 and worse: 0 and bad init bounds:0 and 0
+DEBUG 1: Time taken for whole EM: 5 seconds
+
+W matrix non-penalized, nan: 
+Head of the matrix:
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+DEBUG 0: Avg perfs MLE: 0.0848454, 0.0956279, 0.133428, 0.1354
+Performances over images Likelihood:  0.0169628  0.0779832   0.089943  0.0846261    0.10013   0.113988   0.149443  0.0930718  0.0229823 0.00890136   0.107647   0.152466
+Performances over images Likelihood: 0.0347746 0.0888961  0.101777 0.0960046  0.109384  0.123293   0.16227  0.100975 0.0362448 0.0214872  0.114445  0.157983
+Performances over images Likelihood: 0.0468778  0.108564   0.12393  0.136629  0.146975  0.161221  0.278157  0.140182 0.0537391 0.0214689  0.160835  0.222552
+Performances over images Likelihood: 0.0542191  0.110132  0.125391  0.138353  0.147748  0.161287  0.278773  0.140821 0.0567528 0.0295839  0.160817  0.220921
+
+
+
+
+
+
+DEBUG 0: Doing OSL-EM Estimate!
+DEBUG 0: Number of possible background voxels: Ñ
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 1
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):3.39191e+06
+DEBUG 0:  Current likeli: -1.22053e+07 Old likeli: -4.36131e+09 diff: -4.34911e+09
+DEBUG 0: rel. diff.: 356.33	 abs diff:4.34911e+09
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 2
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):3.4541e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.22053e+07;	 new val: 1.23447e+07 diff: 139443
+DEBUG 0:  Current likeli: -1.23447e+07 Old likeli: -1.22053e+07 diff: 139443
+DEBUG 0: rel. diff.: 0.0112958	 abs diff:139443
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 3
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):4.49443e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.23447e+07;	 new val: 1.24356e+07 diff: 90873
+DEBUG 0:  Current likeli: -1.24356e+07 Old likeli: -1.23447e+07 diff: 90873
+DEBUG 0: rel. diff.: 0.00730749	 abs diff:90873
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 4
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):5.18044e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.24356e+07;	 new val: 1.25012e+07 diff: 65592.9
+DEBUG 0:  Current likeli: -1.25012e+07 Old likeli: -1.24356e+07 diff: 65592.9
+DEBUG 0: rel. diff.: 0.00524694	 abs diff:65592.9
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 5
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):5.68433e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.25012e+07;	 new val: 1.25495e+07 diff: 48323.7
+DEBUG 0:  Current likeli: -1.25495e+07 Old likeli: -1.25012e+07 diff: 48323.7
+DEBUG 0: rel. diff.: 0.00385065	 abs diff:48323.7
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 6
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):5.96843e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.25495e+07;	 new val: 1.25641e+07 diff: 14567.3
+DEBUG 0:  Current likeli: -1.25641e+07 Old likeli: -1.25495e+07 diff: 14567.3
+DEBUG 0: rel. diff.: 0.00115944	 abs diff:14567.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 7
+
+DEBUG 1: x_MRF: 3258.14 3842.92
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.19195e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.25641e+07;	 new val: 1.25986e+07 diff: 34505.1
+DEBUG 0:  Current likeli: -1.25986e+07 Old likeli: -1.25641e+07 diff: 34505.1
+DEBUG 0: rel. diff.: 0.00273881	 abs diff:34505.1
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 8
+
+DEBUG 1: x_MRF: 3479.33  3857.4
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.337e+06
+DEBUG 0:  Current likeli: -1.25961e+07 Old likeli: -1.25986e+07 diff: -2499.7
+DEBUG 0: rel. diff.: 0.000198451	 abs diff:2499.7
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 9
+
+DEBUG 1: x_MRF: 3478.48 3821.04
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.45386e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.25961e+07;	 new val: 1.26236e+07 diff: 27546.7
+DEBUG 0:  Current likeli: -1.26236e+07 Old likeli: -1.25961e+07 diff: 27546.7
+DEBUG 0: rel. diff.: 0.00218216	 abs diff:27546.7
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 10
+
+DEBUG 1: x_MRF: 3478.48 3821.04
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.54768e+06
+DEBUG 0:  Current likeli: -1.26177e+07 Old likeli: -1.26236e+07 diff: -5884.47
+DEBUG 0: rel. diff.: 0.000466365	 abs diff:5884.47
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 11
+
+DEBUG 1: x_MRF: 3460.85 3815.27
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.62278e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26177e+07;	 new val: 1.26402e+07 diff: 22416.5
+DEBUG 0:  Current likeli: -1.26402e+07 Old likeli: -1.26177e+07 diff: 22416.5
+DEBUG 0: rel. diff.: 0.00177344	 abs diff:22416.5
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 12
+
+DEBUG 1: x_MRF: 3449.24 3827.77
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.6842e+06
+DEBUG 0:  Current likeli: -1.2632e+07 Old likeli: -1.26402e+07 diff: -8204.39
+DEBUG 0: rel. diff.: 0.000649495	 abs diff:8204.39
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 13
+
+DEBUG 1: x_MRF: 7332.34 7332.52
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.72996e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.2632e+07;	 new val: 1.26506e+07 diff: 18694.5
+DEBUG 0:  Current likeli: -1.26506e+07 Old likeli: -1.2632e+07 diff: 18694.5
+DEBUG 0: rel. diff.: 0.00147775	 abs diff:18694.5
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 14
+
+DEBUG 1: x_MRF: 237.692 22224.1
+DEBUG 1: Value have not decreased(MRF)!!	 old val: -1.33579e+06; new val: -845810
+
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.05941e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26506e+07;	 new val: 1.33408e+07 diff: 690149
+DEBUG 0:  Current likeli: -1.33408e+07 Old likeli: -1.26506e+07 diff: 690149
+DEBUG 0: rel. diff.: 0.0517322	 abs diff:690149
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 15
+
+DEBUG 1: x_MRF: 22672.4 25245.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.13882e+06
+DEBUG 0:  Current likeli: -1.26623e+07 Old likeli: -1.33408e+07 diff: -678504
+DEBUG 0: rel. diff.: 0.0535846	 abs diff:678504
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 16
+
+DEBUG 1: x_MRF: 22681.9 25235.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.9115e+06
+DEBUG 0:  Current likeli: -1.26554e+07 Old likeli: -1.26623e+07 diff: -6850.11
+DEBUG 0: rel. diff.: 0.000541277	 abs diff:6850.11
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 17
+
+DEBUG 1: x_MRF: 22681.9 25235.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.91467e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26554e+07;	 new val: 1.2669e+07 diff: 13508.5
+DEBUG 0:  Current likeli: -1.2669e+07 Old likeli: -1.26554e+07 diff: 13508.5
+DEBUG 0: rel. diff.: 0.00106627	 abs diff:13508.5
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 18
+
+DEBUG 1: x_MRF: 22681.9 25235.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.92808e+06
+DEBUG 0:  Current likeli: -1.26605e+07 Old likeli: -1.2669e+07 diff: -8482.3
+DEBUG 0: rel. diff.: 0.000669983	 abs diff:8482.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 19
+
+DEBUG 1: x_MRF: 22900.5   25185
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.94195e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26605e+07;	 new val: 1.26726e+07 diff: 12101.6
+DEBUG 0:  Current likeli: -1.26726e+07 Old likeli: -1.26605e+07 diff: 12101.6
+DEBUG 0: rel. diff.: 0.000954944	 abs diff:12101.6
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 20
+
+DEBUG 1: x_MRF: 22900.5   25185
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.95297e+06
+DEBUG 0:  Current likeli: -1.26634e+07 Old likeli: -1.26726e+07 diff: -9132.82
+DEBUG 0: rel. diff.: 0.000721196	 abs diff:9132.82
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 21
+
+DEBUG 1: x_MRF: 22900.5   25185
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.96517e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26634e+07;	 new val: 1.26757e+07 diff: 12268.3
+DEBUG 0:  Current likeli: -1.26757e+07 Old likeli: -1.26634e+07 diff: 12268.3
+DEBUG 0: rel. diff.: 0.000967861	 abs diff:12268.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 22
+
+DEBUG 1: x_MRF: 22886.8   25180
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.97544e+06
+DEBUG 0:  Current likeli: -1.26662e+07 Old likeli: -1.26757e+07 diff: -9469.25
+DEBUG 0: rel. diff.: 0.000747597	 abs diff:9469.25
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 23
+
+DEBUG 1: x_MRF: 22886.8   25180
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.98643e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26662e+07;	 new val: 1.26785e+07 diff: 12264.3
+DEBUG 0:  Current likeli: -1.26785e+07 Old likeli: -1.26662e+07 diff: 12264.3
+DEBUG 0: rel. diff.: 0.000967334	 abs diff:12264.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 24
+
+DEBUG 1: x_MRF: 22886.9 25194.3
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.99823e+06
+DEBUG 0:  Current likeli: -1.26687e+07 Old likeli: -1.26785e+07 diff: -9781.44
+DEBUG 0: rel. diff.: 0.000772094	 abs diff:9781.44
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 25
+
+DEBUG 1: x_MRF: 22772.7 25021.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.00478e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26687e+07;	 new val: 1.26803e+07 diff: 11593.3
+DEBUG 0:  Current likeli: -1.26803e+07 Old likeli: -1.26687e+07 diff: 11593.3
+DEBUG 0: rel. diff.: 0.000914272	 abs diff:11593.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 26
+
+DEBUG 1: x_MRF: 22772.7   25022
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.01448e+06
+DEBUG 0:  Current likeli: -1.26712e+07 Old likeli: -1.26803e+07 diff: -9080.25
+DEBUG 0: rel. diff.: 0.000716603	 abs diff:9080.25
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 27
+
+DEBUG 1: x_MRF: 22772.7   25022
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.02079e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26712e+07;	 new val: 1.2682e+07 diff: 10779.9
+DEBUG 0:  Current likeli: -1.2682e+07 Old likeli: -1.26712e+07 diff: 10779.9
+DEBUG 0: rel. diff.: 0.000850018	 abs diff:10779.9
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 28
+
+DEBUG 1: x_MRF: 22772.7   25022
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.02123e+06
+DEBUG 0:  Current likeli: -1.26715e+07 Old likeli: -1.2682e+07 diff: -10541.7
+DEBUG 0: rel. diff.: 0.000831924	 abs diff:10541.7
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 29
+
+DEBUG 1: x_MRF: 22765.6 25024.3
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.02225e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26715e+07;	 new val: 1.26823e+07 diff: 10811.5
+DEBUG 0:  Current likeli: -1.26823e+07 Old likeli: -1.26715e+07 diff: 10811.5
+DEBUG 0: rel. diff.: 0.000852487	 abs diff:10811.5
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 30
+
+DEBUG 1: x_MRF: 22765.6 25024.3
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.03082e+06
+DEBUG 0:  Current likeli: -1.26741e+07 Old likeli: -1.26823e+07 diff: -8212.18
+DEBUG 0: rel. diff.: 0.000647951	 abs diff:8212.18
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 31
+
+DEBUG 1: x_MRF:   22745 25047.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.03775e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26741e+07;	 new val: 1.2684e+07 diff: 9911.69
+DEBUG 0:  Current likeli: -1.2684e+07 Old likeli: -1.26741e+07 diff: 9911.69
+DEBUG 0: rel. diff.: 0.000781433	 abs diff:9911.69
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 32
+
+DEBUG 1: x_MRF:   22745 25047.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.03938e+06
+DEBUG 0:  Current likeli: -1.26744e+07 Old likeli: -1.2684e+07 diff: -9616.66
+DEBUG 0: rel. diff.: 0.000758749	 abs diff:9616.66
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 33
+
+DEBUG 1: x_MRF: 22740.1 25043.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.04393e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26744e+07;	 new val: 1.26849e+07 diff: 10512.6
+DEBUG 0:  Current likeli: -1.26849e+07 Old likeli: -1.26744e+07 diff: 10512.6
+DEBUG 0: rel. diff.: 0.000828749	 abs diff:10512.6
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 34
+
+DEBUG 1: x_MRF: 22739.2 25052.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.04785e+06
+DEBUG 0:  Current likeli: -1.26759e+07 Old likeli: -1.26849e+07 diff: -9024.06
+DEBUG 0: rel. diff.: 0.000711909	 abs diff:9024.06
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 35
+
+DEBUG 1: x_MRF:   22740 25002.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.04774e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26759e+07;	 new val: 1.26851e+07 diff: 9253.94
+DEBUG 0:  Current likeli: -1.26851e+07 Old likeli: -1.26759e+07 diff: 9253.94
+DEBUG 0: rel. diff.: 0.000729512	 abs diff:9253.94
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 36
+
+DEBUG 1: x_MRF:   22741 25007.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.0507e+06
+DEBUG 0:  Current likeli: -1.26768e+07 Old likeli: -1.26851e+07 diff: -8280.04
+DEBUG 0: rel. diff.: 0.000653163	 abs diff:8280.04
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 37
+
+DEBUG 1: x_MRF:   22741 25007.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.0525e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26768e+07;	 new val: 1.26854e+07 diff: 8539.31
+DEBUG 0:  Current likeli: -1.26854e+07 Old likeli: -1.26768e+07 diff: 8539.31
+DEBUG 0: rel. diff.: 0.000673162	 abs diff:8539.31
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 38
+
+DEBUG 1: x_MRF: 22747.4 25040.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.05747e+06
+DEBUG 0:  Current likeli: -1.26778e+07 Old likeli: -1.26854e+07 diff: -7552.07
+DEBUG 0: rel. diff.: 0.000595692	 abs diff:7552.07
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 39
+
+DEBUG 1: x_MRF: 22747.4 25040.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06323e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26778e+07;	 new val: 1.26869e+07 diff: 9089.68
+DEBUG 0:  Current likeli: -1.26869e+07 Old likeli: -1.26778e+07 diff: 9089.68
+DEBUG 0: rel. diff.: 0.000716461	 abs diff:9089.68
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 40
+
+DEBUG 1: x_MRF: 22747.4 25040.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.05861e+06
+DEBUG 0:  Current likeli: -1.26776e+07 Old likeli: -1.26869e+07 diff: -9261.79
+DEBUG 0: rel. diff.: 0.000730561	 abs diff:9261.79
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 41
+
+DEBUG 1: x_MRF: 22735.7 25047.5
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.0584e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26776e+07;	 new val: 1.26868e+07 diff: 9181.55
+DEBUG 0:  Current likeli: -1.26868e+07 Old likeli: -1.26776e+07 diff: 9181.55
+DEBUG 0: rel. diff.: 0.000723707	 abs diff:9181.55
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 42
+
+DEBUG 1: x_MRF: 22723.2 25050.1
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06199e+06
+DEBUG 0:  Current likeli: -1.2678e+07 Old likeli: -1.26868e+07 diff: -8851.18
+DEBUG 0: rel. diff.: 0.000698154	 abs diff:8851.18
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 43
+
+DEBUG 1: x_MRF: 22737.9 25024.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06538e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.2678e+07;	 new val: 1.26872e+07 diff: 9268.49
+DEBUG 0:  Current likeli: -1.26872e+07 Old likeli: -1.2678e+07 diff: 9268.49
+DEBUG 0: rel. diff.: 0.000730536	 abs diff:9268.49
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 44
+
+DEBUG 1: x_MRF: 22720.5 25015.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06502e+06
+DEBUG 0:  Current likeli: -1.26783e+07 Old likeli: -1.26872e+07 diff: -8951.01
+DEBUG 0: rel. diff.: 0.000706011	 abs diff:8951.01
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 45
+
+DEBUG 1: x_MRF: 22720.5 25015.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06732e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26783e+07;	 new val: 1.26878e+07 diff: 9534.82
+DEBUG 0:  Current likeli: -1.26878e+07 Old likeli: -1.26783e+07 diff: 9534.82
+DEBUG 0: rel. diff.: 0.000751494	 abs diff:9534.82
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 46
+
+DEBUG 1: x_MRF: 22720.5 25015.9
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.07052e+06
+DEBUG 0:  Current likeli: -1.26788e+07 Old likeli: -1.26878e+07 diff: -9018.35
+DEBUG 0: rel. diff.: 0.000711293	 abs diff:9018.35
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 47
+
+DEBUG 1: x_MRF: 22692.4 25007.7
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.07029e+06
+DEBUG 1: Value not decreased in EM loop!! old val: 1.26788e+07;	 new val: 1.26879e+07 diff: 9069.32
+DEBUG 0:  Current likeli: -1.26879e+07 Old likeli: -1.26788e+07 diff: 9069.32
+DEBUG 0: rel. diff.: 0.000714802	 abs diff:9069.32
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 48
+
+DEBUG 1: x_MRF: 477.815 522.844
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):7.06788e+06
+DEBUG 0:  Current likeli: -1.26757e+07 Old likeli: -1.26879e+07 diff: -12189.3
+DEBUG 0: rel. diff.: 0.000961628	 abs diff:12189.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 49
+
+DEBUG 1: x_MRF: 10.1685 11.2736
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.98442e+06
+DEBUG 0:  Current likeli: -1.26375e+07 Old likeli: -1.26757e+07 diff: -38233.3
+DEBUG 0: rel. diff.: 0.00302539	 abs diff:38233.3
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 50
+
+DEBUG 1: x_MRF: 11.3343 12.6001
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):6.86013e+06
+DEBUG 0:  Current likeli: -1.26276e+07 Old likeli: -1.26375e+07 diff: -9809.01
+DEBUG 0: rel. diff.: 0.000776788	 abs diff:9809.01
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: Time taken for MRF part optim: 0 seconds
+
+DEBUG 0: Number of bad cases in Initial value determination:6273 and worse: 1 and bad init bounds:0 and 0
+DEBUG 1: Time taken for whole OSL-EM: 398 seconds
+
+W matrix Penalized, nan: 
+DEBUG 1: W - Penalized Likelihood
+Head of the matrix:
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+0.597891 0.345596 0.975431
+DEBUG 1: abs diff between W's: 3.71464e+06
+DEBUG 0: Avg perfs MPLE: 0.085898, 0.0967222, 0.134547, 0.136401
+Performances over images Penalized: 0.0218653 0.0790281 0.0909858 0.0850652  0.100902  0.114579  0.149415 0.0932254 0.0234497 0.0118343  0.107718  0.152708
+Performances over images Penalized: 0.0398067 0.0899425  0.102818 0.0964454  0.110149  0.123867  0.162242  0.101116 0.0370333 0.0245056  0.114504  0.158237
+Performances over images Penalized: 0.0512445  0.109981  0.125399  0.137238  0.148162  0.162103  0.278028  0.140381 0.0541029 0.0241166  0.160821  0.222983
+Performances over images Penalized: 0.0580412  0.111531  0.126841  0.138957  0.148918  0.162147  0.278645  0.141003 0.0570228 0.0315556   0.16079  0.221366
+
+
+
+Current time: Tue Dec 15 16:20:11 2020 CST

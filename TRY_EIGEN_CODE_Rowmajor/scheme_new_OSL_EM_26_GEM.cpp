@@ -14,7 +14,7 @@ g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_3D -I /usr/include/eigen3 -O3 -lgsl 
 
 g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-
+g++ scheme_new_OSL_EM_26_GEM.cpp -o test_26_3D -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
 
 ./test_26_3D ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
@@ -374,7 +374,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		x_MRF_old.noalias() = x_MRF;
 		
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-		crit_MRF.iterations = 50;
+		crit_MRF.iterations = 25;
 		solver_2.setStopCriteria(crit_MRF);
 		//Change 
 		
@@ -431,7 +431,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	// Subrata - Setting the parameters: new  -- (see simple_withoptions.cpp)
 	cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults(); 	// Criteria class
-	crit_voxel.iterations = 80;															// number of allowed iterations
+	crit_voxel.iterations = 25;															// number of allowed iterations
 	solver.setStopCriteria(crit_voxel);
 	// Change maxiter 
 	
@@ -679,7 +679,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << 
 					"\t abs diff:" << fabs(current_best_likeli - old_likeli));
 		}
-		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff){
+		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
 			std::cout << "Stopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ") abs diff:" 
 					<< fabs(current_best_likeli - old_likeli) << "\n";
@@ -969,9 +969,24 @@ int main(int argc, char * argv[]) {
 
 	
 	// Divide into train and test:
+//	std::vector<int> train_ind{0, 9, 11};
+//	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
 	
-	std::vector<int> train_ind{0, 9, 11};
-	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
+	int m_total = 12;
+	std::vector<int> whole_ind = {};
+	for(int i = 0; i < m_total; ++i)
+		whole_ind.push_back(i);
+	
+	std::vector<int> train_ind{0, 8, 9};
+	std::vector<int> test_ind{};
+	
+	test_ind = whole_ind;
+	/*
+	std::set_difference(whole_ind.begin(), whole_ind.end(), 
+						train_ind.begin(), train_ind.end(),
+                        std::inserter(test_ind, test_ind.begin()));
+	*/
+	
 	
 	
 	Matrix_eig_row train(r.rows(), train_ind.size());
@@ -1007,16 +1022,13 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Temp results: Performance on the Init W: 
 	
 	
 	// Least Sq:
 	// Change 
-	int do_least_sq = 1;	// 0 Subrata -- least sq have better initial likelihood-but stucks and gives nan in some value
+	int do_least_sq = 1;
 	Matrix_eig_row W_init = Init_val(train, TE_train, TR_train, our_dim_train, 
 	                             r_scale, TE_scale, TR_scale, W1_init, W2_init, do_least_sq, will_write);
-	Debug1("W initial done");
-	check_nan(W_init, "W matrix init, nan: \n");
 	Debug1("W_init after LS: ");
 	show_head(W_init);
 	std::cout << std::flush;
@@ -1030,6 +1042,16 @@ int main(int argc, char * argv[]) {
 	}
 	file_LS.close();
 	
+	
+	// Save the estimated values: 
+	Vector_eig v_new = Vector_eig::Zero(TE_test.size());
+	std::ofstream file_predicted;
+	file_predicted.open ("result/v_predicted_LS_26.txt");
+	for(int i = 0; i < W_init.rows(); ++i){
+		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
+		file_predicted << v_new.transpose() << "\n";
+	}
+	file_predicted.close();
 	
 	
 	
@@ -1053,31 +1075,31 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
 	
 	
 	// Test:
 	Matrix_eig_row W_LS = W_init;
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
-
+	
 
 	
 	
 	
 	// Likelihood Based optimization:
-	
 	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
-	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);						// beta_init 
+	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);
 	
-		
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	
+	
 	
 	// Non -penalized:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 0, 0.1, 1e-4, 1);
+	          50, 0, 0.1, 1e-5, 1);
 	//change
-	check_nan(W_init, "W matrix non-penalized, nan: \n");
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
@@ -1087,8 +1109,19 @@ int main(int argc, char * argv[]) {
 	}
 	file_Likeli.close();
 	
+	
+	// Save the estimated values: 
+	v_new = Vector_eig::Zero(TE_test.size());
+	file_predicted.open ("result/v_predicted_Likeli_26.txt");
+	for(int i = 0; i < W_init.rows(); ++i){
+		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
+		file_predicted << v_new.transpose() << "\n";
+	}
+	file_predicted.close();
+	
+	
 	Matrix_eig_row W_likeli = W_init;
-	W_init = W_LS;
+	W_init.noalias() = W_LS;
 	show_head(W_likeli);
 	
 	
@@ -1122,10 +1155,8 @@ int main(int argc, char * argv[]) {
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 1, 0.1, 1e-4, 1);
+	          50, 1, 0.1, 1e-5, 1);
 	//change
-	check_nan(W_init, "W matrix Penalized, nan: \n");
-	// Psi_inv is already updated - So new value would not give better
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
 	
@@ -1137,12 +1168,20 @@ int main(int argc, char * argv[]) {
 	}
 	file_final.close();
 	
+	// Save the estimated values: 
+	v_new = Vector_eig::Zero(TE_test.size());
+	file_predicted.open ("result/v_predicted_OSL_26.txt");
+	for(int i = 0; i < W_init.rows(); ++i){
+		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
+		file_predicted << v_new.transpose() << "\n";
+	}
+	file_predicted.close();
 	
 	
 	
 	
 	
-	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
+	// Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -1164,10 +1203,6 @@ int main(int argc, char * argv[]) {
 	
 	file_performance.close();
 	
-	
-	
-	
-	// Variance estimation: 
 	
 	
 	
