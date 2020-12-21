@@ -1,6 +1,3 @@
-
-
-
 /* _VAR_HEADER_ */
 #ifndef _VAR_HEADER_
 #define _VAR_HEADER_
