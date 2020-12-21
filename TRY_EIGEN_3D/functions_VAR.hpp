@@ -10,7 +10,7 @@
 
 #include "scheme_new_numerical.hpp"
 #include "Init_value_6_numerical.hpp"
-
+#include "functions_AECM.hpp"
 
 #include <ctime>
 #include <iomanip>
@@ -70,7 +70,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 		for(int i = 0; i < n; ++i){
 		
 			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-			if( i % 10 == 0){
+			if( i % 100 == 0){
 				std::cout << std::endl;
 				Debug1("Info i: "<< i << ", j: " << j);
 			}
@@ -147,7 +147,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 		if( b % 50 == 0){
 			Debug0("bootstrap sample " << b);
 		}
-		check_nan(W, "W matrix in boot, nan: \n");
+		// check_nan(W, "W matrix in boot, nan: \n");
 
 		
 		//Generate an image matrix:

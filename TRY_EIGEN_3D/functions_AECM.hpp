@@ -398,10 +398,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 
 	if(verbose)
 		std::cout << "\n\n\n";
-	if(penalized){
-		Debug0("Doing AECM Estimate!");
-	} else {
-		Debug0("Doing EM Estimate!");
+	if(verbose){
+		if(penalized){
+			Debug0("Doing AECM Estimate!");
+		} else {
+			Debug0("Doing EM Estimate!");
+		}
 	}
 	
 	
@@ -423,7 +425,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << black_list.sum());
+	if(verbose)
+		Debug0("Number of possible background voxels: " << black_list.sum());
 	
 	
 	
@@ -435,7 +438,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			k++;
 		}
 	}
-	Debug0("Number of possible checkerboard white ones: " << checkerboard_white.sum());
+	if(verbose)
+		Debug0("Number of possible checkerboard white ones: " << checkerboard_white.sum());
 	
 	
 	
@@ -534,7 +538,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// Calculated values: 
 			beta(0) = x_MRF(0); beta(1) = x_MRF(1); beta(2) = 1.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
-			Debug0("MRF optimization done!");
+			if(verbose){
+				Debug0("MRF optimization done!");
+			}
 			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 		}
