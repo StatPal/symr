@@ -199,7 +199,7 @@ int main(int argc, char * argv[]) {
 	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	// Penalised:
-	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
+	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
 	          500, 1, 0.1, 1e-7, 1);
 	//change

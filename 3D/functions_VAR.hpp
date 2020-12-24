@@ -104,7 +104,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 
 /*
 * Parametric Bootstrap
-* 'const' are removed as OSL_optim inside needs non-const cases
+* 'const' are removed as AECM_optim inside needs non-const cases
 * -- No, just create another set of small matrices. Otherwise in main, Psi and beta would be changed
 * wait, there are no terain - test case?
 */
@@ -151,7 +151,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 		// generated_r = Gen_r(W, TE_test, TR_test, sigma_test); // Sorry, this is a mistake
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
-		OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
+		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
 							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, 1, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		sum_mat += tmp_mat;

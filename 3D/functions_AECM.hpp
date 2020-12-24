@@ -384,7 +384,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 * So, compare W_init and W_old without updating W_old at each voxel.
 * Eventually update the W_old
 */
-void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
+void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig_row &r, 
                int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
