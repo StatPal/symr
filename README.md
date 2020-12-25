@@ -8,6 +8,7 @@ Revised version.
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
 The header files location must be with the proper PATH, or PATH should be added in time of compilation.
 The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
+It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processig.
 
 Locations:
 * The file to be executed for 3D ECM: ./3D/example_AECM.cpp (or ./3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
