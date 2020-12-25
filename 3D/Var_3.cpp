@@ -34,9 +34,9 @@ g++ Var_3.cpp -o test_var -I ../eigen-3.3.7 -O3
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
+#include "functions_LS_and_init_value.hpp"
 
 #include <fstream>
 #include <random>

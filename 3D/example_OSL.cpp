@@ -34,9 +34,9 @@ nohup ./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_OSL.out 
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
+#include "functions_LS_and_init_value.hpp"
 
 #include "functions_OSL.hpp"
 

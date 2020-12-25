@@ -5,8 +5,8 @@
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "functions_LS_and_init_value.hpp"
 #include "functions_AECM.hpp"
 
 #include <ctime>

@@ -30,9 +30,9 @@ nohup ./example_AECM ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > example_AECM.
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
+#include "functions_LS_and_init_value.hpp"
 
 #include "functions_AECM.hpp"
 

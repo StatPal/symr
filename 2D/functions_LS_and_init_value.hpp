@@ -31,8 +31,8 @@ int main(int argc, char * argv[]){
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
 
 
 
