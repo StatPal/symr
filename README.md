@@ -7,30 +7,30 @@ Revised version.
 
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
 The header files location must be with the proper PATH, or PATH should be added in time of compilation.
-The optimizer also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
+The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
 
 Locations:
-* The file to be executed for 3D ECM: ./TRY_EIGEN_3D/scheme_new_OSL_EM_29_GEM.cpp (or number 25 - single core)
+* The file to be executed for 3D ECM: ./3D/example_AECM.cpp (or ./3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
     
     To compile:
-        g++ scheme_new_OSL_EM_29_GEM.cpp -o test_29_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
     
     To run:
-        ./test_29_3D ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+        ./example_AECM ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-* The file to be executed for 2D ECM: ./TRY_EIGEN_2D/scheme_new_OSL_EM_29_GEM.cpp (or number 25 - single core)
+* The file to be executed for 2D ECM: ./2D/example_AECM.cpp (or ./2D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 - single core)
     
     To compile:
-        g++ scheme_new_OSL_EM_29_GEM.cpp -o test_29_2D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
     
     To run:
-        ./test_29_2D ../data/new_phantom.nii Dummy_sd.txt 0
+        ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
 
 
 * The file to be executed for OSL-EM: 
-	./TRY_EIGEN_3D/scheme_new_OSL_EM_26_GEM.cpp
-	and 
-	./TRY_EIGEN_2D/scheme_new_OSL_EM_26_GEM.cpp
+	./3D/scheme_new_OSL_EM_26_GEM.cpp
+	or 
+	./2D/scheme_new_OSL_EM_26_GEM.cpp
 
 * The data: ./data/ZHRTS1.nii (or ./data/small.nii)
 
@@ -38,7 +38,6 @@ Locations:
 	    ./data/new_phantom.nii (or ./data/small_phantom.nii)
   (see `*' for any 2D file)
 * The optimizer location: ./CppNumericalSolvers
-* The old optimiser location: ./optim_cpp_solver/
 
 
 
