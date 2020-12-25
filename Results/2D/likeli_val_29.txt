@@ -1,6 +1,0 @@
-DEBUG 0: Current log likeli: -414470, Old log likeli: -416416, diff.: -1945.67,  rel. diff.: 0.00469435
-DEBUG 0: Current log likeli: -414467, Old log likeli: -414470, diff.: -3.84532,  rel. diff.: 9.27775e-06
-
-DEBUG 0: Current log likeli: -707190, Old log likeli: -3.33328e+08, diff.: -3.32621e+08,  rel. diff.: 470.342
-DEBUG 0: Current log likeli: -707147, Old log likeli: -707190, diff.: -43.0905,  rel. diff.: 6.09357e-05
-DEBUG 0: Current log likeli: -707147, Old log likeli: -707147, diff.: -0.509213,  rel. diff.: 7.20095e-07
