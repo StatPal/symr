@@ -504,7 +504,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
-		auto time_2_likeli = std::chrono::high_resolution_clock::now();
 		
 		
 		
@@ -538,7 +537,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			if(verbose){
 				Debug0("MRF optimization done!");
 			}
-			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 		}
 		
@@ -594,27 +592,15 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 				if(checkerboard_white(i) == 1){
 					if(black_list(i) == 0){
-					
-						auto time_1_voxel = std::chrono::high_resolution_clock::now();
-						
 						
 						// Track the best:
 						f.current_best_val = 1.0e+15;
-						
-						
-						//f.beta.noalias() = beta;
-						//f.Psi_inv.noalias() = Psi_inv;			// I guess not needed now
-						
 						
 						
 						f.i = i;
 						if(penalized) {
 							f.update_neighbours_likeli(i);
 						}
-						auto time_3_voxel = std::chrono::high_resolution_clock::now();
-						auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
-						//if(penalized)
-						//	Debug1("Time taken for precompute: " << duration_13_voxel.count() << " microseconds\n");
 						x.noalias() = W_init.row(i);
 						
 									
@@ -638,14 +624,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						
 						//Solve:
 						solver.minimize(f, x);
-						
-						auto time_2_voxel = std::chrono::high_resolution_clock::now();
-						auto duration_32_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_2_voxel - time_3_voxel);
-						//if(penalized)
-						//	Debug1("Time taken for 1 pixel: " << duration_32_voxel.count() << " microseconds\n");
-						
-						
-						
 						Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 						fx = f(x);
 						Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
@@ -731,12 +709,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					
 						// Track the best:
 						f.current_best_val = 1.0e+15;
-						
-						
-						//f.beta.noalias() = beta;
-						//f.Psi_inv.noalias() = Psi_inv;
-						
-						
 						
 						f.i = i;
 						if(penalized) {
@@ -840,9 +812,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
-		auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
-		//Debug1("Time taken for 1 AECM loop with " << r.rows() << " rows: " << duration_23.count() << " microseconds");
 		if(verbose)
 			Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
@@ -873,7 +842,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here
 				Debug1("Value not decreased in EM loop!! old val: " << old_likeli << 
-						";\t new val: " << current_best_likeli << " diff: " << current_best_likeli - old_likeli);				
+						";\t new val: " << current_best_likeli << 
+						" diff: " << current_best_likeli - old_likeli);				
 			}
 			//bad_count_o++;
 		}
@@ -900,11 +870,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// Restore default values  ---- check other files also
 		W_old_reserve.noalias() = W_init;
 		
-		
-		auto time_4_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		if(verbose)
-			Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");

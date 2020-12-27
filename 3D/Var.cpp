@@ -16,9 +16,9 @@ And EM is directly translated from Dr. Maitra's code.
 
 
 * To compile:
-g++ Var_3.cpp -o test_var -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+g++ Var.cpp -o test_var -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
-g++ Var_3.cpp -o test_var -I ../eigen-3.3.7 -O3
+g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
 
 
 * To run:

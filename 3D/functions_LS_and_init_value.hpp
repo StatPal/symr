@@ -59,7 +59,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	// TMatrix_row r;
 	TVector r_row;
 
 
@@ -163,7 +162,6 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug1("ub inside LS: " << ub.transpose() << "\n");
 	
 	
-	// f.r.noalias() = r;	
 	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
@@ -204,23 +202,6 @@ void least_sq_solve(Matrix_eig_row &W,
 		
 		f.r_row = r.row(i);
 		
-		
-		//Check Bounds:
-		/*
-		for(int j = 0; j < 3; ++j){
-			if(x[0]<lb[0] || x[1]<lb[1] || x[2]<lb[2]){
-				Debug1("Crossed lower bound initially!");
-				bad_bound_1++;
-				exit(EXIT_FAILURE);
-			}
-			if(x[0]>ub[0] || x[1]>ub[1] || x[2]>ub[2]){
-				Debug1("Crossed upper Bound initially!");
-				Debug1("x " << x.transpose() << " ub: " << ub.transpose());
-				bad_bound_2++;
-				exit(EXIT_FAILURE);
-			}
-		}
-		*/
 		
 		
 	
@@ -321,8 +302,6 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	//Primary Initial value for test//
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
 	Matrix_eig_row W = Matrix_eig_row::Ones(n, 3);
-	//show_dim(W);
-	//show_dim(r);
 	
 	
 	// Ad hoc initial values:
@@ -330,10 +309,6 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	W.col(1) *= W_1_init;
 	W.col(2) *= W_2_init;
 	for(int i = 0; i < r.rows(); ++i){
-	//	if(W(i, 0)>450/r_scale){
-	//		W(i, 0) = 425/r_scale;
-	//	}
-		
 		if(W(i, 0)>450){
 			W(i, 0) = 425;
 		}
@@ -477,7 +452,6 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	return Performance_test;
 }
-// Do scaled version: -- Done
 
 
 

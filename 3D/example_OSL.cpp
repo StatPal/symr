@@ -116,8 +116,8 @@ int main(int argc, char * argv[]) {
 	}
 	Debug0("lb:" << lb.transpose());
 	Debug0("ub:" << ub.transpose());
-	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
-	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
+	double W1_init = exp(-1/(2.0*TR_scale));
+	double W2_init = exp(-1/(0.1*TE_scale));
 	
 
 
