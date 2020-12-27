@@ -28,9 +28,9 @@ Locations:
 
 
 * The file to be executed for OSL-EM: 
-	./3D/scheme_new_OSL_EM_26_GEM.cpp
+	./3D/example_OSL.cpp
 	or 
-	./2D/scheme_new_OSL_EM_26_GEM.cpp
+	./2D/example_OSL.cpp
 
 * The data: ./data/ZHRTS1.nii (or ./data/small.nii)
 
