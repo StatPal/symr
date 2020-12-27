@@ -498,9 +498,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
-		// auto time_2_likeli = std::chrono::high_resolution_clock::now();
-		
-		
 		
 		
 		if(penalized){
@@ -557,7 +554,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 			// lb, ub, n_x, etc would be shared
 			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
-			// 
 			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
 									sigma, TE_example, TR_example, beta, Psi_inv);
 			f.setLowerBound(lb);	f.setUpperBound(ub);
@@ -584,30 +580,21 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 				if(checkerboard_white(i) == 1){
 					if(black_list(i) == 0){
-					
-						// auto time_1_voxel = std::chrono::high_resolution_clock::now();
-						
 						
 						// Track the best:
 						f.current_best_val = 1.0e+15;
-						
 						
 						
 						f.i = i;
 						if(penalized) {
 							f.update_neighbours_likeli(i);
 						}
-						//auto time_3_voxel = std::chrono::high_resolution_clock::now();
-						//auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
 						x.noalias() = W_init.row(i);
-						
 									
 						//Print initial values:
 						Debug2 ("value of i: " << i << "\t x at first: " << x.transpose());
 						Debug2 ("f(x) at first:");
 						old_val = f.value(x);
-						
-						
 						
 						// Check derivative:
 						/*
@@ -632,13 +619,11 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						x = f.current_best_param;
 						fx = f.current_best_val;
 						
-						
-						
 						Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
 								"\t old val: " << old_val << "\t diff: " << fx - old_val);
 						
 						
-						if(fx >= old_val) {								//Compares best value inside
+						if(fx >= old_val) {
 							if(verbose2){
 								Debug1("Value have not decreased!!\nold x:" << W_init.row(i) << " & val: " << old_val << 
 										";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");
@@ -648,7 +633,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 								bad_count_o_2++;
 							}
 						} else {
-							if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
+							if(check_nan_vec(x) == 0){
 								W_init.row(i) = x;
 							} else {
 								Debug1("nan in EM estimate. \n" << "i: " << i << ", x: " << x.transpose() << 
@@ -689,6 +674,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			
+			
 			#pragma omp barrier
 			
 			// * Checkerboard black loop: * //
@@ -703,11 +689,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 				if(checkerboard_white(i) == 0){
 					if(black_list(i) == 0){
-					
-					
 						// Track the best:
 						f.current_best_val = 1.0e+15;
-						
 						
 						f.i = i;
 						if(penalized) {
@@ -720,7 +703,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						Debug2 ("value of i: " << i << "\t x at first: " << x.transpose());
 						Debug2 ("f(x) at first:");
 						old_val = f.value(x);
-						
 						
 						
 						// Check derivative
@@ -738,7 +720,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						solver.minimize(f, x);
 						Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 						double fx = f(x);
-						Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
+						Debug2("Solver status: " << solver.status());
 						Debug2("Final criteria values: " << "\n" << solver.criteria());
 						
 						
@@ -806,9 +788,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
-		// auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		// auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
-		//Debug1("Time taken for 1 AECM loop with " << r.rows() << " rows: " << duration_23.count() << " microseconds");
 		if(verbose)
 			Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
@@ -839,7 +818,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here
 				Debug1("Value not decreased in EM loop!! old val: " << old_likeli << 
-						";\t new val: " << current_best_likeli << " diff: " << current_best_likeli - old_likeli);				
+						";\t new val: " << current_best_likeli << 
+						" diff: " << current_best_likeli - old_likeli);				
 			}
 			//bad_count_o++;
 		}
@@ -862,15 +842,10 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
-		
 		// Restore default values  ---- check other files also
 		W_old_reserve.noalias() = W_init;
 		
 		
-		// auto time_4_likeli = std::chrono::high_resolution_clock::now();
-		// auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		// if(verbose)
-		//	Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");

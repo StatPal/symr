@@ -58,7 +58,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
-	// TMatrix_row r;
 	TVector r_row;
 	double fx;
 
@@ -87,9 +86,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
 		Bloch_vec(x, TE, TR, v_new);
-		if(i == 2){
-			DebugLS("x: " << x.transpose() << "; value: " << (r_row - v_new).squaredNorm()); 			
-		}
 		fx = (r_row - v_new).squaredNorm();
 		
 		// Track the best:
@@ -154,7 +150,6 @@ void least_sq_solve(Matrix_eig_row &W,
 	Vector_eig x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
-	
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
@@ -166,7 +161,6 @@ void least_sq_solve(Matrix_eig_row &W,
 	Debug1("ub inside LS: " << ub.transpose() << "\n");
 	
 	
-	// f.r.noalias() = r;	
 	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
@@ -198,29 +192,11 @@ void least_sq_solve(Matrix_eig_row &W,
 		}
 		
 		// Track the best:
-		// double current_best_val = 1.0e+15;
 		f.current_best_val = 1.0e+15;
 		
 		f.i = i;
 		x = W.row(i);
-		
 		f.r_row = r.row(i);
-		
-		//Check Bounds:
-		/*
-		for(int j = 0; j < 3; ++j){
-			if(x[0]<lb[0] || x[1]<lb[1] || x[2]<lb[2]){
-				Debug1("Crossed lower bound initially!");
-				bad_bound_1++;
-			}
-			if(x[0]>ub[0] || x[1]>ub[1] || x[2]>ub[2]){
-				Debug1("Crossed upper Bound initially!");
-				Debug1("x " << x.transpose() << " ub: " << ub.transpose());
-				bad_bound_2++;
-			}
-		}
-		*/
-		
 		
 	
 		//Print initial values:
@@ -237,13 +213,6 @@ void least_sq_solve(Matrix_eig_row &W,
 		x = f.current_best_param;
 		fx = f.current_best_val;
 		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
-		
-		if(i == 2){
-			DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << fx) ;
-			DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
-			DebugLS("Final criteria values: " << "\n" << solver.criteria());
-			// DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
-		}
 		
 		
 		
@@ -318,8 +287,6 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	//Primary Initial value for test//
 	int n = our_dim[1]*our_dim[2]*our_dim[3];
 	Matrix_eig_row W = Matrix_eig_row::Ones(n, 3);
-	//show_dim(W);
-	//show_dim(r);
 	
 	
 	// Ad hoc initial values:
@@ -327,9 +294,6 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	W.col(1) *= W_1_init;
 	W.col(2) *= W_2_init;
 	for(int i = 0; i < r.rows(); ++i){
-		//if(W(i, 0)>450.0/r_scale){
-		//	W(i, 0) = 425.0/r_scale;
-		//}
 		if(W(i, 0)>450.0){
 			W(i, 0) = 425.0;
 		}

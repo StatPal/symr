@@ -420,13 +420,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
-		auto time_2_likeli = std::chrono::high_resolution_clock::now();
-		
-		
 		
 		if(penalized){
 		
-			// f_2.W.noalias() = W_init;
 			f_2.update_tmp(W_init);
 			
 			
@@ -467,7 +463,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
 			Debug0("MRF optimization done!");
 			
-			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 		
 		}
@@ -503,12 +498,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			if(black_list(i) == 0){
-			
-			
-				auto time_1_voxel = std::chrono::high_resolution_clock::now();
 				
 				// Track the best:
-				// double current_best_val = 1.0e+15;
 				f.current_best_val = 1.0e+15;
 				
 				
@@ -526,7 +517,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				old_val = f.value(x);
 				
 				
-				// Check derivative - new: 			// see Rosenbrock files in the Optimization folder
+				// Check derivative
 				/*
 				bool probably_correct = f.checkGradient(x);
 				if(probably_correct){
@@ -549,7 +540,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				fx = f.current_best_val;
 				
 				
-				Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
+				Debug2("Solver status: " << solver.status());
 				Debug2("Final criteria values: " << "\n" << solver.criteria());
 				
 				
@@ -557,7 +548,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						"\t old val: " << old_val << "\t diff: " << fx - old_val);
 				
 				
-				if(fx >= old_val) {								//Compares best value inside
+				if(fx >= old_val) {
 					if(verbose2){
 						Debug1("Value have not decreased!!\nold x:" << W_init.row(i) << " & val: " << old_val << 
 								";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");					
@@ -567,7 +558,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						bad_count_o_2++;
 					}
 				} else {
-					if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
+					if(check_nan_vec(x) == 0){
 						W_init.row(i) = x;
 					} else {
 						Debug1("nan in EM estimate. \n" << "i: " << i << ", x: " << x.transpose() << 
@@ -579,13 +570,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				// Restore values:
 				f.W.row(i) = W_init.row(i);
 				f.W_old.row(i) = W_init.row(i);
-				
-				
-				
-				auto time_2_voxel = std::chrono::high_resolution_clock::now();
-				auto duration_12_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_2_voxel - time_1_voxel);
-				//if(penalized)
-				//	Debug1("Time taken for MRF part optim: " << duration_12_voxel.count() << " microseconds\n");
 			}
 			
 		}
@@ -601,9 +585,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
-		auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		//auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
-		//Debug1("Time taken for 1 OSL-EM loop with " << r.rows() << " rows: " << duration_23.count() << " microseconds");
 		if(verbose)
 			Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
@@ -620,8 +601,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
 			std::cout << "Stopped after " << iter << " iterations" << "\n";
-			// Debug1("W_old.row(73):" << W_old.row(73));
-			// Debug1("W_init.row(73):" << W_init.row(73));
 			break;
 		}
 		if(verbose)
@@ -663,15 +642,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		W_old.noalias() = W_init;
 		
 		
-		
-		
-		
-		
-		
-		auto time_4_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		if(verbose)
-			Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");

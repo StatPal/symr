@@ -336,8 +336,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
-	
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
 	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
