@@ -318,7 +318,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << black_list.sum());
+	Debug0("Number of possible background voxels: " << (unsigned long int)(black_list.sum()));
 	
 	
 	

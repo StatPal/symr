@@ -410,7 +410,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << black_list.sum());
+	Debug0("Number of possible background voxels: " << (unsigned long int)(black_list.sum()));
 	
 	
 	
@@ -422,7 +422,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			k++;
 		}
 	}
-	Debug0("Number of possible checkerboard white ones: " << checkerboard_white.sum());
+	Debug0("Number of possible checkerboard white ones: " << (unsigned long int)(checkerboard_white.sum()));
 	
 	
 	
