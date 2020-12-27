@@ -1,6 +1,3 @@
-
-
-
 /* _OSL_HEADER_ */
 #ifndef _OSL_HEADER_
 #define _OSL_HEADER_
@@ -32,7 +29,6 @@
 /*
 Penalised NEGATIVE log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
-No change for cholesky inside the function
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
@@ -54,8 +50,8 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 		}
 	}
 	
+	//MRF part://
 	if(penalized){
-		//MRF part://
 		likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	}
 	
@@ -73,16 +69,16 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 */
 // Class definition with template
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim : public cppoptlib::BoundedProblem<T> {
   public:
-	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
+	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
 	
 	const TMatrix_row &W1;
 	MRF_param &MRF_obj_optim;
-	TMatrix tmp1, tmp2, tmp3;
+	TMatrix tmp1, tmp2;
 	double fx;
 	
 
@@ -93,44 +89,38 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
 		tmp1(W1.transpose() * MRF_obj_optim_.H_1 * W1),
-		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1),
-		tmp3(W1.transpose() * MRF_obj_optim_.H_3 * W1) {}
+		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1) {}
 	
 
 	TMatrix Psi_est, Psi_inv_est;
-	TVector beta1 = (TVector(3) << 1, 1, 1).finished();
+	TVector beta1 = (TVector(3) << 1, 1, 0).finished();
 	
 	
 	void update_tmp(const TMatrix &W1){
 		tmp1 = W1.transpose() * MRF_obj_optim.H_1 * W1;
 		tmp2 = W1.transpose() * MRF_obj_optim.H_2 * W1;
-		tmp3 = W1.transpose() * MRF_obj_optim.H_3 * W1;
 	}
 	
 
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
-		beta1 << x(0), x(1), 1;								// BUG: was x(0), x(1), 0
-		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3 )/MRF_obj_optim.n;
+		beta1 << x(0), 1, 0;
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
 	}
 	
 	// Objective function: 
 	T value(const TVector &x) {
-		beta1(0) = x(0); beta1(1) = x(1);
-		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3)/(MRF_obj_optim.n);// I guess there would be an additional 3. Check!
-//		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
-//		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
-//								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+		beta1(0) = x(0);
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
 		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
 								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
 		return (fx);
 	}
-	
-};
 
+};
 
 
 
@@ -142,7 +132,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is inheriting fn from cppoptlib::BoundedProblem
+class Likeli_optim : public cppoptlib::BoundedProblem<T> {
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -150,7 +140,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	TMatrix_row r;
 	
-	TMatrix_row Theta;		// new
+	TMatrix_row Theta;
 
 
   public:
@@ -158,10 +148,10 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 	int i, n_x, n_y, n_z;
-	double beta_z = 1.0;										//Subrata - or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub, c_i;								// lb, ub are for extra check
+	double beta_z = 1.0;										//or get the value. 
+	TVector TE, TR, sigma, beta, lb, ub, c_i;					// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
-	TMatrix_row W, W_old;													// W here creating problem in optimization?
+	TMatrix_row W, W_old;
 	int penalized;
 	
 	
@@ -234,6 +224,8 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		return (-likeli_sum);
 	}
 
+
+
 // Comment this Gradient part if you don't want to feed the gradient:
 
 	void gradient(const TVector &x, TVector &grad) {
@@ -279,11 +271,28 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 /*
-* Main fn, 
-* Stopping criteria might seem confusing at first: 
-* W_old is used to compare between new and previous iteration parameters
-* and updated after each iteration
-* whereas f.W_old is updated at each voxel update.
+* The function for One Step Late estimation:  
+* Inputs: 
+	W_init:		W matrix, passed 
+	Psi_inv:	Psi_inv matrix, passed
+	beta: 		beta vector, passed
+	TE_example: TE values for the train data
+	TR_example: TR values for the train data
+	sigma: 		sigma values for the train data
+	r: 			Observed values for the pixels, n x m matrix
+	n_x, 
+	n_y, 
+	n_z: 		
+	r_scale: 	scale for the r matrix, or equivalently rho.
+	TE_scale: 	scale used for TE
+	TR_scale: 	scale used for TR
+	MRF_obj:	MRF_param object
+	maxiter: 	Maximum number of iteration of EM algorithm - default value 20
+	penalized: 	1(default) if penalization is used - 0 if not
+	abs_diff: 	absolute difference bound for the EM algorithm
+	rel_diff: 	relative difference bound for the EM algorithm for the log-likelihood
+	verbose: 	verbose, default 0
+	verbose2:	Secondary level of verbose - default 0
 */
 void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
@@ -292,7 +301,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                MRF_param &MRF_obj,
                int maxiter = 20, int penalized = 1, 
                double abs_diff = 0.1, double rel_diff = 1e-4, int verbose = 0, int verbose2 = 0) {
-// Change abs_diff, maxiter etc
+// Change
+
 
 	if(verbose)
 		std::cout << "\n\n\n";
@@ -309,7 +319,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int n = r.rows(), m = r.cols();
 	
 	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
-	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
 			if(r(i, j) > 50){
@@ -323,7 +332,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	///** First estimate other MRF parameters **///
+	///** First estimate other MRF parameters: Psi and beta **///
 	
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
@@ -331,18 +340,14 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		MRF_optim<double> f_2(W_init, MRF_obj);
 		cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
 		
-		
-		// *MRF based initial values:* //
-		Vector_eig x_MRF(2), lb_MRF(2), ub_MRF(2), x_MRF_old(2);
-		lb_MRF = Vector_eig::Constant(2, 1e-5); ub_MRF = Vector_eig::Constant(2, 1e+5);	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
-		x_MRF(0) = beta(0); x_MRF(1) = beta(1);
+		Vector_eig x_MRF(1), lb_MRF(1), ub_MRF(1), x_MRF_old(1);
+		lb_MRF(0) = 1e-5; ub_MRF(0) = 1e+5;	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
+		x_MRF(0) = beta(0);
 		x_MRF_old.noalias() = x_MRF;
 		
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-		crit_MRF.iterations = 25;
+		crit_MRF.iterations = 25;							// change
 		solver_2.setStopCriteria(crit_MRF);
-		//Change 
-		
 	//}
 
 
@@ -358,10 +363,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Likeli_optim<double> f;
 	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	
-	// * Voxel based initial values * //
-	
 	Eigen::VectorXd x(3), lb(3), ub(3);
-	
 	//Bounds of rho, W1, W2:
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));

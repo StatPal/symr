@@ -47,8 +47,8 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 		}
 	}
 	
+	//MRF part://
 	if(penalized){
-		//MRF part://
 		likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	}
 	
@@ -71,9 +71,9 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 */
 // Class definition with template
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim : public cppoptlib::BoundedProblem<T> {
   public:
-	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
+	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
@@ -107,7 +107,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
 		beta1 << x(0), 1, 0;
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);				//  not n * 3
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
 	}
@@ -115,7 +115,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 	// Objective function: 
 	T value(const TVector &x) {
 		beta1(0) = x(0);
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);	// I guess there would be an additional 3. Check!
+		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
 		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
 								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
@@ -139,7 +139,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is inheriting fn from cppoptlib::BoundedProblem
+class Likeli_optim : public cppoptlib::BoundedProblem<T> {
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -149,13 +149,13 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	MRF_param &MRF_obj_optim;
 	const TMatrix_row &r;
 	
-	TMatrix_row& Theta;		// new
+	TMatrix_row& Theta;
 	
 	TMatrix_row &W, &W_old;
 	
 	int i, n_x, n_y, n_z, penalized;
 	double beta_z = 1.0;
-	const TVector &lb, &ub, &sigma, &TE, &TR;										// lb, ub are for extra check
+	const TVector &lb, &ub, &sigma, &TE, &TR;						// lb, ub are for extra check
 	TVector& beta;
 	Matrix3d_eig& Psi_inv;
 	TVector v_i;
@@ -313,7 +313,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 // Comment this Gradient part if you don't want to feed the gradient:
 
-
 	void gradient(const TVector &x, TVector &grad) {
 	
 		W.row(i) = x;
@@ -362,17 +361,28 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 /*
-* Main fn, currently one iteration is done. Change that with while loop
-*
-* Stopping criteria might seem confusing at first: 
-* W_old is used to compare between new and previous iteration parameters
-* and updated after each iteration
-* whereas f.W_old is updated at each voxel update.
-*
-* This would not work for parallel in this situation
-* because W_old and f.W_old are passed by reference.
-* So, compare W_init and W_old without updating W_old at each voxel.
-* Eventually update the W_old
+* The function for One Step Late estimation:  
+* Inputs: 
+	W_init:		W matrix, passed 
+	Psi_inv:	Psi_inv matrix, passed
+	beta: 		beta vector, passed
+	TE_example: TE values for the train data
+	TR_example: TR values for the train data
+	sigma: 		sigma values for the train data
+	r: 			Observed values for the pixels, n x m matrix
+	n_x, 
+	n_y, 
+	n_z: 		
+	r_scale: 	scale for the r matrix, or equivalently rho.
+	TE_scale: 	scale used for TE
+	TR_scale: 	scale used for TR
+	MRF_obj:	MRF_param object
+	maxiter: 	Maximum number of iteration of EM algorithm - default value 20
+	penalized: 	1(default) if penalization is used - 0 if not
+	abs_diff: 	absolute difference bound for the EM algorithm
+	rel_diff: 	relative difference bound for the EM algorithm for the log-likelihood
+	verbose: 	verbose, default 0
+	verbose2:	Secondary level of verbose - default 0
 */
 void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
@@ -447,10 +457,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		x_MRF_old.noalias() = x_MRF;
 
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-		crit_MRF.iterations = 50;
-		solver_2.setStopCriteria(crit_MRF);
-		//Change 
-		
+		crit_MRF.iterations = 25;							// change
+		solver_2.setStopCriteria(crit_MRF);		
 	//}
 
 
@@ -490,7 +498,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
-		auto time_2_likeli = std::chrono::high_resolution_clock::now();
+		// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 		
 		
 		
@@ -522,7 +530,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			beta(0) = x_MRF(0); beta(1) = 1.0; beta(2) = 0.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
 			Debug0("MRF optimization done!");
-			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 		}
 		
@@ -532,7 +539,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// f.E_step_update();			// E_step: would give initial nonzero Theta
 		
 		double tmp2 = 0.0;
-		// int m = TE.size(), n = W.rows();
 		Vector_eig v_old_i = Vector_eig::Zero(m);
 		for(int i = 0; i < n; ++i){
 			Bloch_vec(W_old.row(i), TE_example, TR_example, v_old_i);
@@ -579,15 +585,11 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				if(checkerboard_white(i) == 1){
 					if(black_list(i) == 0){
 					
-						auto time_1_voxel = std::chrono::high_resolution_clock::now();
+						// auto time_1_voxel = std::chrono::high_resolution_clock::now();
 						
 						
 						// Track the best:
 						f.current_best_val = 1.0e+15;
-						
-						
-						//f.beta.noalias() = beta;
-						//f.Psi_inv.noalias() = Psi_inv;			// I guess not needed now
 						
 						
 						
@@ -595,10 +597,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						if(penalized) {
 							f.update_neighbours_likeli(i);
 						}
-						auto time_3_voxel = std::chrono::high_resolution_clock::now();
-						auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
-						//if(penalized)
-						//	Debug1("Time taken for precompute: " << duration_13_voxel.count() << " microseconds\n");
+						//auto time_3_voxel = std::chrono::high_resolution_clock::now();
+						//auto duration_13_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_3_voxel - time_1_voxel);
 						x.noalias() = W_init.row(i);
 						
 									
@@ -609,7 +609,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						
 						
 						
-						// Check derivative - new: 			// see Rosenbrock files
+						// Check derivative:
 						/*
 						bool probably_correct = f.checkGradient(x);
 						if(probably_correct){
@@ -622,17 +622,9 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						
 						//Solve:
 						solver.minimize(f, x);
-						
-						auto time_2_voxel = std::chrono::high_resolution_clock::now();
-						auto duration_32_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_2_voxel - time_3_voxel);
-						//if(penalized)
-						//	Debug1("Time taken for 1 pixel: " << duration_32_voxel.count() << " microseconds\n");
-						
-						
-						
 						Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 						fx = f(x);
-						Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
+						Debug2("Solver status: " << solver.status());
 						Debug2("Final criteria values: " << "\n" << solver.criteria());
 						
 						
@@ -717,11 +709,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						f.current_best_val = 1.0e+15;
 						
 						
-						//f.beta.noalias() = beta;
-						//f.Psi_inv.noalias() = Psi_inv;
-						
-						
-						
 						f.i = i;
 						if(penalized) {
 							f.update_neighbours_likeli(i);
@@ -736,7 +723,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						
 						
 						
-						// Check derivative - new: 			// see Rosenbrock files
+						// Check derivative
 						/*
 						bool probably_correct = f.checkGradient(x);
 						if(probably_correct){
@@ -806,9 +793,6 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			std::cout << std::flush;
 			// * Checkerboard black ends * //
 			
-			
-			
-			
 		}
 		
 		
@@ -822,8 +806,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
-		auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
+		// auto time_3_likeli = std::chrono::high_resolution_clock::now();
+		// auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
 		//Debug1("Time taken for 1 AECM loop with " << r.rows() << " rows: " << duration_23.count() << " microseconds");
 		if(verbose)
 			Debug1("Voxel Loop ends!!");
@@ -883,15 +867,16 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		W_old_reserve.noalias() = W_init;
 		
 		
-		auto time_4_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		if(verbose)
-			Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
+		// auto time_4_likeli = std::chrono::high_resolution_clock::now();
+		// auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
+		// if(verbose)
+		//	Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");
 	}
 	// ** AECM loop ends ** //
+	
 	
 	
 	
