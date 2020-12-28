@@ -1,73 +1,28 @@
-/*
-
-
-Different functions to be used in main files.
-
-Main parts:
-Debugging level definitions 
-1) Group of Bessel functions
-2) Small Misc fn (det, head, check bounds, nan, dim etc)
-3) MRF class,
-   Defnition of Lambda and related matrices and functions(+Kron), 
-   Different Reparametrizations (+Cholesky) 
-   Bloch transform
-4) Generate a sample matrix when mu and sigma are given
-5) Hessian matrix and vector related to Delta method
-
-
-
-Changes:
-
-float -> double
-Xf -> Xd 
-3f -> 3d
-
-
-Precompile header using
-
-g++ scheme_new.hpp -I /usr/include/eigen3 -O3
-
-- Don't do it now. taking huge gch file. 
-
-
-
-
-
-
-To Do:
-Increase max iteration in variance estimate
-
-
-
-** Numerical fix:
-Instead of using besselI, use scaled version from gsl.
-Also, in some places, handwritten bessel function was still used which is ineffeicient. 
-Those are changed. 
-
-mean_rice function uses that scaled version. 
-
-
-
-
-BUG: If TE is not same as 1:k format,
-r[i,] and v_new would not match
-i.e., proper index if r is not taken.
--- Sorry - NO BUG. r is not passed. train is passed. Hence completely Okay!
-
-BUG: Lambda * Psi 
-was negative/positive. Hessian had this BUG.
-
-
-BUG: In some later version, there is an extra sigma^2 inside h().
-
-*/
-
-
-
-//#include <RcppEigen.h>
 
 #ifndef MAIN_HEADER
 #define MAIN_HEADER
+
+
+#include <RcppEigen.h>
+
+// [[Rcpp::plugins(cpp17)]]
+// [[Rcpp::depends(RcppEigen)]]
+
+
+
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+//#include <Eigen/Dense>
+//#include <Eigen/Core>
+#include <ostream>
+
+
+
+
+
 
 #include <iostream>
 #include <iomanip>
@@ -442,12 +397,6 @@ double logBesselI0(double x) {
 		return log(1.0 + v2);
 	}
 }
-
-
-
-
-
-
 
 
 
@@ -929,10 +878,6 @@ int check_nan_vec(const Vector_eig &A){
 
 
 
-
-
-
-
 /********************************************************
 ******** New Functiones needed for Likelihood ***********
 ********************************************************/
@@ -1079,6 +1024,11 @@ int not_unique(const Vector_eig &x){
 	}
 	return tmp;
 }
+
+
+
+
+
 
 
 
@@ -1626,14 +1576,6 @@ class MRF_param{
 
 
 
-
-
-
-
-
-
-
-
 /*
 * \nu_{ij} as a mx1 vector from one row of W (and TE, TR)
 * \nu_{ij} = W_i0 * (1 - W_i1 ^ TR_j ) * W_i2 ^TE_j
@@ -1670,6 +1612,7 @@ void Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &
 * Input: W and TE, TR values
 * Output: the whole \nu matrix
 */
+
 Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR){
 	int nCol = TE.size();	//m
 	int nRow = W.rows();	//n
@@ -1690,8 +1633,9 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 			}
 		}
 	}
-	return(tmp);
+	return tmp;
 }
+
 
 
 /*
@@ -1881,8 +1825,6 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 
 
 
-
-
 /*******************************************************
 ****************** Generation Process ******************
 ********************************************************/
@@ -1892,7 +1834,6 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 * Input: \nu matrix and sigma
 * Output: Generate a sample r matrix
 */
-
 Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_eig &sigma){
 	int nRow = our_v_mat.rows();	 //n
 	int nCol = our_v_mat.cols();	 //m
@@ -1913,17 +1854,14 @@ Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_ei
 }
 
 
+
+
 /*
 * Same function as before with different parametrization
 */
-
 Matrix_eig_row Gen_r(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma){
 	return(Gen_r_from_v_mat(v_mat(W, TE, TR), sigma));
 }
-
-
-
-
 
 
 
@@ -2101,409 +2039,6 @@ Vector_eig read_sd(char* const sd_file, int our_dim_4){
 void show_dim_sp(SpMat A){
 	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
 }
-
-
-
-
-
-
-
-
-/***************************************************
-**************** Information Matrix ****************
-****************************************************/
-
-
-/*
-* Derivative of I_1/I_0
-*/
-double h(double x){
-	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
-	return(0.5*tmp);
-}
-
-
-
-
-
-
-
-
-// Compressed Column (or Row) Storage schemes (CCS or CRS)
-// https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
-// https://eigen.tuxfamily.org/dox/classEigen_1_1SparseMatrix.html
-
-void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_triplet
-				// , int if_nnz = 1
-				){
-	
-	
-	// _Scalar is double here
-	// _StorageIndex default is int
-	// change if necessary.
-	
-	
-	std::ofstream file_connection;
-	file_connection.open(file_name);
-	// Use std::setprecision(8) if necessary
-
-	sm.makeCompressed();
-	
-	
-	
-	if(if_triplet){
-		for (int k = 0; k < sm.outerSize(); ++k) {
-			for (SpMat::InnerIterator it(sm,k); it; ++it) {
-				file_connection << it.row() << ", "; // row index
-				file_connection << it.col() << ", "; // col index
-				file_connection << it.value() << std::endl;
-			}
-		}
-	} else {
-		std::cout << "mat.innerSize: " << sm.innerSize() << "\n";
-		std::cout << "mat.outerSize: " << sm.outerSize() << "\n";
-		std::cout << "mat.nonZeros: " << sm.nonZeros() << "\n";
- 	
-	
-		double* Values = sm.valuePtr();		  	// Pointer to the values
-		int* InnerIndices = sm.innerIndexPtr();	// Pointer to the indices.
-		int* OuterStarts = sm.outerIndexPtr();		// Pointer to the beginning of each inner vector
-		// int* InnerNNZs = sm.innerNonZeroPtr();	// Not needed for compressed case
-		
-		
-		
-		for(int i = 0; i < sm.nonZeros(); ++i){
-			file_connection << *(Values+i) << " ";
-		}
-		file_connection << std::endl;
-		for(int i = 0; i < sm.nonZeros(); ++i){
-			file_connection << *(InnerIndices+i) << " ";
-		}
-		file_connection << std::endl;
-		for(int i = 0; i <= sm.outerSize(); ++i){
-			file_connection << *(OuterStarts+i) << " ";
-		}
-		/*
-		if(if_nnz){
-			std::cout << std::endl;
-			for(int i = 0; i < sm.innerSize(); ++i){
-				std::cout << (*(InnerNNZs+i)) << " ";
-			}
-		}
-		*/
-	}
-	
-	
-	
-	file_connection << "\n";
-	file_connection.close();
-}
-
-
-
-
-
-
-
-
-
-/**
-* W is a nx3 matrix.
-* Hessian matrix(w.r.t. W) would be 3n x 3n matrix - mostly 0's
-* d^2 l* / dW_{i'k'} dW_{ik}
-* {i,k} are arranged in a fashion so that k remains like a subdivision under division of i
-* i.e., 
-* l-th column/row represents: 
-	k = l%3; 
-	i = (int) l/3;
-* and 
-	l = 3 * i + k;
-* 
-* Number of non-zero elements per column: <= 7*3
-*/
-
-/*
-SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                  const Vector_eig &TE, const Vector_eig &TR, 
-                  const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1, int verbose = 1){
-
-	
-	auto time_1_hess = std::chrono::high_resolution_clock::now();
-	Debug1("Hessian calculation started");
-	Matrix_eig_row v = v_mat(W, TE, TR);
-	int n = n_x * n_y * n_z;
-	int m = v.cols();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
-	SpMat Gamma_inv;
-	if(with_MRF){
-		Gamma_inv = MRF_obj.Lambda(beta);
-	}
-	SpMat W_hess(3*n, 3*n);
-	if(with_MRF){
-		W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
-		// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
-	} else {
-		W_hess.reserve( VectorXi::Constant(3*n, 3) );
-	}
-	Debug1("Hessian matrix allocated");
-	
-	
-	// First, the Kroneker prod term:
-	if(with_MRF){
-		SpMat Psi_inv_sp = Psi_inv.sparseView();
-		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
-		//Debug1(" kron W_hess: \n");
-		//show_head(Matrix_eig(W_hess));
-		// show_head_sp(W_hess);
-		Debug0("MRF part done of Hessian!");
-	}
-	
-	
-	// Diagonal parts //
-	int i = 0, k = 0, k1 = 0, j = 0;
-	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
-	
-	
-	for(i = 0; i < n; ++i) {
-	
-		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-		if(i % 10000 == 0){
-			std::cout << "\n";
-			Debug1("Hess matrix i: "<< i << ", j: " << j);
-		}
-		
-		
-		//temp_vec = W.row(i);
-		for(k = 0; k < 3; ++k) {
-			//for(k1 = 0; k1 < 3; ++k1) {
-			for(k1 = k; k1 < 3; ++k1){
-				
-				temp = 0.;
-				for(j = 0; j < m ; ++j) {
-					
-					tmp2 = r(i,j)/SQ(sigma(j));
-					//if(i == 0){
-						//Debug0(tmp2);
-					//}
-					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
-					//if(i == 0){
-						//Debug0(tmp3);
-					//}
-					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
-					//if(i == 0){
-						//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
-						//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//}
-					
-					
-					//tmp2 *= v(i,j);
-					//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-					// This is also valid
-					
-					
-					
-					// BUG  - Subrata
-					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
-					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
-					// This is also valid
-					
-					//if(i == 0){
-					//	Debug0(tmp2);
-					//	Debug0(v(i,j));
-					//	Debug0(SQ(sigma(j)));
-					//	Debug0(tmp2*v(i, j));
-					//	Debug0(h(tmp2*v(i, j)));
-					//	Debug0(tmp4);
-					//}
-					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
-					//if(i == 0){
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0("Added:");
-					//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-					//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
-					//	Debug0("\n")
-					//}
-					//if(i == 0){
-					//	Debug0(temp);
-					//	Debug0("\n\n");
-					//}
-					
-					if(k == k1 && temp > 0.1){
-						Debug0("i: " << i << ", j: " << j << ", k: " << k);
-						Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
-						Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
-						Debug0("Added: : 1st part: " << 
-								tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) << 
-								", 2nd part: " << 
-								tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1) <<
-								"final: " << 
-								 (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) 
-								);
-						if(temp > 100){
-							Debug0("Very high!!");
-						}
-					}
-				}
-				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
-				
-				if(with_MRF){
-					if(k == k1){
-						W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
-						// BUG? check negativity and positivity
-						// minus added for Gamma * Psi						
-					} else {
-						W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
-						W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
-					}
-				} else {
-					if(k == k1){
-						W_hess.insert(3 * i + k, 3 * i + k) = temp;
-					} else {
-						W_hess.insert(3 * i + k, 3 * i + k1) = temp;
-						W_hess.insert(3 * i + k1, 3 * i + k) = temp;
-					}
-				}
-			}
-		}
-	}
-	
-	
-	
-	W_hess.makeCompressed();
-	//Debug1("W_hess: \n");
-	//show_head(Matrix_eig(-W_hess));
-	// show_head_sp(-W_hess);
-	
-	auto time_2_hess = std::chrono::high_resolution_clock::now();
-	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
-	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
-	Debug0("Hessian calculated with MRF");
-	
-	//show_head(W_hess);
-	
-	// return W_hess;	//3nx3n
-	return (-W_hess);	//3nx3n
-}
-// Check sign please
-
-*/
-
-
-
-
-// https://stackoverflow.com/questions/47694725/using-inneriterator
-/**
-* Calculates the \nu_ij for \nu_ij' \Sigma_ij \nu_ij (i.e., w.r.t. \nu_ij)
-* where Sigma is an estimation of variance of (W_ik)_{i,k} 
-* 
-* i.e., it calculates d\nu_ij/dW_ik
-* where j is fixed when we consider just one image and i corresponds to the i-th voxel
-* 
-* So, it would give a 3n x 1 vector: i.e., d\nu_ij/dW_{i1,k} (confusing notation)
-* where the value is 0 when i != i1
-* 
-* So, we would get a sparse vector(/matrix) with 3 non-zero element of total size 3n x 1
-* 
-* 0:3 + 3*i - th elements would be non-zero and they are :
-* d\nu_ij/dW_{i,0}, d\nu_ij/dW_{i,1}, d\nu_ij/dW_{i,2}
-* 
-* 
-* grad is changed.
-* 
-*/
-
-/*
-void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-             const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-             int n_x, int n_y, int n_z, int i, int j, SpVec &grad){
-
-
-	//SpMat grad(3*n_x*n_y*n_z, 1);
-	//grad.reserve(VectorXi::Constant(1, 3));
-	
-	//for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
-	//	grad.insert(i1, 1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-	//}
-
-	// SpVec grad(3*n_x*n_y*n_z);
-	// Allocating this large vector might be cumbersome
-	grad.setZero();
-	
-	
-	for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
-		// grad(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-		grad.insert(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-	}
-	// return grad;
-}
-
-
-*/
-
-
-
-
-	// Export the result to a file:
-	//	saveAsBitmap(x, n, argv[1]);
-
-
-
-
-
-int choose(int n, int r){
-	int tmp = n;
-	for(int i = 1; i < r; ++i){
-		tmp *= (n-i);
-		tmp /= (i+1);
-	}
-	return tmp;
-}
-
-
-// https://stackoverflow.com/a/9430993
-Matrix_eig combi(int n, int r){
-
-	std::vector<bool> v(n);
-	std::fill(v.begin(), v.begin() + r, true);
-	int m = choose(n, r);
-	Matrix_eig tmp = Matrix_eig::Zero(m, r);
-	
-	int k1 = 0, k2 = 0;
-	
-	do {
-		k2 = 0;
-		for (int i = 0; i < n; ++i) {
-			if (v[i]) {
-				std::cout << (i + 1) << " ";
-				tmp(k1, k2) = i; // + 1;
-				k2++;
-			}
-		}
-		k1++;
-	} while (std::prev_permutation(v.begin(), v.end()));
-	
-	return tmp;
-}
-
-
-
-
-
-
 
 
 
