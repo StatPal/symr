@@ -412,7 +412,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 							sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 	
 	
-	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
@@ -427,7 +427,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	Eigen::Matrix<char, Dynamic, 1> checkerboard_white = Eigen::Matrix<char, Dynamic, 1>::Zero(n);
+	Eigen::Matrix<char, Eigen::Dynamic, 1> checkerboard_white = Eigen::Matrix<char, Eigen::Dynamic, 1>::Zero(n);
 	int k = 0;
 	for(int i = 0; i < MRF_obj.n_y_; ++i){
 		for(int j = 0; j < MRF_obj.n_x_; ++j){					// Check the order

@@ -96,11 +96,13 @@ extern "C" {
 // [[Rcpp::depends(RcppEigen)]]
 
 //using namespace Rcpp;
-using namespace Eigen;
+
+
+//using namespace Eigen;
 
 
 typedef Eigen::MatrixXd Matrix_eig;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, RowMajor> Matrix_eig_row;	// For r, W etc	// Inside optimizer, the THessian would be changed
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrix_eig_row;
 typedef Eigen::VectorXd Vector_eig;
 typedef Eigen::VectorXd::Scalar Scalar_eig;
 typedef Eigen::ArrayXd Array_eig;
@@ -224,6 +226,7 @@ const Matrix_eig G((Matrix_eig(6,9) <<
 * Modified Bessel Function of First Kind - Hand-written -  would be slow
 * Inputs: x, alpha
 */
+/*
 static double besseli(double x, int alpha){
 
 	double y;
@@ -255,7 +258,7 @@ static double besseli(double x, int alpha){
 	}
 	return sum;
 }
-
+*/
 
 
 
@@ -525,7 +528,7 @@ void show_head(const Matrix_eig_row &W, int n = 10){
 /*
 * Similar to head function in R for a vector - helpful for debugging
 */
-void show_head_vec(const Eigen::VectorXd &W, int n = 10, int endLine = 0){
+void show_head_vec(const Vector_eig &W, int n = 10, int endLine = 0){
 	std::cout << "Head of the vector:\t" ;
 	for(int i = 0; i < n; ++i){
 		std::cout << W(i) << ", ";
@@ -567,7 +570,7 @@ double mean_rice(double nu, double sigma){
 */
 //[[Rcpp::export]]
 Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
-	return(Map<MatrixXd> (v1.data(), nrow_in, ncol_in));
+	return(Eigen::Map<Matrix_eig> (v1.data(), nrow_in, ncol_in));
 	//https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
 	//https://stackoverflow.com/questions/52261389/how-to-convert-an-stdvector-to-a-matrix-in-eigen
 	//https://stackoverflow.com/questions/32452739/vector-to-matrix/32475129
@@ -581,9 +584,9 @@ Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
 */
 Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 	if(!is_transpose){
-		return(Map<VectorXd> (v1.data(), v1.rows()*v1.cols()));
+		return(Eigen::Map<Vector_eig> (v1.data(), v1.rows()*v1.cols()));
 	} else {
-		return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
+		return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
 	}
 }
 // Can't be done using Map I guess for rowmajor - ignore transpose now.
@@ -591,9 +594,9 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 /*
 Vector_eig to_vector(Matrix_eig_row v1, int is_transpose=0){
 	//if(!is_transpose){
-	//	return(Map<VectorXd> (v1.data(), v1.rows()*v1.cols()));
+	//	return(Eigen::Map<Vector_eig> (v1.data(), v1.rows()*v1.cols()));
 	//} else {
-	//	return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
+	//	return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
 	//}
 	
 	// cout << "In memory (row-major):" << endl;
@@ -607,9 +610,9 @@ Vector_eig to_vector(Matrix_eig_row v1, int is_transpose=0){
 */
 Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
 	//if(!is_transpose){
-	//	return(Map<VectorXd> (v1.data(), v1.rows()*v1.cols()));
+	//	return(Eigen::Map<Vector_eig> (v1.data(), v1.rows()*v1.cols()));
 	//} else {
-	//	return(Map<VectorXd> (v1.transpose().data(), v1.rows()*v1.cols()));
+	//	return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
 	//}
 	
 	// int n = v1.rows()*v1.cols();
@@ -638,7 +641,7 @@ Crude Determinant of a sparse matrix - not needed I guess
 */
 // [[Rcpp::export]]
 double sp_det_1(const SpMat &A){
-	return MatrixXd(A).determinant();
+	return Matrix_eig(A).determinant();
 	//https://stackoverflow.com/questions/15484622/how-to-convert-sparse-matrix-to-dense-matrix-in-eigen/15592295
 	//https://stackoverflow.com/questions/13033694/eigen-convert-dense-matrix-to-sparse-one
 }
@@ -673,8 +676,8 @@ double abs_sum(const Vector_eig &x){
 */
 // [[Rcpp::export]]
 double sp_log_det_2(const SpMat &B){					// Log determinant
-	MatrixXd A = MatrixXd(B);
-	SelfAdjointEigenSolver<MatrixXd> es(A);				// Marked was in eigen 2
+	Matrix_eig A = Matrix_eig(B);
+	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(A);				// Marked was in eigen 2
 	return log_vec(es.eigenvalues()).sum();
 }
 
@@ -684,7 +687,7 @@ double sp_log_det_2(const SpMat &B){					// Log determinant
 * Not needed now
 */
 double sp_log_det_7(SpMat A){			// Log determinant - LU
-	Eigen::SparseLU<Eigen::SparseMatrix<double>, COLAMDOrdering<int>> solver;
+	Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
 	Debug2("Solver initiated!");
 	A.makeCompressed();
 	Debug2("A compressed!");
@@ -706,7 +709,7 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 */
 // [[Rcpp::export]]
 double log_det_2(const Matrix_eig &B){
-	SelfAdjointEigenSolver<MatrixXd> es(B);
+	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(B);
 	return log_vec(es.eigenvalues()).sum();
 }
 
@@ -716,7 +719,7 @@ double log_det_2(const Matrix_eig &B){
 Log determinant for fixed size(3) matrix
 */
 double log_det_3(const Matrix3d_eig &B){
-	SelfAdjointEigenSolver<Matrix3d> es(B);
+	Eigen::SelfAdjointEigenSolver<Matrix3d_eig> es(B);
 	return log_vec(es.eigenvalues()).sum();
 }
 
@@ -1636,10 +1639,10 @@ class MRF_param{
 * \nu_{ij} = W_i0 * (1 - W_i1 ^ TR_j ) * W_i2 ^TE_j
 */
 /*
-Eigen::VectorXd Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR){
+Vector_eig Bloch_vec(const Vector_eig &W_row, const Vector_eig &TE, const Vector_eig &TR){
 
 	int m = TE.size();
-	Eigen::VectorXd tmp(m);
+	Vector_eig tmp(m);
 	for(int j = 0; j < m; ++j) {
 		tmp(j) = W_row(0) * 
 					(1 - std::exp(TR(j)*std::log(W_row(1)))) *
@@ -2054,7 +2057,7 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 
 
 
-Eigen::VectorXd read_sd(char* const sd_file, int our_dim_4){
+Vector_eig read_sd(char* const sd_file, int our_dim_4){
 
 	// Read sd:
 	// double output[our_dim_4];		// warning: ISO C++ forbids variable length array ‘output’ [-Wvla]
@@ -2064,7 +2067,7 @@ Eigen::VectorXd read_sd(char* const sd_file, int our_dim_4){
 	
 	
 	std::fstream myfile(sd_file, std::ios_base::in);
-	Eigen::VectorXd sigma = Eigen::VectorXd::Zero(our_dim_4);
+	Vector_eig sigma = Vector_eig::Zero(our_dim_4);
 
 	float a;
 	int  i = 0;
@@ -2220,6 +2223,8 @@ void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_t
 * 
 * Number of non-zero elements per column: <= 7*3
 */
+
+/*
 SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
                   const Vector_eig &sigma, const Matrix_eig_row &r, 
@@ -2251,7 +2256,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
 		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
 		//Debug1(" kron W_hess: \n");
-		//show_head(MatrixXd(W_hess));
+		//show_head(Matrix_eig(W_hess));
 		// show_head_sp(W_hess);
 		Debug0("MRF part done of Hessian!");
 	}
@@ -2382,7 +2387,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	W_hess.makeCompressed();
 	//Debug1("W_hess: \n");
-	//show_head(MatrixXd(-W_hess));
+	//show_head(Matrix_eig(-W_hess));
 	// show_head_sp(-W_hess);
 	
 	auto time_2_hess = std::chrono::high_resolution_clock::now();
@@ -2397,6 +2402,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 }
 // Check sign please
 
+*/
 
 
 
@@ -2422,6 +2428,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 * 
 */
 
+/*
 void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
              const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
              int n_x, int n_y, int n_z, int i, int j, SpVec &grad){
@@ -2447,6 +2454,7 @@ void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_e
 }
 
 
+*/
 
 
 

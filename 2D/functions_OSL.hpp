@@ -195,7 +195,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 		W.row(i) = x.transpose();
 		Bloch_vec(W.row(i), TE, TR, v_i);
 		int m = TE.size();
-		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		double likeli_sum = 0.0;
 		
 		//Rice part://
 		for(int j = 0; j < m; ++j) {
@@ -314,11 +314,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 
 	
-	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx;
+	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx = 0.0;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
 			if(r(i, j) > 50){
@@ -487,7 +487,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Change: 
 		// Little bit different answer: - Subrata
-		#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
+		#pragma omp parallel for default(none) firstprivate(f, solver, fx, old_val, x) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
 		for(int i = 0; i < n; ++i){
 			if(i % 100000 == 0 ){
 				if(verbose){
@@ -533,15 +533,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				solver.minimize(f, x);
 				Debug2("argmin: " << x.transpose() << ";\tf(x) in argmin:");
 				double fx = f.value(x);
-				
+				Debug2("Solver status: " << solver.status());
+				Debug2("Final criteria values: " << "\n" << solver.criteria());
 				
 				// Track the best:
 				x = f.current_best_param;
 				fx = f.current_best_val;
-				
-				
-				Debug2("Solver status: " << solver.status());
-				Debug2("Final criteria values: " << "\n" << solver.criteria());
 				
 				
 				Debug2("best_param: " << x.transpose() << "\t f(best_param): " << fx << 
