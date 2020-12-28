@@ -150,10 +150,10 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	}
 	SpMat W_hess(3*n, 3*n);
 	if(with_MRF){
-		W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
+		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 7*3) );
 		// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
 	} else {
-		W_hess.reserve( VectorXi::Constant(3*n, 3) );
+		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 3) );
 	}
 	Debug1("Hessian matrix allocated");
 	
