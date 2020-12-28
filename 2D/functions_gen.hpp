@@ -12,30 +12,12 @@ Debugging level definitions
    Different Reparametrizations (+Cholesky) 
    Bloch transform
 4) Generate a sample matrix when mu and sigma are given
-5) Hessian matrix and vector related to Delta method
-
-
-
-Changes:
-
-float -> double
-Xf -> Xd 
-3f -> 3d
-
-
-Precompile header using
-
-g++ scheme_new.hpp -I /usr/include/eigen3 -O3
-
-- Don't do it now. taking huge gch file. 
-
 
 
 
 
 
 To Do:
-Increase max iteration in variance estimate
 
 
 
@@ -86,19 +68,11 @@ BUG: In some later version, there is an extra sigma^2 inside h().
 
 
 extern "C" {
-#include <gsl/gsl_sf_bessel.h>		// Try SCALED besselI from here! - changed a bit
+#include <gsl/gsl_sf_bessel.h>
 }
 
 
 
-
-// [[Rcpp::plugins(cpp11)]]
-// [[Rcpp::depends(RcppEigen)]]
-
-//using namespace Rcpp;
-
-
-//using namespace Eigen;
 
 
 typedef Eigen::MatrixXd Matrix_eig;
@@ -111,6 +85,9 @@ typedef std::function<double(const Vector_eig &x)> my_function_type;
 typedef Eigen::SparseMatrix<double> SpMat;
 typedef Eigen::SparseVector<double> SpVec;
 typedef Eigen::Matrix3d Matrix3d_eig;
+
+
+
 
 #define SQ(x) ((x) * (x))
 
@@ -182,32 +159,6 @@ const int IF_DEBUG = 1;
 
 
 
-
-
-
-const Matrix_eig G((Matrix_eig(6,9) << 
-  1, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 0, 1, 0, 0, 0, 0, 0,
-  0, 0, 1, 0, 0, 0, 1, 0, 0,
-  0, 0, 0, 0, 1, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 0, 1, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 1).finished());
-
-
-
-
-
-
-
-
-
-/********************************************************
-*********************** Eigen ***************************
-********************************************************/
-/*
-* .resize may be useful or reshape
-* https://gist.github.com/gocarlos/c91237b02c120c6319612e42fa196d77
-*/ 
 
 
 
@@ -284,8 +235,7 @@ double our_bessel_I(double x, double nu){
 		std::cout << "neg arg in bessel function" << std::endl;
 		return -1.0e-50;
 	}
-}								 //besselI(0.05, 0.0); our_bessel_I(0.05, 0.0)		// value out of range in 'bessel_i'	 -- check
-
+}
 
 
 
@@ -467,9 +417,8 @@ double logBesselI0(double x) {
 Matrix_eig Cov_1(Matrix_eig x) {
 	int nRows = x.rows();
 	Vector_eig colMean = x.colwise().mean();
-	// https://eigen.tuxfamily.org/dox/group__TutorialReductionsVisitorsBroadcasting.html
-	x.rowwise() -= colMean.transpose();			// or x_cen instead of x
-	return x.transpose()*x/(nRows-1);			// or x_cen
+	x.rowwise() -= colMean.transpose();
+	return x.transpose()*x/(nRows-1);
 }
 
 
@@ -496,18 +445,7 @@ double abs_dev_mean(const Vector_eig &x){
 * Matrix_eig_row or Matrix_eig or similar
 * Use show_head<Matrix_eig_row>(W);
 */
-/*
-template <typename T>
-void show_head(const T &W, int n = 10){
-	std::cout << "Head of the matrix:\n" ;
-	for(int i = 0; i < n; ++i){
-		std::cout << W.row(i) << "\n";
-	}
-}
-*/
-// https://stackoverflow.com/questions/27687769/use-different-parameter-data-types-in-same-function-c
-// https://stackoverflow.com/questions/12331655/function-overloading-vs-function-templates-c -- This explains
-// Sorry - Just keep it as overload for now...:
+// Kept it as overload, not template for now
 void show_head(const Matrix_eig &W, int n = 10){
 	std::cout << "Head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
@@ -558,9 +496,7 @@ void show_head_sp(const SpMat &A, int n = 10){
 
 double mean_rice(double nu, double sigma){
 	double x = - SQ(nu)/(2*SQ(sigma));
-	// return sigma * std::sqrt(M_PI/2) * std::exp(x/2)*( (1-x)*our_bessel_I(-x/2, 0) - x * our_bessel_I(-x/2, 1)) ;
 	return sigma * std::sqrt(M_PI/2) *( (1-x)*gsl_sf_bessel_I0_scaled(-x/2) - x * gsl_sf_bessel_I1_scaled(-x/2)) ;
-	
 }
 
 
@@ -571,9 +507,6 @@ double mean_rice(double nu, double sigma){
 //[[Rcpp::export]]
 Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
 	return(Eigen::Map<Matrix_eig> (v1.data(), nrow_in, ncol_in));
-	//https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
-	//https://stackoverflow.com/questions/52261389/how-to-convert-an-stdvector-to-a-matrix-in-eigen
-	//https://stackoverflow.com/questions/32452739/vector-to-matrix/32475129
 }
 
 
@@ -589,49 +522,14 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 		return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
 	}
 }
-// Can't be done using Map I guess for rowmajor - ignore transpose now.
-// Still has some problem - will see later.
-/*
-Vector_eig to_vector(Matrix_eig_row v1, int is_transpose=0){
-	//if(!is_transpose){
-	//	return(Eigen::Map<Vector_eig> (v1.data(), v1.rows()*v1.cols()));
-	//} else {
-	//	return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
-	//}
-	
-	// cout << "In memory (row-major):" << endl;
+
+Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){	
 	Vector_eig tmp = Vector_eig::Zero(v1.size());
 	for (int i = 0; i < v1.size(); i++){
 		tmp(i) = *(v1.data() + i);
 	}
 	return tmp;
-	// or just pass the pointer? Check what is there!
 }
-*/
-Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
-	//if(!is_transpose){
-	//	return(Eigen::Map<Vector_eig> (v1.data(), v1.rows()*v1.cols()));
-	//} else {
-	//	return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
-	//}
-	
-	// int n = v1.rows()*v1.cols();
-	// Vector_eig tmp(n);
-	// Eigen::Map< Vector_eig > tmp(v1.data(), n, 1);
-	// https://eigen.tuxfamily.org/dox/group__TutorialMapClass.html
-	// No idea why it's not working!
-	
-	Vector_eig tmp = Vector_eig::Zero(v1.size());
-	for (int i = 0; i < v1.size(); i++){
-		tmp(i) = *(v1.data() + i);
-	}
-	return tmp;
-	// or just pass the pointer? Check what is there!
-}
-// 2nd part compiled perfectly when name is changed - problem in overloading maybe!
-// Though 1st part does not compile even when name is changed!
-// https://stackoverflow.com/questions/28722899/creating-an-eigen-matrix-from-an-array-with-row-major-order
-// ^ Would this help?
 
 
 
@@ -642,8 +540,6 @@ Crude Determinant of a sparse matrix - not needed I guess
 // [[Rcpp::export]]
 double sp_det_1(const SpMat &A){
 	return Matrix_eig(A).determinant();
-	//https://stackoverflow.com/questions/15484622/how-to-convert-sparse-matrix-to-dense-matrix-in-eigen/15592295
-	//https://stackoverflow.com/questions/13033694/eigen-convert-dense-matrix-to-sparse-one
 }
 
 
@@ -677,7 +573,7 @@ double abs_sum(const Vector_eig &x){
 // [[Rcpp::export]]
 double sp_log_det_2(const SpMat &B){					// Log determinant
 	Matrix_eig A = Matrix_eig(B);
-	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(A);				// Marked was in eigen 2
+	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(A);
 	return log_vec(es.eigenvalues()).sum();
 }
 
@@ -743,23 +639,6 @@ double log_det_3_chol(const Matrix3d_eig &A){
 
 
 
-/*
-// Because something like this was happening (using to_Cholesky()):
-//
-//DEBUG 1: Psi_inv:
-//   0.115604           0 7.54951e-07
-//          0    0.115604    -57.2231
-//7.54951e-07    -57.2231       28325
-//DEBUG 1: Cholesky of Psi_inv:
-//  0.340007          0          0
-//         0   0.340007          0
-//2.2204e-06     -168.3   0.339462
-//DEBUG 1: n*log_det_3(Psi_inv) is nan in Q_star_other_param
-//DEBUG 1: Eigenvalues of Psi_inv:
-//-0.000799466
-//    0.115604
-//     28325.1*/
-
 
 
 /*
@@ -813,12 +692,6 @@ void check_bounds(const Matrix_eig_row &W, const Vector_eig &lb, const Vector_ei
 void show_dim(const Matrix_eig &A){
 	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
 }
-/*
-void show_dim(const Matrix_eig_row &A){
-	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
-}
-*/
-// It says overload is ambiguous - I guess the second one is not necessary!
 
 
 /*
@@ -941,7 +814,7 @@ int check_nan_vec(const Vector_eig &A){
 
 /*
 * Kroneker product of two dense Matrices
-* //https://forum.kde.org/viewtopic.php?f=74&t=50952
+* or use the experimental module
 */
 Matrix_eig Kron_eig(const Matrix_eig &m1, const Matrix_eig &m2){
 
@@ -1045,7 +918,6 @@ SpMat J_n(int n_x){				// has determinant 0???				// When n_x =1
 /*
 * Eigen values of J_n
 * Be careful of the sorting order. This is oppositely sorted
-* https://stackoverflow.com/questions/30188482/sparse-eigenvalues-using-eigen3-sparse
 */
 Vector_eig eigenvals_J_n(int n) {
 	//Matrix_eig A = Matrix_eig(J_n(n));
@@ -2056,12 +1928,6 @@ double simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(const Vector_eig &W, const Vector_ei
 
 
 Vector_eig read_sd(char* const sd_file, int our_dim_4){
-
-	// Read sd:
-	// double output[our_dim_4];		// warning: ISO C++ forbids variable length array ‘output’ [-Wvla]
-	// no need 							// Change this
-	
-	
 	
 	
 	std::fstream myfile(sd_file, std::ios_base::in);
@@ -2074,21 +1940,6 @@ Vector_eig read_sd(char* const sd_file, int our_dim_4){
 		i++;
 	}
 	
-	/*
-	FILE* fp = fopen(sd_file, "r");
-	if (fp == NULL) {
-		printf("failed to open file\n");
-		exit(EXIT_FAILURE);
-	}
-	while (fscanf(fp, "%f", &output[n++]) != EOF)
-		;
-	*/
-	/*
-	for(int i = 0; i < our_dim_4; ++i){
-		//sigma(i) = 5.; 			//output[i]/20.;
-		sigma(i) = 15.;
-	}
-	*/
 	Debug0("Read the sd file\n----------------\n");
 	
 	return sigma;
@@ -2200,265 +2051,6 @@ void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_t
 }
 
 
-
-
-
-
-
-
-
-/**
-* W is a nx3 matrix.
-* Hessian matrix(w.r.t. W) would be 3n x 3n matrix - mostly 0's
-* d^2 l* / dW_{i'k'} dW_{ik}
-* {i,k} are arranged in a fashion so that k remains like a subdivision under division of i
-* i.e., 
-* l-th column/row represents: 
-	k = l%3; 
-	i = (int) l/3;
-* and 
-	l = 3 * i + k;
-* 
-* Number of non-zero elements per column: <= 7*3
-*/
-
-/*
-SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-                  const Vector_eig &TE, const Vector_eig &TR, 
-                  const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1, int verbose = 1){
-
-	
-	auto time_1_hess = std::chrono::high_resolution_clock::now();
-	Debug1("Hessian calculation started");
-	Matrix_eig_row v = v_mat(W, TE, TR);
-	int n = n_x * n_y * n_z;
-	int m = v.cols();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
-	SpMat Gamma_inv;
-	if(with_MRF){
-		Gamma_inv = MRF_obj.Lambda(beta);
-	}
-	SpMat W_hess(3*n, 3*n);
-	if(with_MRF){
-		W_hess.reserve( VectorXi::Constant(3*n, 7*3) );
-		// Reserve 7*3 non-zero's per column - https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
-	} else {
-		W_hess.reserve( VectorXi::Constant(3*n, 3) );
-	}
-	Debug1("Hessian matrix allocated");
-	
-	
-	// First, the Kroneker prod term:
-	if(with_MRF){
-		SpMat Psi_inv_sp = Psi_inv.sparseView();
-		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
-		//Debug1(" kron W_hess: \n");
-		//show_head(Matrix_eig(W_hess));
-		// show_head_sp(W_hess);
-		Debug0("MRF part done of Hessian!");
-	}
-	
-	
-	// Diagonal parts //
-	int i = 0, k = 0, k1 = 0, j = 0;
-	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
-	
-	
-	for(i = 0; i < n; ++i) {
-	
-		//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
-		if(i % 10000 == 0){
-			std::cout << "\n";
-			Debug1("Hess matrix i: "<< i << ", j: " << j);
-		}
-		
-		
-		//temp_vec = W.row(i);
-		for(k = 0; k < 3; ++k) {
-			//for(k1 = 0; k1 < 3; ++k1) {
-			for(k1 = k; k1 < 3; ++k1){
-				
-				temp = 0.;
-				for(j = 0; j < m ; ++j) {
-					
-					tmp2 = r(i,j)/SQ(sigma(j));
-					//if(i == 0){
-						//Debug0(tmp2);
-					//}
-					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
-					//if(i == 0){
-						//Debug0(tmp3);
-					//}
-					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
-					//if(i == 0){
-						//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
-						//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//}
-					
-					
-					//tmp2 *= v(i,j);
-					//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-					// This is also valid
-					
-					
-					
-					// BUG  - Subrata
-					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));
-					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
-					// This is also valid
-					
-					//if(i == 0){
-					//	Debug0(tmp2);
-					//	Debug0(v(i,j));
-					//	Debug0(SQ(sigma(j)));
-					//	Debug0(tmp2*v(i, j));
-					//	Debug0(h(tmp2*v(i, j)));
-					//	Debug0(tmp4);
-					//}
-					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
-					//if(i == 0){
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0("Added:");
-					//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-					//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
-					//	Debug0("\n")
-					//}
-					//if(i == 0){
-					//	Debug0(temp);
-					//	Debug0("\n\n");
-					//}
-					
-					if(k == k1 && temp > 0.1){
-						Debug0("i: " << i << ", j: " << j << ", k: " << k);
-						Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
-						Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
-						Debug0("Added: : 1st part: " << 
-								tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) << 
-								", 2nd part: " << 
-								tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1) <<
-								"final: " << 
-								 (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) 
-								);
-						if(temp > 100){
-							Debug0("Very high!!");
-						}
-					}
-				}
-				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
-				
-				if(with_MRF){
-					if(k == k1){
-						W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
-						// BUG? check negativity and positivity
-						// minus added for Gamma * Psi						
-					} else {
-						W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
-						W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
-					}
-				} else {
-					if(k == k1){
-						W_hess.insert(3 * i + k, 3 * i + k) = temp;
-					} else {
-						W_hess.insert(3 * i + k, 3 * i + k1) = temp;
-						W_hess.insert(3 * i + k1, 3 * i + k) = temp;
-					}
-				}
-			}
-		}
-	}
-	
-	
-	
-	W_hess.makeCompressed();
-	//Debug1("W_hess: \n");
-	//show_head(Matrix_eig(-W_hess));
-	// show_head_sp(-W_hess);
-	
-	auto time_2_hess = std::chrono::high_resolution_clock::now();
-	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
-	Debug1("Time taken total loop: " << duration_hess.count() << " seconds\n");
-	Debug0("Hessian calculated with MRF");
-	
-	//show_head(W_hess);
-	
-	// return W_hess;	//3nx3n
-	return (-W_hess);	//3nx3n
-}
-// Check sign please
-
-*/
-
-
-
-
-// https://stackoverflow.com/questions/47694725/using-inneriterator
-/**
-* Calculates the \nu_ij for \nu_ij' \Sigma_ij \nu_ij (i.e., w.r.t. \nu_ij)
-* where Sigma is an estimation of variance of (W_ik)_{i,k} 
-* 
-* i.e., it calculates d\nu_ij/dW_ik
-* where j is fixed when we consider just one image and i corresponds to the i-th voxel
-* 
-* So, it would give a 3n x 1 vector: i.e., d\nu_ij/dW_{i1,k} (confusing notation)
-* where the value is 0 when i != i1
-* 
-* So, we would get a sparse vector(/matrix) with 3 non-zero element of total size 3n x 1
-* 
-* 0:3 + 3*i - th elements would be non-zero and they are :
-* d\nu_ij/dW_{i,0}, d\nu_ij/dW_{i,1}, d\nu_ij/dW_{i,2}
-* 
-* 
-* grad is changed.
-* 
-*/
-
-/*
-void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
-             const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-             int n_x, int n_y, int n_z, int i, int j, SpVec &grad){
-
-
-	//SpMat grad(3*n_x*n_y*n_z, 1);
-	//grad.reserve(VectorXi::Constant(1, 3));
-	
-	//for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
-	//	grad.insert(i1, 1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-	//}
-
-	// SpVec grad(3*n_x*n_y*n_z);
-	// Allocating this large vector might be cumbersome
-	grad.setZero();
-	
-	
-	for(int i1 = 3*i; i1 < 3 * i + 3; ++i1){
-		// grad(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-		grad.insert(i1) = simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, i1 % 3);
-	}
-	// return grad;
-}
-
-
-*/
-
-
-
-
-	// Export the result to a file:
-	//	saveAsBitmap(x, n, argv[1]);
 
 
 
