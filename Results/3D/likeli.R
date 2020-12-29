@@ -4,7 +4,7 @@ likeli_29 <- read.table("likeli_val_29_refined.txt")[,1]
 
 pdf("likeli_plot.pdf", height=3*1.25, width=6)
 
-plot(-log(-likeli_26[1:30]), type="l", ylab="-log(-log-likelihood)", xlab=print("iteration+1"), ylim=range(-log(-c(likeli_26, likeli_29))), lty=2, col="blue")
+plot(-log(-likeli_26[1:30]), type="l", ylab="-log(-log-likelihood)", xlab=print("Iteration+1"), ylim=range(-log(-c(likeli_26, likeli_29))), lty=2, col="blue")
 lines(-log(-likeli_29), col="red", lty = 1)
 legend(21, -21, legend=c("OSL-EM", "AECM"), col=c("blue", "red"), lty=2:1, cex=0.8)
 
@@ -14,7 +14,7 @@ legend(21, -21, legend=c("OSL-EM", "AECM"), col=c("blue", "red"), lty=2:1, cex=0
 likeli_26 <- likeli_26[-1]
 likeli_29 <- likeli_29[-1]
 
-plot(likeli_26[1:30], type="l", ylab="Penalized log-likelihood", xlab=print("iteration+1"), ylim=range(c(likeli_26, likeli_29)), lty=2, col="blue")
+plot(likeli_26[1:30], type="l", ylab="Penalized log-likelihood", xlab=print("Iteration+1"), ylim=range(c(likeli_26, likeli_29)), lty=2, col="blue")
 lines(likeli_29, col="red", lty = 1)
 
 legend(21, -12111964, legend=c("OSL-EM", "AECM"), col=c("blue", "red"), lty=2:1, cex=0.8)
@@ -45,7 +45,7 @@ ggplot() +
   scale_linetype_manual(values=ltypes, name="Method")+
   guides(linetype = guide_legend(override.aes=list(color=c("#009E73", "blue"))), 
          color=FALSE) +
-  xlab("iteration+1") + 
+  xlab("Iteration+1") + 
   ylab("Penalized log-likelihood") + 
   theme_bw() + theme(legend.position = c(0.8, 0.8), text = element_text(size=15))
 
@@ -63,7 +63,7 @@ ggplot() +
   scale_linetype_manual(name = 'Method', 
                         values=c("twodash", "solid"), 
                         labels = c('OSL-EM','AECM')) +
-  xlab("iteration+1") +
+  xlab("Iteration+1") +
   ylab("Penalized log-likelihood") +
   theme_bw() + theme(legend.position = c(0.8, 0.8), text = element_text(size=15))
 
