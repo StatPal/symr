@@ -8,9 +8,9 @@
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
+#include "functions_LS_and_init_value.hpp"
 
 
 #include "../CppNumericalSolvers/include/cppoptlib/meta.h"
@@ -32,9 +32,8 @@
 /*
 Penalised NEGATIVE log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
-No change for cholesky inside the function
 */
-double l_star_OSL(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
+double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
               int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
 
@@ -54,8 +53,8 @@ double l_star_OSL(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		}
 	}
 	
+	//MRF part://
 	if(penalized){
-		//MRF part://
 		likeli_sum += MRF_obj.MRF_log_likeli(W, Psi_inv, beta);
 	}
 	
@@ -73,7 +72,7 @@ double l_star_OSL(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 */
 // Class definition with template
 template<typename T>
-class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -88,7 +87,7 @@ class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inher
 
 
   public:	
-	MRF_optim_OSL(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
+	MRF_optim(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
@@ -110,7 +109,7 @@ class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inher
 
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
-		beta1 << x(0), x(1), 1;								// BUG: was x(0), x(1), 0
+		beta1 << x(0), x(1), 1;
 		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3 )/MRF_obj_optim.n;
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
@@ -119,10 +118,7 @@ class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inher
 	// Objective function: 
 	T value(const TVector &x) {
 		beta1(0) = x(0); beta1(1) = x(1);
-		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3)/(MRF_obj_optim.n);// I guess there would be an additional 3. Check!
-//		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
-//		double fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) + 
-//								MRF_obj_optim.n * log_det_3(Psi_inv_est))/2;
+		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3)/(MRF_obj_optim.n);
 		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
 								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
@@ -142,7 +138,7 @@ class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inher
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_OSL is inheriting fn from cppoptlib::BoundedProblem
+class Likeli_optim : public cppoptlib::BoundedProblem<T> {
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -150,18 +146,18 @@ class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {			// Likeli_optim
 	
 	TMatrix_row r;
 	
-	TMatrix_row Theta;		// new
+	TMatrix_row Theta;
 
 
   public:
-	Likeli_optim_OSL() : cppoptlib::BoundedProblem<T>(3){}
+	Likeli_optim() : cppoptlib::BoundedProblem<T>(3){}
 
 
 	int i, n_x, n_y, n_z;
-	double beta_z = 1.0;										//Subrata - or get the value. 
+	double beta_z = 1.0;
 	TVector TE, TR, sigma, beta, lb, ub, c_i;								// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
-	TMatrix_row W, W_old;													// W here creating problem in optimization?
+	TMatrix_row W, W_old;
 	int penalized;
 	
 	
@@ -205,7 +201,7 @@ class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {			// Likeli_optim
 		W.row(i) = x.transpose();
 		Bloch_vec(W.row(i), TE, TR, v_i);
 		int m = TE.size();
-		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		double likeli_sum = 0.0;
 		
 		//Rice part://
 		for(int j = 0; j < m; ++j) {
@@ -233,6 +229,8 @@ class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {			// Likeli_optim
 		Debug2("x: " << x.transpose() << " \t&  Q fn:" << likeli_sum);
 		return (-likeli_sum);
 	}
+
+
 
 // Comment this Gradient part if you don't want to feed the gradient:
 
@@ -279,11 +277,28 @@ class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {			// Likeli_optim
 
 
 /*
-* Main fn, 
-* Stopping criteria might seem confusing at first: 
-* W_old is used to compare between new and previous iteration parameters
-* and updated after each iteration
-* whereas f.W_old is updated at each voxel update.
+* The function for One Step Late estimation:  
+* Inputs: 
+	W_init:		W matrix, passed 
+	Psi_inv:	Psi_inv matrix, passed
+	beta: 		beta vector, passed
+	TE_example: TE values for the train data
+	TR_example: TR values for the train data
+	sigma: 		sigma values for the train data
+	r: 			Observed values for the pixels, n x m matrix
+	n_x, 
+	n_y, 
+	n_z: 		
+	r_scale: 	scale for the r matrix, or equivalently rho.
+	TE_scale: 	scale used for TE
+	TR_scale: 	scale used for TR
+	MRF_obj:	MRF_param object
+	maxiter: 	Maximum number of iteration of EM algorithm - default value 20
+	penalized: 	1(default) if penalization is used - 0 if not
+	abs_diff: 	absolute difference bound for the EM algorithm
+	rel_diff: 	relative difference bound for the EM algorithm for the log-likelihood
+	verbose: 	verbose, default 0
+	verbose2:	Secondary level of verbose - default 0
 */
 void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
@@ -292,7 +307,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                MRF_param &MRF_obj,
                int maxiter = 20, int penalized = 1, 
                double abs_diff = 0.1, double rel_diff = 1e-4, int verbose = 0, int verbose2 = 0) {
-// Change abs_diff, maxiter etc
+// Change
 
 	if(verbose)
 		std::cout << "\n\n\n";
@@ -304,11 +319,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 
 	
-	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx;
+	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx = 0.0;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
 		for(int j = 0; j < m; ++j){
@@ -328,13 +343,14 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
 		
-		MRF_optim_OSL<double> f_2(W_init, MRF_obj);
-		cppoptlib::LbfgsbSolver<MRF_optim_OSL<double>> solver_2;
+		MRF_optim<double> f_2(W_init, MRF_obj);
+		cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
 		
 		
 		// *MRF based initial values:* //
 		Vector_eig x_MRF(2), lb_MRF(2), ub_MRF(2), x_MRF_old(2);
-		lb_MRF = Vector_eig::Constant(2, 1e-5); ub_MRF = Vector_eig::Constant(2, 1e+5);	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
+		lb_MRF = Vector_eig::Constant(2, 1e-5); ub_MRF = Vector_eig::Constant(2, 1e+5);
+		f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
 		x_MRF(0) = beta(0); x_MRF(1) = beta(1);
 		x_MRF_old.noalias() = x_MRF;
 		
@@ -355,13 +371,10 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// * Voxel based initial values * //
 	
 	int iter = 0;
-	Likeli_optim_OSL<double> f;
-	cppoptlib::LbfgsbSolver<Likeli_optim_OSL<double>> solver;			// For MRF parameters!
-	
-	// * Voxel based initial values * //
+	Likeli_optim<double> f;
+	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
 	
 	Eigen::VectorXd x(3), lb(3), ub(3);
-	
 	//Bounds of rho, W1, W2:
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
@@ -405,7 +418,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;					// Subrata - change to Matrix_eig_row and check
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
-	old_likeli = l_star_OSL(W_init, Psi_inv, beta, TE_example, TR_example,
+	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 	
 	
@@ -418,13 +431,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
-		auto time_2_likeli = std::chrono::high_resolution_clock::now();
 		
 		
 		
 		if(penalized){
 		
-			// f_2.W.noalias() = W_init;
 			f_2.update_tmp(W_init);
 			
 			
@@ -465,7 +476,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
 			Debug0("MRF optimization done!");
 			
-			// auto time_2_likeli = std::chrono::high_resolution_clock::now();
 			// * Optimization over other parameters ends * //
 		
 		}
@@ -501,12 +511,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 			
 			if(black_list(i) == 0){
-			
-			
-				auto time_1_voxel = std::chrono::high_resolution_clock::now();
 				
 				// Track the best:
-				// double current_best_val = 1.0e+15;
 				f.current_best_val = 1.0e+15;
 				
 				
@@ -579,13 +585,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				f.W_old.row(i) = W_init.row(i);
 				
 				
-				
-				auto time_2_voxel = std::chrono::high_resolution_clock::now();
-				auto duration_12_voxel = std::chrono::duration_cast<std::chrono::microseconds>(time_2_voxel - time_1_voxel);
-				//if(penalized)
-				//	Debug1("Time taken for MRF part optim: " << duration_12_voxel.count() << " microseconds\n");
 			}
-			
 		}
 		
 		// E_step:
@@ -599,9 +599,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			Debug0("Number of nan-voxels: " << nan_count << " at " << iter << "-th iter" );
 		}
 		nan_count = 0;
-		auto time_3_likeli = std::chrono::high_resolution_clock::now();
-		//auto duration_23 = std::chrono::duration_cast<std::chrono::microseconds>(time_3_likeli - time_2_likeli);
-		//Debug1("Time taken for 1 OSL-EM loop with " << r.rows() << " rows: " << duration_23.count() << " microseconds");
 		if(verbose)
 			Debug1("Voxel Loop ends!!");
 		// * Voxel loop ends * //
@@ -618,8 +615,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
 			std::cout << "Stopped after " << iter << " iterations" << "\n";
-			// Debug1("W_old.row(73):" << W_old.row(73));
-			// Debug1("W_init.row(73):" << W_init.row(73));
 			break;
 		}
 		if(verbose)
@@ -628,7 +623,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// with penalized negative log likelihood:
-		current_best_likeli = l_star_OSL(W_init, Psi_inv, beta, TE_example, TR_example,
+		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
@@ -661,15 +656,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		W_old.noalias() = W_init;
 		
 		
-		
-		
-		
-		
-		
-		auto time_4_likeli = std::chrono::high_resolution_clock::now();
-		auto duration_34 = std::chrono::duration_cast<std::chrono::seconds>(time_4_likeli - time_3_likeli);
-		if(verbose)
-			Debug1("Time taken for MRF part optim: " << duration_34.count() << " seconds\n");
 	}
 	if(iter > maxiter){
 		Debug0("Max. iter reached for the ECM cycle");

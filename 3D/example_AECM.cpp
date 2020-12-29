@@ -30,9 +30,9 @@ nohup ./example_AECM ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_AECM.ou
 
 
 
-#include "scheme_new_numerical.hpp"
-#include "Read_files_2.hpp"
-#include "Init_value_6_numerical.hpp"
+#include "functions_gen.hpp"
+#include "read_files.hpp"
+#include "functions_LS_and_init_value.hpp"
 
 #include "functions_AECM.hpp"
 
@@ -153,7 +153,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig_row train(r.rows(), train_ind.size());
 	Vector_eig TE_train(train_ind.size()), TR_train(train_ind.size()), sigma_train(train_ind.size());
 	short our_dim_train[8];
-	for(int i = 0; i < train_ind.size(); ++i) {
+	for(int i = 0; i < (int)train_ind.size(); ++i) {
 		train.col(i) = r.col(train_ind[i]);
 		TE_train[i] = TE_example(train_ind[i]);
 		TR_train[i] = TR_example(train_ind[i]);
@@ -166,7 +166,7 @@ int main(int argc, char * argv[]) {
 	
 	Matrix_eig_row test(r.rows(), test_ind.size());
 	Vector_eig TE_test(test_ind.size()), TR_test(test_ind.size()), sigma_test(test_ind.size());
-	for(int i = 0; i < test_ind.size(); ++i){
+	for(int i = 0; i < (int)test_ind.size(); ++i){
 		test.col(i) = r.col(test_ind[i]);
 		TE_test[i] = TE_example(test_ind[i]);
 		TR_test[i] = TR_example(test_ind[i]);
