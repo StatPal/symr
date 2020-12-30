@@ -151,7 +151,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	Eigen::VectorXd x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
-	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
+	lb << 1e-6, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
 		if(lb[i]<1.0e-8){

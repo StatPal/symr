@@ -1,0 +1,10583 @@
+brainweb_5
+Tue Dec 29 13:48:40 CST 2020
+Current time: Tue Dec 29 13:48:40 2020 CST
+----------------
+Reading header:
+----------------
+4 dimensions
+Dim 1(X): 181
+Dim 2(Y): 217
+Dim 3(Z): 181
+Dim 4(T): 3
+Dim 5   : 1
+Dim 6   : 1
+Dim 7   : 1
+Datatype code: 16;	Bits per pixel: 32
+Bytes offset to data file: 352
+Read 348 bytes.
+-----------------------
+Reading 21327411 voxels
+1-th set have size:7109137;  mean: 3018.85
+2-th set have size:7109137;  mean: 1821.34
+3-th set have size:7109137;  mean: 120.077
+-------------------------------------------
+-------------------------------------------
+DEBUG 1: Preprocessing done!
+DEBUG 0: Read the sd file
+----------------
+
+DEBUG 0: sigma:  3.61235  3.74002 0.311072
+DEBUG 0: r_scale: 22
+DEBUG 0: TE scale: 201
+DEBUG 0: TR scale: 57.4286
+DEBUG 0: lb:     1e-06   0.175294 0.00690766
+DEBUG 0: ub:     450 0.995656 0.975431
+DEBUG 1: 1st level preprocess of initial value done!
+----------------
+----------------
+
+DEBUG 0: Doing Least Square Estimate!
+DEBUG 1: lb inside LS:      1e-06   0.175294 0.00690766
+DEBUG 1: ub inside LS:      450 0.995656 0.975431
+
+DEBUG 1: i: 0
+DEBUG 1: i: 200000
+DEBUG 1: i: 400000
+DEBUG 1: i: 600000
+DEBUG 1: i: 800000
+DEBUG 1: i: 1000000
+DEBUG 1: i: 1200000
+DEBUG 1: i: 1400000
+DEBUG 1: i: 2200000
+DEBUG 1: i: 1600000
+DEBUG 1: i: 2400000
+DEBUG 1: i: 1800000
+DEBUG 1: i: 2000000
+DEBUG 1: i: 2600000
+DEBUG 1: i: 3200000
+DEBUG 1: i: 2800000
+DEBUG 1: i: 3000000
+DEBUG 1: i: 4200000
+DEBUG 1: i: 4000000
+DEBUG 1: i: 4400000
+DEBUG 1: i: 4600000
+DEBUG 1: i: 4800000
+DEBUG 1: i: 5000000
+DEBUG 1: i: 3400000
+DEBUG 1: i: 5200000
+DEBUG 1: i: 5400000
+DEBUG 1: i: 6800000
+DEBUG 1: i: 3600000
+DEBUG 1: i: 3800000
+DEBUG 1: i: 6600000
+DEBUG 1: i: 7000000
+DEBUG 1: i: 500000
+DEBUG 1: i: 300000
+DEBUG 1: i: 700000
+DEBUG 1: i: 5600000
+DEBUG 1: i: 5800000
+DEBUG 1: i: 6400000
+DEBUG 1: i: 900000
+DEBUG 1: i: 6200000
+DEBUG 1: i: 6000000
+DEBUG 1: i: 1100000
+DEBUG 1: i: 2300000
+DEBUG 1: i: 2500000
+DEBUG 1: i: 1300000
+DEBUG 1: i: 1500000
+DEBUG 1: i: 1700000
+DEBUG 1: i: 6900000
+DEBUG 1: i: 1900000
+DEBUG 1: i: 4300000
+DEBUG 1: i: 3300000
+DEBUG 1: i: 6700000
+DEBUG 1: i: 2100000
+DEBUG 1: i: 4500000
+DEBUG 1: i: 7100000
+DEBUG 1: i: 4100000
+DEBUG 1: i: 4700000
+DEBUG 1: i: 4900000
+DEBUG 1: i: 2700000
+DEBUG 1: i: 5100000
+DEBUG 1: i: 2900000
+DEBUG 1: i: 5300000
+DEBUG 1: i: 5500000
+DEBUG 1: i: 3100000
+DEBUG 1: i: 6500000
+DEBUG 1: i: 3500000
+DEBUG 1: i: 3900000
+DEBUG 1: i: 6300000
+DEBUG 1: i: 5700000
+DEBUG 1: i: 3700000
+DEBUG 1: i: 5900000
+DEBUG 1: i: 6100000
+DEBUG 1: i: 100000
+DEBUG 0: Number of bad cases in Initial value determination:11141 and worse: 0 and bad init bounds:0 and 0
+DEBUG 1: Time taken total Least Square: 380 seconds
+
+DEBUG 1: Initial value done!
+----------------
+
+DEBUG 1: W_orig after noiseless LS: 
+Head of the matrix:
+0.0407987  0.987926  0.975431
+0.00017846   0.991331   0.951466
+ 0.16825 0.995568 0.975431
+0.168715 0.995656 0.975431
+0.167231 0.995584 0.975431
+0.000216799    0.991331    0.951466
+0.000305517     0.99133    0.951466
+ 1.15563 0.993584 0.679403
+0.167874 0.995583 0.975431
+0.335765 0.995615 0.975431
+DEBUG 0: sigma:  9.9573       0       0       0       0       0       0       0 7.78255 13.6095       0       0
+DEBUG 0: r_scale: 22
+DEBUG 0: TE scale: 201
+DEBUG 0: TR scale: 3.35
+DEBUG 0: lower bound:     1e-06      1e-08 0.00690766
+DEBUG 0: upper bound:     450  0.92809 0.975431
+
+train: 	0 8 9 
+test: 	1 2 3 4 5 6 7 10 11 
+DEBUG 1: 1st level preprocess of initial value done!
+----------------
+----------------
+
+DEBUG 0: Doing Least Square Estimate!
+DEBUG 1: lb inside LS:      1e-06      1e-08 0.00690766
+DEBUG 1: ub inside LS:      450  0.92809 0.975431
+
+DEBUG 1: i: 0
+DEBUG 1: i: 200000
+DEBUG 1: i: 400000
+DEBUG 1: i: 600000
+DEBUG 1: i: 800000
+DEBUG 1: i: 1000000
+DEBUG 1: i: 1200000
+DEBUG 1: i: 1400000
+DEBUG 1: i: 2200000
+DEBUG 1: i: 2000000
+DEBUG 1: i: 2400000
+DEBUG 1: i: 1600000
+DEBUG 1: i: 1800000
+DEBUG 1: i: 2600000
+DEBUG 1: i: 2800000
+DEBUG 1: i: 6600000
+DEBUG 1: i: 3000000
+DEBUG 1: i: 6400000
+DEBUG 1: i: 4200000
+DEBUG 1: i: 4400000
+DEBUG 1: i: 4000000
+DEBUG 1: i: 7000000
+DEBUG 1: i: 4600000
+DEBUG 1: i: 300000
+DEBUG 1: i: 4800000
+DEBUG 1: i: 3200000
+DEBUG 1: i: 500000
+DEBUG 1: i: 5000000
+DEBUG 1: i: 3800000
+DEBUG 1: i: 6800000
+DEBUG 1: i: 5200000
+DEBUG 1: i: 5400000
+DEBUG 1: i: 700000
+DEBUG 1: i: 3600000
+DEBUG 1: i: 3400000
+DEBUG 1: i: 6200000
+DEBUG 1: i: 900000
+DEBUG 1: i: 6000000
+DEBUG 1: i: 5800000
+DEBUG 1: i: 5600000
+DEBUG 1: i: 6700000
+DEBUG 1: i: 1100000
+DEBUG 1: i: 6500000
+DEBUG 1: i: 7100000
+DEBUG 1: i: 1300000
+DEBUG 1: i: 6900000
+DEBUG 1: i: 2300000
+DEBUG 1: i: 1500000
+DEBUG 1: i: 2100000
+DEBUG 1: i: 1700000
+DEBUG 1: i: 2500000
+DEBUG 1: i: 6300000
+DEBUG 1: i: 1900000
+DEBUG 1: i: 4300000
+DEBUG 1: i: 6100000
+DEBUG 1: i: 5500000
+DEBUG 1: i: 4100000
+DEBUG 1: i: 4500000
+DEBUG 1: i: 4900000
+DEBUG 1: i: 2700000
+DEBUG 1: i: 5300000
+DEBUG 1: i: 2900000
+DEBUG 1: i: 5100000
+DEBUG 1: i: 5900000
+DEBUG 1: i: 4700000
+DEBUG 1: i: 3100000
+DEBUG 1: i: 3900000
+DEBUG 1: i: 3300000
+DEBUG 1: i: 100000
+DEBUG 1: i: 5700000
+DEBUG 1: i: 3700000
+DEBUG 1: i: 3500000
+DEBUG 0: Number of bad cases in Initial value determination:0 and worse: 0 and bad init bounds:0 and 0
+DEBUG 1: Time taken total Least Square: 160 seconds
+
+DEBUG 1: Initial value done!
+----------------
+
+DEBUG 1: W_init after LS: 
+Head of the matrix:
+ 21.1158 0.642001 0.971576
+ 30.9241   0.6485 0.893153
+     7.3819 1.28131e-07    0.935654
+ 12.7645 0.711472 0.975431
+ 449.999    1e-08 0.187714
+ 6.21602 0.750699 0.975431
+ 14.9547    1e-08 0.975431
+ 19.3472    1e-08 0.975431
+  8.78229 0.0427108  0.975431
+ 60.0236 0.732741 0.843096
+DEBUG 0: Diff_W_LS:  3.72033 0.128468 0.943728
+DEBUG 0: Avg perfs LS: 0.110483, nan, 0.125623, nan
+Performances over images Penalized:  0.140586  0.142611  0.104999  0.110691  0.116687 0.0844296 0.0787219 0.0941845  0.121435
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+Performances over images Penalized:  0.160051  0.163328  0.118658  0.126126  0.133838 0.0979481 0.0917787  0.107146  0.131736
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+
+
+
+
+
+
+DEBUG 0: Doing OSL-EM Estimate!
+DEBUG 0: Number of possible background voxels: 18446744073709551581
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 1
+
+DEBUG 1: x_MRF: 1.31597 1.14228
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.38093e+08
+DEBUG 0:  Current likeli: -9.80513e+07 Old likeli: -2.84896e+10 diff: -2.83915e+10
+DEBUG 0: rel. diff.: 289.558	 abs diff:2.83915e+10
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 2
+
+DEBUG 1: x_MRF: 1.22375 1.11578
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.32723e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 9.80513e+07;	 new val: 1.00576e+08 diff: 2.52439e+06
+DEBUG 0:  Current likeli: -1.00576e+08 Old likeli: -9.80513e+07 diff: 2.52439e+06
+DEBUG 0: rel. diff.: 0.0250994	 abs diff:2.52439e+06
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 3
+
+DEBUG 1: x_MRF: 1.09331 1.04297
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.32172e+08
+DEBUG 0:  Current likeli: -1.00088e+08 Old likeli: -1.00576e+08 diff: -487959
+DEBUG 0: rel. diff.: 0.00487531	 abs diff:487959
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 4
+
+DEBUG 1: x_MRF: 1.12474  1.0614
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26743e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.00088e+08;	 new val: 1.01314e+08 diff: 1.22575e+06
+DEBUG 0:  Current likeli: -1.01314e+08 Old likeli: -1.00088e+08 diff: 1.22575e+06
+DEBUG 0: rel. diff.: 0.0120986	 abs diff:1.22575e+06
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 5
+
+DEBUG 1: x_MRF:  1.0853 1.04151
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26339e+08
+DEBUG 0:  Current likeli: -1.01045e+08 Old likeli: -1.01314e+08 diff: -268592
+DEBUG 0: rel. diff.: 0.00265814	 abs diff:268592
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 6
+
+DEBUG 1: x_MRF: 1.11209 1.05497
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.24787e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01045e+08;	 new val: 1.01756e+08 diff: 711361
+DEBUG 0:  Current likeli: -1.01756e+08 Old likeli: -1.01045e+08 diff: 711361
+DEBUG 0: rel. diff.: 0.00699083	 abs diff:711361
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 7
+
+DEBUG 1: x_MRF:  1.0856 1.04269
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.2497e+08
+DEBUG 0:  Current likeli: -1.01392e+08 Old likeli: -1.01756e+08 diff: -364314
+DEBUG 0: rel. diff.: 0.00359313	 abs diff:364314
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 8
+
+DEBUG 1: x_MRF: 1.10651  1.0522
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 
+200000DEBUG 1: i: 400000
+
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.2454e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01392e+08;	 new val: 1.01936e+08 diff: 543958
+DEBUG 0:  Current likeli: -1.01936e+08 Old likeli: -1.01392e+08 diff: 543958
+DEBUG 0: rel. diff.: 0.00533627	 abs diff:543958
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 9
+
+DEBUG 1: x_MRF: 1.08515 1.04195
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.24781e+08
+DEBUG 0:  Current likeli: -1.01557e+08 Old likeli: -1.01936e+08 diff: -379349
+DEBUG 0: rel. diff.: 0.00373534	 abs diff:379349
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 10
+
+DEBUG 1: x_MRF: 1.10437 1.05199
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.24755e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01557e+08;	 new val: 1.02041e+08 diff: 484584
+DEBUG 0:  Current likeli: -1.02041e+08 Old likeli: -1.01557e+08 diff: 484584
+DEBUG 0: rel. diff.: 0.0047489	 abs diff:484584
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 11
+
+DEBUG 1: x_MRF: 1.08436 1.04191
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25095e+08
+DEBUG 0:  Current likeli: -1.01677e+08 Old likeli: -1.02041e+08 diff: -364412
+DEBUG 0: rel. diff.: 0.00358403	 abs diff:364412
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 12
+
+DEBUG 1: x_MRF: 1.10221 1.04882
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25155e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01677e+08;	 new val: 1.02115e+08 diff: 437945
+DEBUG 0:  Current likeli: -1.02115e+08 Old likeli: -1.01677e+08 diff: 437945
+DEBUG 0: rel. diff.: 0.00428876	 abs diff:437945
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 13
+
+DEBUG 1: x_MRF: 1.08271 1.04105
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25377e+08
+DEBUG 0:  Current likeli: -1.01756e+08 Old likeli: -1.02115e+08 diff: -358504
+DEBUG 0: rel. diff.: 0.00352316	 abs diff:358504
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 14
+
+DEBUG 1: x_MRF: 1.10144 1.04873
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25436e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01756e+08;	 new val: 1.02174e+08 diff: 418089
+DEBUG 0:  Current likeli: -1.02174e+08 Old likeli: -1.01756e+08 diff: 418089
+DEBUG 0: rel. diff.: 0.00409192	 abs diff:418089
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 15
+
+DEBUG 1: x_MRF: 1.08372 1.04121
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25618e+08
+DEBUG 0:  Current likeli: -1.01816e+08 Old likeli: -1.02174e+08 diff: -358000
+DEBUG 0: rel. diff.: 0.00351613	 abs diff:358000
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 16
+
+DEBUG 1: x_MRF: 1.10033 1.04778
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25687e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01816e+08;	 new val: 1.02214e+08 diff: 398205
+DEBUG 0:  Current likeli: -1.02214e+08 Old likeli: -1.01816e+08 diff: 398205
+DEBUG 0: rel. diff.: 0.00389578	 abs diff:398205
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 17
+
+DEBUG 1: x_MRF: 1.08332 1.04114
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25803e+08
+DEBUG 0:  Current likeli: -1.01857e+08 Old likeli: -1.02214e+08 diff: -357284
+DEBUG 0: rel. diff.: 0.00350769	 abs diff:357284
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 18
+
+DEBUG 1: x_MRF: 1.09937 1.04777
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25834e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01857e+08;	 new val: 1.02249e+08 diff: 391408
+DEBUG 0:  Current likeli: -1.02249e+08 Old likeli: -1.01857e+08 diff: 391408
+DEBUG 0: rel. diff.: 0.00382801	 abs diff:391408
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 19
+
+DEBUG 1: x_MRF: 1.08338 1.04203
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25941e+08
+DEBUG 0:  Current likeli: -1.01892e+08 Old likeli: -1.02249e+08 diff: -356940
+DEBUG 0: rel. diff.: 0.00350313	 abs diff:356940
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 20
+
+DEBUG 1: x_MRF: 1.09913 1.04648
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.25983e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01892e+08;	 new val: 1.02277e+08 diff: 385725
+DEBUG 0:  Current likeli: -1.02277e+08 Old likeli: -1.01892e+08 diff: 385725
+DEBUG 0: rel. diff.: 0.00377136	 abs diff:385725
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 21
+
+DEBUG 1: x_MRF: 1.08311 1.04077
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26046e+08
+DEBUG 0:  Current likeli: -1.01909e+08 Old likeli: -1.02277e+08 diff: -368864
+DEBUG 0: rel. diff.: 0.00361956	 abs diff:368864
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 22
+
+DEBUG 1: x_MRF:  1.0985 1.04642
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.2608e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01909e+08;	 new val: 1.02286e+08 diff: 377883
+DEBUG 0:  Current likeli: -1.02286e+08 Old likeli: -1.01909e+08 diff: 377883
+DEBUG 0: rel. diff.: 0.00369436	 abs diff:377883
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 23
+
+DEBUG 1: x_MRF: 1.08312 1.04127
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26166e+08
+DEBUG 0:  Current likeli: -1.01931e+08 Old likeli: -1.02286e+08 diff: -355504
+DEBUG 0: rel. diff.: 0.0034877	 abs diff:355504
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 24
+
+DEBUG 1: x_MRF: 1.09881 1.04664
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26186e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.01931e+08;	 new val: 1.02306e+08 diff: 375179
+DEBUG 0:  Current likeli: -1.02306e+08 Old likeli: -1.01931e+08 diff: 375179
+DEBUG 0: rel. diff.: 0.00366722	 abs diff:375179
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 25
+
+DEBUG 1: x_MRF:  1.29816 0.188645
+DEBUG 1: Value have not decreased(MRF)!!	 old val: 473508; new val: 979576
+
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.28029e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02306e+08;	 new val: 1.02503e+08 diff: 196768
+DEBUG 0:  Current likeli: -1.02503e+08 Old likeli: -1.02306e+08 diff: 196768
+DEBUG 0: rel. diff.: 0.00191963	 abs diff:196768
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 26
+
+DEBUG 1: x_MRF: 1.09683  1.0508
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.28425e+08
+DEBUG 0:  Current likeli: -1.02367e+08 Old likeli: -1.02503e+08 diff: -136203
+DEBUG 0: rel. diff.: 0.00133054	 abs diff:136203
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 27
+
+DEBUG 1: x_MRF: 1.07703 1.06685
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26607e+08
+DEBUG 0:  Current likeli: -1.02027e+08 Old likeli: -1.02367e+08 diff: -339613
+DEBUG 0: rel. diff.: 0.00332866	 abs diff:339613
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 28
+
+DEBUG 1: x_MRF:  1.0951 1.05498
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26433e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02027e+08;	 new val: 1.02393e+08 diff: 365688
+DEBUG 0:  Current likeli: -1.02393e+08 Old likeli: -1.02027e+08 diff: 365688
+DEBUG 0: rel. diff.: 0.00357143	 abs diff:365688
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 29
+
+DEBUG 1: x_MRF: 1.07975  1.0581
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26505e+08
+DEBUG 0:  Current likeli: -1.02049e+08 Old likeli: -1.02393e+08 diff: -343274
+DEBUG 0: rel. diff.: 0.0033638	 abs diff:343274
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 30
+
+DEBUG 1: x_MRF: 1.09572 1.05404
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26428e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02049e+08;	 new val: 1.02401e+08 diff: 351466
+DEBUG 0:  Current likeli: -1.02401e+08 Old likeli: -1.02049e+08 diff: 351466
+DEBUG 0: rel. diff.: 0.00343226	 abs diff:351466
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 31
+
+DEBUG 1: x_MRF: 1.08006 1.05685
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26472e+08
+DEBUG 0:  Current likeli: -1.02056e+08 Old likeli: -1.02401e+08 diff: -345170
+DEBUG 0: rel. diff.: 0.00338217	 abs diff:345170
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 32
+
+DEBUG 1: x_MRF: 1.09513 1.05319
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26508e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02056e+08;	 new val: 1.02411e+08 diff: 355172
+DEBUG 0:  Current likeli: -1.02411e+08 Old likeli: -1.02056e+08 diff: 355172
+DEBUG 0: rel. diff.: 0.00346811	 abs diff:355172
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 33
+
+DEBUG 1: x_MRF:  1.0797 1.05514
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26549e+08
+DEBUG 0:  Current likeli: -1.02069e+08 Old likeli: -1.02411e+08 diff: -341922
+DEBUG 0: rel. diff.: 0.00334991	 abs diff:341922
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 34
+
+DEBUG 1: x_MRF: 1.09506 1.05312
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.2655e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02069e+08;	 new val: 1.02411e+08 diff: 342468
+DEBUG 0:  Current likeli: -1.02411e+08 Old likeli: -1.02069e+08 diff: 342468
+DEBUG 0: rel. diff.: 0.00334404	 abs diff:342468
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 35
+
+DEBUG 1: x_MRF: 1.07934 1.05503
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26602e+08
+DEBUG 0:  Current likeli: -1.02071e+08 Old likeli: -1.02411e+08 diff: -340000
+DEBUG 0: rel. diff.: 0.003331	 abs diff:340000
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 36
+
+DEBUG 1: x_MRF: 1.09467 1.05194
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26629e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02071e+08;	 new val: 1.02423e+08 diff: 351786
+DEBUG 0:  Current likeli: -1.02423e+08 Old likeli: -1.02071e+08 diff: 351786
+DEBUG 0: rel. diff.: 0.00343463	 abs diff:351786
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 37
+
+DEBUG 1: x_MRF: 1.07955 1.05399
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.2669e+08
+DEBUG 0:  Current likeli: -1.02085e+08 Old likeli: -1.02423e+08 diff: -338753
+DEBUG 0: rel. diff.: 0.00331836	 abs diff:338753
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 38
+
+DEBUG 1: x_MRF:  1.0948 1.05179
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26677e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02085e+08;	 new val: 1.0242e+08 diff: 335393
+DEBUG 0:  Current likeli: -1.0242e+08 Old likeli: -1.02085e+08 diff: 335393
+DEBUG 0: rel. diff.: 0.00327469	 abs diff:335393
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 39
+
+DEBUG 1: x_MRF: 1.07972 1.05408
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26679e+08
+DEBUG 0:  Current likeli: -1.02084e+08 Old likeli: -1.0242e+08 diff: -335528
+DEBUG 0: rel. diff.: 0.00328677	 abs diff:335528
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 40
+
+DEBUG 1: x_MRF: 1.09466 1.05178
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26693e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02084e+08;	 new val: 1.02429e+08 diff: 344592
+DEBUG 0:  Current likeli: -1.02429e+08 Old likeli: -1.02084e+08 diff: 344592
+DEBUG 0: rel. diff.: 0.00336421	 abs diff:344592
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 41
+
+DEBUG 1: x_MRF: 1.07962 1.05332
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26741e+08
+DEBUG 0:  Current likeli: -1.02097e+08 Old likeli: -1.02429e+08 diff: -331925
+DEBUG 0: rel. diff.: 0.00325108	 abs diff:331925
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 42
+
+DEBUG 1: x_MRF: 1.09548 1.05204
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26712e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02097e+08;	 new val: 1.02427e+08 diff: 330268
+DEBUG 0:  Current likeli: -1.02427e+08 Old likeli: -1.02097e+08 diff: 330268
+DEBUG 0: rel. diff.: 0.00322441	 abs diff:330268
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 43
+
+DEBUG 1: x_MRF: 1.07965 1.05352
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26723e+08
+DEBUG 0:  Current likeli: -1.02091e+08 Old likeli: -1.02427e+08 diff: -336599
+DEBUG 0: rel. diff.: 0.00329706	 abs diff:336599
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 44
+
+DEBUG 1: x_MRF: 1.09495 1.05148
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26774e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02091e+08;	 new val: 1.02435e+08 diff: 344190
+DEBUG 0:  Current likeli: -1.02435e+08 Old likeli: -1.02091e+08 diff: 344190
+DEBUG 0: rel. diff.: 0.00336009	 abs diff:344190
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 45
+
+DEBUG 1: x_MRF: 1.07948 1.05286
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26781e+08
+DEBUG 0:  Current likeli: -1.02102e+08 Old likeli: -1.02435e+08 diff: -332485
+DEBUG 0: rel. diff.: 0.00325639	 abs diff:332485
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 46
+
+DEBUG 1: x_MRF: 1.09465 1.05137
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26771e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02102e+08;	 new val: 1.02439e+08 diff: 336933
+DEBUG 0:  Current likeli: -1.02439e+08 Old likeli: -1.02102e+08 diff: 336933
+DEBUG 0: rel. diff.: 0.00328909	 abs diff:336933
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 47
+
+DEBUG 1: x_MRF: 1.07943 1.05269
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26796e+08
+DEBUG 0:  Current likeli: -1.02105e+08 Old likeli: -1.02439e+08 diff: -334424
+DEBUG 0: rel. diff.: 0.0032753	 abs diff:334424
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 48
+
+DEBUG 1: x_MRF: 1.09504 1.05073
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26809e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02105e+08;	 new val: 1.02448e+08 diff: 343433
+DEBUG 0:  Current likeli: -1.02448e+08 Old likeli: -1.02105e+08 diff: 343433
+DEBUG 0: rel. diff.: 0.00335226	 abs diff:343433
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 49
+
+DEBUG 1: x_MRF: 1.07994 1.05308
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26845e+08
+DEBUG 0:  Current likeli: -1.02117e+08 Old likeli: -1.02448e+08 diff: -331719
+DEBUG 0: rel. diff.: 0.00324844	 abs diff:331719
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 50
+
+DEBUG 1: x_MRF: 1.09472 1.05097
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5500000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs_sum(to_vector(W_old) - to_vector(W_init)):1.26818e+08
+DEBUG 1: Value not decreased in EM loop!! old val: 1.02117e+08;	 new val: 1.02444e+08 diff: 327334
+DEBUG 0:  Current likeli: -1.02444e+08 Old likeli: -1.02117e+08 diff: 327334
+DEBUG 0: rel. diff.: 0.00319525	 abs diff:327334
+Stopped after 50 iterations (rel. diff.: 0.00319525) abs diff:327334
+DEBUG 0: Number of bad cases in Initial value determination:3777 and worse: 1 and bad init bounds:0 and 0
+DEBUG 1: Time taken for whole OSL-EM: 5359 seconds
+
+DEBUG 1: W - OSL
+Head of the matrix:
+ 21.1158 0.642001 0.971576
+ 30.9241   0.6485 0.893153
+     7.3819 1.28131e-07    0.935654
+ 12.7645 0.711472 0.975431
+ 449.999    1e-08 0.187714
+ 6.21602 0.750699 0.975431
+ 14.9547    1e-08 0.975431
+ 19.3472    1e-08 0.975431
+  8.78229 0.0427108  0.975431
+ 60.0236 0.732741 0.843096
+DEBUG 0: Diff_W_OSL:  13.8402  0.13495 0.937466
+DEBUG 0: Avg perfs OSL: 0.1057, nan, 0.122237, nan
+Performances over images Penalized:  0.126132  0.126268  0.102284  0.101865  0.104719 0.0811051 0.0814251  0.100404  0.127098
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+Performances over images Penalized:  0.142626  0.143298  0.116577  0.117635  0.121247 0.0973593 0.0988326  0.119521  0.143032
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+
+
+
+
+
+
+DEBUG 0: Doing AECM Estimate!
+DEBUG 0: Number of possible background voxels: 18446744073709551581
+DEBUG 0: Number of possible checkerboard white ones: 18446744073709551542
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 1
+
+DEBUG 1: x_MRF: 1.07971 1.05301
+DEBUG 0: MRF optimization done!
+
+
+
+
+DEBUG 1: i: 
+
+DEBUG 1: i: 3000000
+
+
+
+DEBUG 1: i: 4000000
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 5600000
+
+
+DEBUG 1: i: 2000000
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: DEBUG 1: 200000i: 6600000
+
+
+5400000
+
+
+
+DEBUG 1: i: 700000
+DEBUG 1: i: 2600000
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 3600000
+DEBUG 1: i: 4200000
+
+
+DEBUG 1: i: 400000
+
+
+DEBUG 1: i: 1100000
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 4100000
+
+
+
+DEBUG 1: i: 4700000
+DEBUG 1: i: 5700000
+
+
+DEBUG 1: i: 4400000
+
+
+
+DEBUG 1: DEBUG 1: i: i: 
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: 
+DEBUG 1: i: 
+
+DEBUG 1: DEBUG 1: i: 1200000
+800000
+DEBUG 1: i: 6300000
+
+
+1800000
+
+
+DEBUG 1: i: 3700000
+
+
+
+
+DEBUG 1: i: DEBUG 1: DEBUG 1: i: 2400000
+DEBUG 1: i: 6100000
+i: DEBUG 1: 1400000
+
+
+DEBUG 1: i: 6500000
+DEBUG 1: i: 5200000
+DEBUG 1: DEBUG 1: i: 6800000
+i: 4800000
+DEBUG 1: i: 3400000
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: DEBUG 1: i: 45000005000000
+
+
+
+DEBUG 1: DEBUG 1: i: 1700000
+i: i: DEBUG 1: 5800000DEBUG 1: i: 500000
+5500000i: 
+
+i: 300000
+
+2100000DEBUG 1: i: 3100000
+DEBUG 1: i: 4300000
+
+3800000
+
+DEBUG 1: i: 1900000
+
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 5300000
+
+
+DEBUG 1: i: 4900000
+
+
+DEBUG 1: DEBUG 1: i: 2500000
+DEBUG 1: i: 3500000
+i: 
+1500000
+DEBUG 1: i: 6900000
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 3200000
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3300000
+DEBUG 1: 0i: i: 7000000
+
+2700000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):4.03925e+07
+DEBUG 0: Current log likeli: -1.00257e+08, Old log likeli: -1.02444e+08, diff.: -2.18649e+06,  rel. diff.: 0.0218087
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 2
+
+DEBUG 1: x_MRF: 1.19296 1.10474
+DEBUG 0: MRF optimization done!
+
+
+
+DEBUG 1: i: DEBUG 1: i: 1400000
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 900000
+
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 2700000
+
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 1000000
+
+
+
+DEBUG 1: i: 4300000
+
+
+DEBUG 1: DEBUG 1: i: 6200000
+
+
+DEBUG 1: i: 2200000
+DEBUG 1: i: 2000000
+
+
+
+DEBUG 1: i: 2800000
+
+
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 1100000
+
+
+
+
+
+DEBUG 1: 400000
+DEBUG 1: 
+
+
+DEBUG 1: i: 
+4600000
+DEBUG 1: 
+
+DEBUG 1: i: DEBUG 1: i: 2400000
+DEBUG 1: i: 3000000
+
+
+DEBUG 1: i: 700000
+DEBUG 1: DEBUG 1: DEBUG 1: i: i: 4800000
+i: i: i: 1200000i: 
+5800000
+i: 
+DEBUG 1: i: 2100000
+DEBUG 1: i: 6000000
+DEBUG 1: i: 6400000
+DEBUG 1: i: 3800000
+4400000
+6300000
+DEBUG 1: i: 0
+5200000
+DEBUG 1: i: 5000000
+
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: DEBUG 1: 2900000i: 
+5400000
+
+
+DEBUG 1: i: 
+5600000DEBUG 1: i: 2500000
+DEBUG 1: i: 2300000
+DEBUG 1: i: 3200000
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 4900000
+DEBUG 1: i: 3400000
+DEBUG 1: i: 3600000
+DEBUG 1: i: 7000000
+
+6800000DEBUG 1: i: 4100000
+
+
+DEBUG 1: i: 6500000
+
+300000
+DEBUG 1: i: 3100000
+
+DEBUG 1: DEBUG 1: i: 6600000i: 
+
+3900000
+
+
+DEBUG 1: i: 4700000
+
+
+DEBUG 1: i: 5300000
+
+
+
+
+DEBUG 1: i: 5100000
+DEBUG 1: i: 4500000
+DEBUG 1: i: 5500000
+DEBUG 1: i: 6100000
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):1.09815e+06
+DEBUG 0: Current log likeli: -9.94518e+07, Old log likeli: -1.00257e+08, diff.: -805682,  rel. diff.: 0.00810123
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 3
+
+DEBUG 1: x_MRF: 1.20045 1.10808
+DEBUG 0: MRF optimization done!
+
+
+
+
+
+
+DEBUG 1: i: 4000000DEBUG 1: i: 
+1000000
+DEBUG 1: i: 600000
+
+
+DEBUG 1: i: 3600000DEBUG 1: i: 400000
+
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 200000
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 1600000
+
+
+DEBUG 1: i: 2600000
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 2800000
+
+
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 
+
+DEBUG 1: i: 700000
+DEBUG 1: DEBUG 1: 
+i: i: 800000
+DEBUG 1: i: 0DEBUG 1: 
+
+
+i: 1200000
+
+
+
+DEBUG 1: i: 
+DEBUG 1: i: 
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2400000
+DEBUG 1: i: 6600000
+
+
+DEBUG 1: i: 1700000
+DEBUG 1: i: 500000
+6400000DEBUG 1: 
+
+
+
+DEBUG 1: i: 
+2700000
+
+
+
+DEBUG 1: i: 5400000
+DEBUG 1: i: 2200000
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4300000
+DEBUG 1: i: 5600000
+
+DEBUG 1: 
+DEBUG 1: DEBUG 1: i: DEBUG 1: i: 2000000
+1800000
+
+DEBUG 1: i: 6200000
+
+
+DEBUG 1: i: 2500000
+DEBUG 1: i: 6800000
+DEBUG 1: i: 3800000
+
+DEBUG 1: 4800000i: 
+i: 
+DEBUG 1: i: 6500000
+
+i: 
+DEBUG 1: i: 3700000
+5000000DEBUG 1: 
+
+DEBUG 1: 
+
+
+DEBUG 1: 29000007000000DEBUG 1: 4600000i: 
+1300000
+
+DEBUG 1: i: 
+DEBUG 1: i: 6100000
+DEBUG 1: i: 4500000
+DEBUG 1: 
+
+
+DEBUG 1: i: 2300000
+DEBUG 1: 3500000i: i: DEBUG 1: i: i: 
+
+6700000
+30000005200000i: DEBUG 1: 55000005900000i: 
+i: 900000
+DEBUG 1: i: 3300000
+4100000
+
+5700000
+
+
+i: DEBUG 1: i: 2100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 6300000
+
+1400000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 
+3100000DEBUG 1: i: 5300000
+
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4900000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):360680
+DEBUG 0: Current log likeli: -9.93912e+07, Old log likeli: -9.94518e+07, diff.: -60566.8,  rel. diff.: 0.000609378
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 4
+
+DEBUG 1: x_MRF: 1.20234 1.10933
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 1200000
+
+
+DEBUG 1: i: 6000000
+
+
+DEBUG 1: i: 2400000
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 5600000
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 900000
+
+
+
+
+
+DEBUG 1: i: 6300000
+DEBUG 1: DEBUG 1: i: i: 200000600000
+
+
+
+
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6800000
+
+
+DEBUG 1: i: 3000000
+
+
+DEBUG 1: i: 7000000
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 5800000
+DEBUG 1: i: 6500000
+DEBUG 1: i: 2200000
+DEBUG 1: i: 1400000
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 700000
+
+
+DEBUG 1: i: 4800000
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+
+DEBUG 1: i: 6900000
+
+
+
+DEBUG 1: i: 3100000
+DEBUG 1: i: 1300000
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 5900000
+
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5400000
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 4900000
+
+
+
+DEBUG 1: i: 4100000
+
+
+DEBUG 1: i: 
+
+
+DEBUG 1: DEBUG 1: i: 5200000
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 400000
+3400000
+DEBUG 1: i: 3200000
+DEBUG 1: i: 3700000
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 4200000
+DEBUG 1: i: 5700000
+i: 4700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2100000
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 3900000
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):98019.4
+DEBUG 0: Current log likeli: -9.93752e+07, Old log likeli: -9.93912e+07, diff.: -16055.5,  rel. diff.: 0.000161564
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 5
+
+DEBUG 1: x_MRF: 1.20292 1.10955
+DEBUG 0: MRF optimization done!
+
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: 
+
+i: DEBUG 1: i: 4800000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 3800000
+
+
+
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: 
+i: DEBUG 1: i: 7100000
+
+DEBUG 1: i: 6200000
+
+
+
+DEBUG 1: i: 2200000
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 4900000
+
+
+
+
+DEBUG 1: i: 700000
+
+
+
+DEBUG 1: DEBUG 1: 
+
+
+
+DEBUG 1: DEBUG 1: DEBUG 1: 
+DEBUG 1: DEBUG 1: DEBUG 1: i: 6000000
+DEBUG 1: i: 4400000i: 
+3900000
+DEBUG 1: DEBUG 1: 
+
+DEBUG 1: i: 1200000DEBUG 1: 
+i: 
+
+i: 
+DEBUG 1: i: 5600000
+1800000
+i: i: DEBUG 1: i: 6600000
+DEBUG 1: i: 10000002800000
+
+
+i: i: 
+DEBUG 1: i: 3600000
+DEBUG 1: i: 200000DEBUG 1: i: 5200000
+2000000
+DEBUG 1: i: 6300000
+DEBUG 1: i: 4000000
+DEBUG 1: i: 2400000
+i: 5000000
+
+DEBUG 1: i: 4600000
+1400000
+
+DEBUG 1: DEBUG 1: i: i: 6100000
+6400000400000
+0i: 
+
+3200000
+
+DEBUG 1: i: 4500000
+1600000
+DEBUG 1: i: 3100000
+
+
+i: DEBUG 1: 
+2600000DEBUG 1: i: 5400000
+
+3400000
+
+DEBUG 1: i: 1900000
+
+
+
+
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 1300000
+
+
+i: DEBUG 1: DEBUG 1: i: DEBUG 1: 2900000
+DEBUG 1: i: DEBUG 1: 3700000
+4200000
+i: i: i: 
+23000006700000DEBUG 1: 
+
+DEBUG 1: i: 4100000
+1100000
+
+i: DEBUG 1: i: 21000005300000
+
+
+
+
+
+DEBUG 1: DEBUG 1: i: 1500000
+i: DEBUG 1: DEBUG 1: 4700000i: 
+2500000
+i: 
+5100000
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 1700000
+
+
+DEBUG 1: DEBUG 1: i: 3500000
+
+
+i: 2700000
+DEBUG 1: i: 3300000
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):42198
+DEBUG 0: Current log likeli: -9.93685e+07, Old log likeli: -9.93752e+07, diff.: -6690.67,  rel. diff.: 6.73319e-05
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 6
+
+DEBUG 1: x_MRF: 1.20323 1.10973
+DEBUG 0: MRF optimization done!
+
+
+DEBUG 1: 
+
+DEBUG 1: 
+
+DEBUG 1: i: 3000000
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 4700000
+
+
+
+
+DEBUG 1: i: 1000000
+
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 3200000
+DEBUG 1: 
+
+i: 
+DEBUG 1: i: 5600000
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 
+6400000
+
+DEBUG 1: i: 3400000
+i: 
+DEBUG 1: i: 4800000
+DEBUG 1: i: 4400000
+
+
+DEBUG 1: DEBUG 1: i: 3900000
+i: 
+200000
+
+DEBUG 1: i: 4200000
+
+
+5000000
+
+
+DEBUG 1: i: 900000
+
+
+DEBUG 1: i: 2200000
+DEBUG 1: 
+
+
+DEBUG 1: i: 
+DEBUG 1: i: 6800000
+DEBUG 1: i: 2800000
+DEBUG 1: i: 1400000
+i: 5800000
+
+DEBUG 1: i: 2700000
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 5700000
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 2100000
+
+
+DEBUG 1: i: 300000
+4000000
+
+0
+DEBUG 1: DEBUG 1: DEBUG 1: i: 4300000
+i: DEBUG 1: i: i: 60000001200000
+i: 
+DEBUG 1: 
+DEBUG 1: i: DEBUG 1: i: 
+24000005400000
+
+DEBUG 1: i: i: DEBUG 1: DEBUG 1: i: 2300000
+6200000i: 
+400000
+DEBUG 1: 
+
+3500000DEBUG 1: i: 6900000
+
+i: 7000000
+DEBUG 1: DEBUG 1: 4500000
+1900000DEBUG 1: 
+
+DEBUG 1: 
+
+
+
+
+
+i: i: DEBUG 1: DEBUG 1: 3300000
+DEBUG 1: i: 1500000
+i: 6500000
+i: 2900000DEBUG 1: DEBUG 1: i: 5900000
+i: 3100000
+600000i: 
+5100000
+i: 4900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 700000
+
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):14280.5
+DEBUG 0: Current log likeli: -9.93659e+07, Old log likeli: -9.93685e+07, diff.: -2578.79,  rel. diff.: 2.59525e-05
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 7
+
+DEBUG 1: x_MRF: 1.20334 1.10977
+DEBUG 0: MRF optimization done!
+
+
+
+
+DEBUG 1: i: DEBUG 1: i: 600000DEBUG 1: i: 0
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: 
+i: 200000
+DEBUG 1: i: 1600000
+
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 1700000
+
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 3600000
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 1500000
+
+
+
+
+
+
+
+DEBUG 1: DEBUG 1: i: 4800000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: 
+i: 1300000
+
+
+
+
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3700000
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 3200000
+DEBUG 1: i: 4400000
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2700000
+DEBUG 1: i: 4000000
+
+i: DEBUG 1: i: 5400000
+
+4600000
+DEBUG 1: i: 7000000
+
+
+DEBUG 1: i: 4900000
+DEBUG 1: i: 5600000
+DEBUG 1: i: 6200000
+
+
+
+
+DEBUG 1: i: 6500000
+DEBUG 1: i: 
+DEBUG 1: i: 2200000
+DEBUG 1: i: 3100000
+
+
+DEBUG 1: i: 700000
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 3900000
+DEBUG 1: i: 2400000800000
+
+DEBUG 1: i: 3400000
+1000000
+
+
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: DEBUG 1: i: 5500000
+
+
+DEBUG 1: DEBUG 1: DEBUG 1: i: i: 7100000
+
+i: 61000004700000
+
+
+DEBUG 1: i: 5700000
+
+
+DEBUG 1: i: 6300000
+i: 6600000
+
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: DEBUG 1: i: 3300000
+DEBUG 1: 
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+DEBUG 1: i: 500000
+i: 1900000
+DEBUG 1: 
+i: DEBUG 1: i: 3500000
+4200000
+DEBUG 1: i: 4100000
+DEBUG 1: i: 2900000
+
+
+i: DEBUG 1: i: 2500000
+5000000
+DEBUG 1: i: DEBUG 1: i: 5900000
+5200000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4300000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):9445.76
+DEBUG 0: Current log likeli: -9.93644e+07, Old log likeli: -9.93659e+07, diff.: -1463.01,  rel. diff.: 1.47237e-05
+DEBUG 1: Another iteration done
+
+
+DEBUG 1: 
+---------------------------------------------------------------------------
+Iteration: 8
+
+DEBUG 1: x_MRF: 1.20344 1.10982
+DEBUG 0: MRF optimization done!
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 2200000
+
+
+DEBUG 1: i: 400000
+DEBUG 1: 
+i: DEBUG 1: i: 300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1600000
+
+
+
+
+DEBUG 1: DEBUG 1: i: 700000
+
+DEBUG 1: i: 2300000
+i: 
+1800000
+DEBUG 1: i: 2000000
+
+
+
+
+
+
+
+DEBUG 1: i: 
+4600000
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 3800000
+
+
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 1000000
+
+
+
+
+
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: DEBUG 1: DEBUG 1: 
+i: 
+800000
+i: 
+4200000DEBUG 1: i: 6400000
+DEBUG 1: i: 3400000
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 500000
+DEBUG 1: i: 4800000
+
+
+DEBUG 1: 
+
+
+DEBUG 1: i: 4000000
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 
+5200000
+DEBUG 1: i: 1900000
+DEBUG 1: i: 3000000
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 900000
+DEBUG 1: i: 3200000
+DEBUG 1: i: 5000000
+i: 4700000
+
+DEBUG 1: i: 5900000
+DEBUG 1: 
+DEBUG 1: i: 6100000
+DEBUG 1: i: 5500000
+
+i: DEBUG 1: DEBUG 1: i: DEBUG 1: i: 6200000i: 
+
+49000007000000
+
+DEBUG 1: 
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: DEBUG 1: 6600000i: i: 2100000
+5600000
+
+DEBUG 1: i: 
+DEBUG 1: i: 
+DEBUG 1: i: 3900000
+i: DEBUG 1: 4400000
+
+DEBUG 1: i: 3300000
+2400000
+DEBUG 1: i: 
+6500000DEBUG 1: i: 4100000
+
+
+i: 3700000
+
+1200000
+2600000DEBUG 1: 
+
+3100000
+DEBUG 1: i: 6900000
+DEBUG 1: i: 2900000
+i: 1100000
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5100000
+
+
+
+DEBUG 1: i: 6300000
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 5700000
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 2500000
+
+
+
+DEBUG 1: i: 1300000
+DEBUG 1: 
+DEBUG 1: i: 2700000
+i: 4500000
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 0
+
+DEBUG 1: i: 200000
+
+DEBUG 1: i: 400000
+
+DEBUG 1: i: 600000
+
+DEBUG 1: i: 800000
+
+DEBUG 1: i: 1000000
+
+DEBUG 1: i: 7000000
+
+DEBUG 1: i: 1200000
+
+DEBUG 1: i: 100000
+
+DEBUG 1: i: 1400000
+
+DEBUG 1: i: 1600000
+
+DEBUG 1: i: 7100000
+
+DEBUG 1: i: 300000
+
+DEBUG 1: i: 1800000
+
+DEBUG 1: i: 2400000
+
+DEBUG 1: i: 2000000
+
+DEBUG 1: i: 2200000
+
+DEBUG 1: i: 6800000
+
+DEBUG 1: i: 2600000
+
+DEBUG 1: i: 2800000
+
+DEBUG 1: i: 6600000
+
+DEBUG 1: i: 3000000
+
+DEBUG 1: i: 6400000
+
+DEBUG 1: i: 6200000
+
+DEBUG 1: i: 3200000
+
+DEBUG 1: i: 500000
+
+DEBUG 1: i: 3400000
+
+DEBUG 1: i: 3600000
+
+DEBUG 1: i: 5800000
+
+DEBUG 1: i: 6000000
+
+DEBUG 1: i: 4800000
+
+DEBUG 1: i: 3800000
+
+DEBUG 1: i: 5000000
+
+DEBUG 1: i: 700000
+
+DEBUG 1: i: 4600000
+
+DEBUG 1: i: 5600000
+
+DEBUG 1: i: 4200000
+
+DEBUG 1: i: 4400000
+
+DEBUG 1: i: 5400000
+
+DEBUG 1: i: 4000000
+
+DEBUG 1: i: 5200000
+
+DEBUG 1: i: 900000
+
+DEBUG 1: i: 6900000
+
+DEBUG 1: i: 1100000
+
+DEBUG 1: i: 1300000
+
+DEBUG 1: i: 6700000
+
+DEBUG 1: i: 6500000
+
+DEBUG 1: i: 6300000
+
+DEBUG 1: i: 1500000
+
+DEBUG 1: i: 1700000
+
+DEBUG 1: i: 6100000
+
+DEBUG 1: i: 1900000
+
+DEBUG 1: i: 5900000
+
+DEBUG 1: i: 2100000
+
+DEBUG 1: i: 2300000
+
+DEBUG 1: i: 5700000
+
+DEBUG 1: i: 2500000
+
+DEBUG 1: i: 2700000
+
+DEBUG 1: i: 5500000
+
+DEBUG 1: i: 2900000
+
+DEBUG 1: i: 3100000
+
+DEBUG 1: i: 3300000
+
+DEBUG 1: i: 5300000
+
+DEBUG 1: i: 3700000
+
+DEBUG 1: i: 3500000
+
+DEBUG 1: i: 5100000
+
+DEBUG 1: i: 4900000
+
+DEBUG 1: i: 3900000
+
+DEBUG 1: i: 4300000
+
+DEBUG 1: i: 4500000
+
+DEBUG 1: i: 4700000
+
+DEBUG 1: i: 4100000
+DEBUG 1: Voxel Loop ends!!
+DEBUG 1: abs diff. (W_old - W_new):5654.52
+DEBUG 0: Current log likeli: -9.93635e+07, Old log likeli: -9.93644e+07, diff.: -929.639,  rel. diff.: 9.35594e-06
+
+Stopped after 8 iterations (rel. diff.: 9.35594e-06, abs diff: 929.639)
+DEBUG 1: Number of bad cases in optimization:23917664 and worse: 0 and bad init bounds:0 and 0
+DEBUG 1: Time taken for whole AECM: 1705 seconds
+
+DEBUG 1: W - AECM
+Head of the matrix:
+ 21.1158 0.642001 0.971576
+ 30.9241   0.6485 0.893153
+     7.3819 1.28131e-07    0.935654
+ 12.7645 0.711472 0.975431
+ 449.999    1e-08 0.187714
+ 6.21602 0.750699 0.975431
+ 14.9547    1e-08 0.975431
+ 19.3472    1e-08 0.975431
+  8.78229 0.0427108  0.975431
+ 60.0236 0.732741 0.843096
+DEBUG 0: Diff_W_AECM:  8.38233 0.138631 0.937838
+DEBUG 0: Avg perfs MPLE: 0.103665, nan, 0.119777, nan
+Performances over images Penalized:  0.123682  0.123611  0.100792 0.0999231  0.102451  0.079989 0.0806852 0.0974183  0.124432
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+Performances over images Penalized:  0.140047  0.140411  0.115137  0.115346   0.11851 0.0959625  0.097543  0.115436  0.139598
+Performances over images Penalized: nan nan nan nan nan nan nan nan nan
+
+
+
+Current time: Tue Dec 29 16:00:43 2020 CST
+Tue Dec 29 16:00:43 CST 2020

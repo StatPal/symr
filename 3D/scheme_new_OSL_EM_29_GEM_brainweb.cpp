@@ -202,7 +202,7 @@ int main(int argc, char * argv[]) {
 	//TE_scale, TR_scale are needed for determining the bounds
 	
 	
-	lb(0) = 0.0001; lb(1) = exp(-1/(0.01*TR_scale)); lb(2) = exp(-1/(0.001*TE_scale));
+	lb(0) = 1e-6; lb(1) = exp(-1/(0.01*TR_scale)); lb(2) = exp(-1/(0.001*TE_scale));
 	ub(0) = 450.0; ub(1) = exp(-1/(4.0*TR_scale)); ub(2) = exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
 		if(lb[i] < 1.0e-8){
