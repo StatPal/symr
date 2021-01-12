@@ -12,18 +12,18 @@ dat <- data.frame(Method = rep(c("OSL", "AECM"), each=length(LS[,1])),
 library(ggplot2)
 pdf("times.pdf", width=6, height=3*1.5)
 ggplot(dat, aes(x=Method, y=time_spent, fill=Method)) + 
-  geom_violin() + ylab("Time (microseconds)") + theme_bw() + theme(legend.position = "bottom") + 
+  geom_violin() + ylab("Time (seconds)") + theme_bw() + theme(legend.position = "bottom") + 
   scale_y_log10() + coord_trans(y = "log10")
 
 ggplot(dat, aes(x=Method, y=time_spent, fill=Method)) + 
-  geom_violin() + ylab("Time (microseconds)") + theme_bw() + theme(legend.position = "bottom") 
+  geom_violin() + ylab("Time (seconds)") + theme_bw() + theme(legend.position = "bottom") 
   
 ggplot(dat, aes(x=Method, y=time_spent, fill=Method)) + 
-  geom_violin() + ylab("Time (microseconds)") + theme_bw() + theme(legend.position = "bottom") + 
+  geom_violin() + ylab("Time (seconds)") + theme_bw() + theme(legend.position = "bottom") + 
   scale_y_log10()
 
 ggplot(dat, aes(x=Method, y=time_spent, fill=Method)) + 
-  geom_violin() + ylab("Time (microseconds)") + theme_bw() + theme(legend.position = "bottom") + 
+  geom_violin() + ylab("Time (seconds)") + theme_bw() + theme(legend.position = "bottom") + 
   coord_trans(y = "log10")
 
 dev.off()

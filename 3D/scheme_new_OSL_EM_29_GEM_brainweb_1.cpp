@@ -146,21 +146,8 @@ int main(int argc, char * argv[]) {
 	std::cout << std::flush;
 	
 	
-	// Write to a file: 
-	std::ofstream file_LS;
-	file_LS.open ("result/W_orig_29_brainweb.txt");
-	for(int i = 0; i < W_orig.rows(); ++i){
-		file_LS << W_orig.row(i) << "\n";
-	}
-	file_LS.close();
-	
-	
-	
-	
-	
-	
-	
-	
+
+
 	
 	
 	
@@ -175,6 +162,14 @@ int main(int argc, char * argv[]) {
 		W_orig(i, 1) = pow(W_orig(i, 1), TR_scale);
 		W_orig(i, 2) = pow(W_orig(i, 2), TE_scale);
 	}
+
+	// Write to a file: 
+	std::ofstream file_orig;
+	file_orig.open ("result/W_orig_29_brainweb_1.0.txt");
+	for(int i = 0; i < W_orig.rows(); ++i){
+		file_orig << W_orig.row(i) << "\n";
+	}
+	file_orig.close();
 	
 	
 	
@@ -194,8 +189,8 @@ int main(int argc, char * argv[]) {
 	Matrix_eig generated_r = Gen_r(W_orig, TE_example, TR_example, sigma);
 	
 	
-	TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
-	TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
+	TE_scale = 2.01/TE_example.minCoeff();
+	TR_scale = 2.01/TR_example.minCoeff();
 	Debug0("r_scale: " << r_scale);
 	Debug0("TE scale: " << TE_scale);
 	Debug0("TR scale: " << TR_scale);
@@ -217,12 +212,12 @@ int main(int argc, char * argv[]) {
 	W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
 	
-	// Bringing back the scaling because OW they would not be comparable
-	for(int i = 0; i < n; ++i){
-		// W_orig(i, 0) = W_orig(i, 0) * r_scale;
-		W_orig(i, 1) = pow(W_orig(i, 1), 1.0/TR_scale);
-		W_orig(i, 2) = pow(W_orig(i, 2), 1.0/TE_scale);
-	}
+//	// Bringing back the scaling because OW they would not be comparable
+//	for(int i = 0; i < n; ++i){
+//		// W_orig(i, 0) = W_orig(i, 0) * r_scale;
+//		W_orig(i, 1) = pow(W_orig(i, 1), 1.0/TR_scale);
+//		W_orig(i, 2) = pow(W_orig(i, 2), 1.0/TE_scale);
+//	}
 	
 		
 	int m_total = 12;
@@ -283,20 +278,12 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	/*
-	// W_orig
-	for(int i = 0; i < n; ++i){
-		// W_orig(i, 0) = W_orig(i, 0) * r_scale;
-		W_orig(i, 1) = pow(W_orig(i, 1), TR_scale);
-		W_orig(i, 2) = pow(W_orig(i, 2), TE_scale);
-	}
-	Debug1("W_orig transformed after noiseless LS: ");
-	show_head(W_orig);
-	std::cout << std::flush;
 	
-	// This is faulty I guess
-	*/
 	
+	
+	
+	
+		
 	
 	
 	// LS on the noise-contaminated image: 
@@ -307,10 +294,9 @@ int main(int argc, char * argv[]) {
 	show_head(W_init);
 	std::cout << std::flush;
 	
-	
 	Matrix_eig_row W_LS = W_init;
 	
-	Debug0("Diff_W_LS: "<< (W_LS-W_orig).colwise().mean() );
+	
 
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -330,6 +316,22 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Penalized: \t" << perf_4.transpose() << "\n\n\n";
 	
 	
+	
+	
+	for(int i = 0; i < n; ++i){
+		// W_LS(i, 0) = W_LS(i, 0) * r_scale;
+		W_LS(i, 1) = pow(W_LS(i, 1), TR_scale);
+		W_LS(i, 2) = pow(W_LS(i, 2), TE_scale);
+	}
+	Debug0("Diff_W_LS: "<< (W_LS-W_orig).colwise().mean() );
+	
+	// Write to a file: 
+	std::ofstream file_LS;
+	file_LS.open ("result/W_LS_29_brainweb_1.0.txt");
+	for(int i = 0; i < W_LS.rows(); ++i){
+		file_LS << W_LS.row(i) << "\n";
+	}
+	file_LS.close();
 	
 	
 	
@@ -350,18 +352,8 @@ int main(int argc, char * argv[]) {
 	//change
 	Debug1("W - OSL");
 	show_head(W_init);
-	
 	Matrix_eig_row W_OSL = W_init;
 
-	Debug0("Diff_W_OSL: "<< (W_OSL-W_orig).colwise().mean() );
-	
-	// Write to a file: 
-	std::ofstream file_OSL;
-	file_OSL.open ("result/W_OSL_29_brainweb.txt");
-	for(int i = 0; i < W_init.rows(); ++i){
-		file_OSL << W_init.row(i) << "\n";
-	}
-	file_OSL.close();
 	
 		
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -380,8 +372,20 @@ int main(int argc, char * argv[]) {
 	file_performance << "Performances over images Penalized: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_4.transpose() << "\n\n\n";
 	
+	for(int i = 0; i < n; ++i){
+		// W_OSL(i, 0) = W_OSL(i, 0) * r_scale;
+		W_OSL(i, 1) = pow(W_OSL(i, 1), TR_scale);
+		W_OSL(i, 2) = pow(W_OSL(i, 2), TE_scale);
+	}
+	Debug0("Diff_W_OSL: "<< (W_OSL-W_orig).colwise().mean() );
 	
-	
+	// Write to a file: 
+	std::ofstream file_OSL;
+	file_OSL.open ("result/W_OSL_29_brainweb_1.0.txt");
+	for(int i = 0; i < W_OSL.rows(); ++i){
+		file_OSL << W_OSL.row(i) << "\n";
+	}
+	file_OSL.close();
 	
 	
 	
@@ -395,20 +399,9 @@ int main(int argc, char * argv[]) {
 	//change
 	Debug1("W - AECM");
 	show_head(W_init);
-	
 	Matrix_eig_row W_AECM = W_init;
 
-	Debug0("Diff_W_AECM: "<< (W_AECM-W_orig).colwise().mean() );
-
-
 	
-	// Write to a file: 
-	std::ofstream file_final;
-	file_final.open ("result/W_final_29_brainweb.txt");
-	for(int i = 0; i < W_init.rows(); ++i){
-		file_final << W_init.row(i) << "\n";
-	}
-	file_final.close();
 	
 		
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -429,6 +422,20 @@ int main(int argc, char * argv[]) {
 	file_performance.close();
 	
 	
+	for(int i = 0; i < n; ++i){
+		// W_AECM(i, 0) = W_AECM(i, 0) * r_scale;
+		W_AECM(i, 1) = pow(W_AECM(i, 1), TR_scale);
+		W_AECM(i, 2) = pow(W_AECM(i, 2), TE_scale);
+	}
+	Debug0("Diff_W_AECM: "<< (W_AECM-W_orig).colwise().mean() );
+	
+	// Write to a file: 
+	std::ofstream file_AECM;
+	file_AECM.open ("result/W_AECM_29_brainweb_1.0.txt");
+	for(int i = 0; i < W_AECM.rows(); ++i){
+		file_AECM << W_AECM.row(i) << "\n";
+	}
+	file_AECM.close();
 	
 	
 	
