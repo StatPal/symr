@@ -11,27 +11,29 @@ The **optimizer** also uses Eigen, and recent versions can be found [here](https
 It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processig.
 
 Locations:
-* The file to be executed for 3D ECM: ./3D/example_AECM.cpp (or ./3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
+* The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp (or ./examples/3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
     
-    To compile:
+    First go to examples/3D/
+    Then compile:
         g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
     
-    To run:
+    Then run:
         ./example_AECM ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-* The file to be executed for 2D ECM: ./2D/example_AECM.cpp (or ./2D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 - single core)
+* The file to be executed for 2D ECM: ./examples/2D/example_AECM.cpp (or ./examples/2D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 - single core)
     
-    To compile:
+    First go to examples/2D
+    Then compile:
         g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
     
-    To run:
+    Then run:
         ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
 
 
 * The file to be executed for OSL-EM: 
-	./3D/example_OSL.cpp
+	./examples/3D/example_OSL.cpp
 	or 
-	./2D/example_OSL.cpp
+	./examples/2D/example_OSL.cpp
 
 * The data: ./data/ZHRTS1.nii (or ./data/small.nii)
 
