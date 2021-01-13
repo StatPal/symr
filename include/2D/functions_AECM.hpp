@@ -393,12 +393,13 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0) {
 // Change
 
-	if(verbose)
+	if(verbose){
 		std::cout << "\n\n\n";
-	if(penalized){
-		Debug0("Doing AECM Estimate!");
-	} else {
-		Debug0("Doing EM Estimate!");
+		if(penalized){
+			Debug0("Doing AECM Estimate!");
+		} else {
+			Debug0("Doing EM Estimate!");
+		}
 	}
 	
 	
@@ -420,7 +421,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << (black_list.sum()));
+	if(verbose)
+		Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	
@@ -432,7 +434,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			k++;
 		}
 	}
-	Debug0("Number of possible checkerboard white ones: " << (checkerboard_white.sum()));
+	if(verbose)
+		Debug0("Number of possible checkerboard white ones: " << (checkerboard_white.sum()));
 	
 	
 	
@@ -526,7 +529,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// Calculated values: 
 			beta(0) = x_MRF(0); beta(1) = 1.0; beta(2) = 0.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
-			Debug0("MRF optimization done!");
+			if(verbose)
+				Debug0("MRF optimization done!");
 			// * Optimization over other parameters ends * //
 		}
 		
@@ -800,16 +804,17 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old_reserve) - to_vector(W_init)) <= abs_diff){
-			std::cout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
-			if(verbose)
-				Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old_reserve) - to_vector(W_init)));
+			if(verbose){
+				std::cout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
+				Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old_reserve) - to_vector(W_init)));				
+			}
 			break;
 		}
 		if(verbose)
 			Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old_reserve) - to_vector(W_init)));
 		
 		
-				
+		
 		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
@@ -829,9 +834,11 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					",  rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli));
 		}
 		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
-			std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
+			if(verbose){
+				std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ", abs diff: " 
 					<< fabs(current_best_likeli - old_likeli) << ")\n";
+			}
 			break;
 		}
 		old_likeli = current_best_likeli;

@@ -1977,17 +1977,6 @@ void show_dim_sp(SpMat A){
 ****************************************************/
 
 
-/*
-* Derivative of I_1/I_0
-*/
-double h(double x){
-	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
-	return(0.5*tmp);
-}
-
-
-
-
 
 
 
