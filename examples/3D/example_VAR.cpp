@@ -23,12 +23,12 @@ nohup ./example_VAR ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_VAR.out 
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
-#include "functions_AECM.hpp"
-#include "functions_VAR.hpp"
+#include "../../include/3D/functions_AECM.hpp"
+#include "../../include/3D/functions_VAR.hpp"
 
 #include <ctime>
 #include <iomanip>

@@ -10,9 +10,9 @@
 #include "functions_LS_and_init_value.hpp"
 
 
-#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
-#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
-#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 #include <ctime>
 #include <iomanip>
@@ -327,7 +327,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << (unsigned long int)(black_list.sum()));
+	Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	
@@ -452,14 +452,14 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				if(verbose){
 					Debug1("Value have not decreased(MRF)!!\t" << " old val: " << old_val << "; new val: " << fx_MRF  << "\n");
 				}
-			bad_count_o++;
+				bad_count_o++;
 				if(fx_MRF>old_val){
 					bad_count_o_2++;
 				}
 			}
 			
 			// Calculated values: 
-			beta(0) = x_MRF(0); beta(1) = x_MRF(1); beta(2) = 1.0;
+			beta(0) = x_MRF(0); beta(1) = 1.0; beta(2) = 0.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
 			Debug0("MRF optimization done!");
 			

@@ -13,9 +13,9 @@
 #include "functions_LS_and_init_value.hpp"
 
 
-#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
-#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
-#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 #include <ctime>
 #include <iomanip>
@@ -333,7 +333,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			}
 		}
 	}
-	Debug0("Number of possible background voxels: " << (unsigned long int)(black_list.sum()));
+	Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	

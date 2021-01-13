@@ -10,7 +10,6 @@
 
 * To compile:
 
-g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
@@ -19,7 +18,7 @@ g++ example_OSL.cpp -o example_OSL -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm 
 
 ./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
 
-./example_OSL ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./example_OSL ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
 ./example_OSL ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
@@ -34,11 +33,11 @@ nohup ./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_OSL.out 
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
-#include "functions_OSL.hpp"
+#include "../../include/3D/functions_OSL.hpp"
 
 #include <ctime>
 #include <iomanip>

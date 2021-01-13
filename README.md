@@ -41,6 +41,121 @@ Locations:
 * The optimizer location: ./CppNumericalSolvers
 
 
+The current tree structure is as follows:
+```bash
+.
+├── CppNumericalSolvers
+│   ├── bazel.rc
+│   ├── BUILD
+│   ├── eigen.BUILD
+│   ├── generator.bzl
+│   ├── gtest.BUILD
+│   ├── include
+│   │   └── cppoptlib
+│   │       ├── boundedproblem.h
+│   │       ├── BUILD
+│   │       ├── linesearch
+│   │       │   ├── armijo.h
+│   │       │   ├── morethuente.h
+│   │       │   └── wolfeheuristic.h
+│   │       ├── meta.h
+│   │       ├── problem.h
+│   │       ├── solver
+│   │       │   ├── bfgssolver.h
+│   │       │   ├── cmaesbsolver.h
+│   │       │   ├── cmaessolver.h
+│   │       │   ├── conjugatedgradientdescentsolver.h
+│   │       │   ├── gradientdescentsolver.h
+│   │       │   ├── isolver.h
+│   │       │   ├── lbfgsbsolver.h
+│   │       │   ├── lbfgssolver.h
+│   │       │   ├── neldermeadsolver.h
+│   │       │   └── newtondescentsolver.h
+│   │       └── timer.h
+│   ├── LICENSE
+│   ├── lint.py
+│   ├── matlab
+│   │   ├── cppoptlib.cxx
+│   │   ├── example.m
+│   │   ├── local.m
+│   │   ├── make.m
+│   │   ├── rosenbrock_grad.m
+│   │   ├── rosenbrock_hessian.m
+│   │   ├── rosenbrock.m
+│   │   └── rosenbrockstruc.m
+│   ├── README.md
+│   ├── src
+│   │   ├── examples
+│   │   │   ├── linearregression.cpp
+│   │   │   ├── logisticregression.cpp
+│   │   │   ├── neldermead.cpp
+│   │   │   ├── neldermead-customized.cpp
+│   │   │   ├── nonnegls2.cpp
+│   │   │   ├── nonnegls.cpp
+│   │   │   ├── rosenbrock.cpp
+│   │   │   ├── rosenbrock_float.cpp
+│   │   │   ├── simple.cpp
+│   │   │   ├── simple_withoptions.cpp
+│   │   │   └── test
+│   │   └── test
+│   │       ├── benchmark.cpp
+│   │       └── verify.cpp
+│   ├── tensorflow
+│   │   ├── CMakeLists.txt
+│   │   ├── configure.py
+│   │   ├── problem.py
+│   │   ├── README.md
+│   │   ├── solve.cpp
+│   │   ├── solve.py
+│   │   └── tensorflow_config.txt
+│   └── WORKSPACE
+├── data
+│   ├── Dummy_sd.txt
+│   ├── new_phantom.nii
+│   ├── phantom.nii
+│   ├── smallest_phantom.nii
+│   ├── small.nii
+│   └── small_phantom.nii
+├── docs
+├── examples
+│   ├── 2D
+│   │   ├── Dummy_sd.txt
+│   │   ├── example_AECM.cpp
+│   │   └── example_OSL.cpp
+│   └── 3D
+│       ├── All_possible_26_GEM.cpp
+│       ├── All_possible_29_GEM.cpp
+│       ├── Dummy_sd_3D.txt
+│       ├── Dummy_sd_brainweb.txt
+│       ├── example_AECM.cpp
+│       ├── example_OSL.cpp
+│       ├── example_VAR.cpp
+│       └── Var.cpp
+├── include
+│   ├── 2D
+│   │   ├── functions_AECM.hpp
+│   │   ├── functions_gen.hpp
+│   │   ├── functions_LS_and_init_value.hpp
+│   │   ├── functions_OSL.hpp
+│   │   └── read_files.hpp
+│   └── 3D
+│       ├── functions_AECM.hpp
+│       ├── functions_gen.hpp
+│       ├── functions_LS_and_init_value.hpp
+│       ├── functions_OSL.hpp
+│       ├── functions_VAR.hpp
+│       └── read_files.hpp
+├── matlab
+├── R
+│   ├── 2D_AECM.cpp
+│   ├── 2D_AECM.hpp
+│   └── 2D_AECM_old.hpp
+├── README.md
+└── TODO
+
+```
+
+
 
 
 (* new_phantom.nii is actually transformed from phantom.nii(2D)

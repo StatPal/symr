@@ -37,9 +37,9 @@ int main(int argc, char * argv[]){
 
 
 
-#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
-#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
-#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 
 

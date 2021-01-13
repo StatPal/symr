@@ -13,12 +13,10 @@
 
 g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
-g++ example_AECM.cpp -o example_AECM -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
-
 
 ./example_AECM ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
+./example_AECM ../../data/new_phantom.nii Dummy_sd.txt 0
 
 ./example_AECM ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
@@ -29,12 +27,10 @@ nohup ./example_AECM ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > example_AECM.
 
 
 
-
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
-
-#include "functions_AECM.hpp"
+#include "../../include/2D/read_files.hpp"
+#include "../../include/2D/functions_gen.hpp"
+#include "../../include/2D/functions_LS_and_init_value.hpp"
+#include "../../include/2D/functions_AECM.hpp"
 
 
 #include <ctime>

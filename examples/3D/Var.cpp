@@ -34,9 +34,9 @@ g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
 #include <fstream>
 #include <random>
