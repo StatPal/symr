@@ -26,7 +26,7 @@
 
 
 
-/*
+/**
 Penalised NEGATIVE log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 */
@@ -64,10 +64,9 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
-/*
+/**
 * Optim template for rows of W using partial fn:
 */
-// Class definition with template
 template<typename T>
 class MRF_optim : public cppoptlib::BoundedProblem<T> {
   public:
@@ -128,8 +127,8 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 
 
 
-/*
-* Optim template for rows of W using partial fn:
+/**
+* Optim template for rows of W
 */
 template<typename T>
 class Likeli_optim : public cppoptlib::BoundedProblem<T> {
@@ -270,7 +269,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 
 
-/*
+/**
 * The function for One Step Late estimation:  
 * Inputs: 
 	W_init:		W matrix, passed 

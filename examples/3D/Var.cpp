@@ -49,7 +49,7 @@ g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
 // Initial value part:
 
 
-/*
+/**
 * Choose points based on the prob values
 */
 int choose_rnd_prob(const Vector_eig &p){
@@ -83,7 +83,7 @@ int choose_rnd_prob(const Vector_eig &p){
 }
 
 
-/*
+/**
 * Finds closest dist of mu's from R_i.
 */
 int closest_dist(double R_i, Vector_eig mu){
@@ -97,8 +97,8 @@ int closest_dist(double R_i, Vector_eig mu){
 
 
 
-/*
-* Modified version of Initial value determination
+/**
+* Modified version of Initial value determination to estimate sigma_j
 * The whole init_value part is run more than 1 time (init_iter)
 * and the mean of the voxels of that class is taken as mu 
 * (as opposed to taking a random point from that group)
@@ -236,8 +236,8 @@ double dlrice(double x, double mu, double sig_sq) {
 
 
 
-/*   This is the E-Step: assigns the responsibilities of each of the k groups 
-     to each of the n observations. 
+/**
+     This is the E-Step: assigns the responsibilities of each of the k groups  to each of the n observations. 
      Inputs:
      n     = number of Ricean observations
      k     = number of components (all Rice; Rayleigh incorporated within, in 
@@ -287,7 +287,8 @@ void rice_estep(int n, int k, const Vector_eig &X, Matrix_eig &Gamma, Matrix_eig
 
 
 
-/*   This is the M-Step: Maximize the parameters w.r.t. old ones.
+/*   
+     This is the M-Step: Maximize the parameters w.r.t. old ones.
      Inputs:
      n     = number of Ricean observations
      k     = number of components (all Rice; Rayleigh incorporated within, in 
@@ -356,9 +357,9 @@ double observedDataLogLikelihood(const Vector_eig &y, const int numPoints,
 
 
 
-/*
+/**
 * Full EM cycle:
-* llhdval is the likelihood
+* llhdval is the log-likelihood value
 * BIC is BIC
 */
 Eigen::VectorXi rice_emcluster(int n, int k, const Vector_eig &X, Vector_eig &pi, Vector_eig &Mu, 
@@ -400,7 +401,9 @@ Eigen::VectorXi rice_emcluster(int n, int k, const Vector_eig &X, Vector_eig &pi
 
 
 
-// Change
+/**
+* Estimate of sigma_j
+*/
 double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, 
 				int init_iter = 4, int EM_iter = 15, double eps = 0.0001){
 	
@@ -440,6 +443,9 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15,
 	
 	return best_sig;
 }
+
+
+
 
 
 

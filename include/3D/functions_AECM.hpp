@@ -24,7 +24,7 @@
 
 
 
-/*
+/**
 Penalised NEGATIVE log likelihood -- to be minimised
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
@@ -65,10 +65,9 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
-/*
-* Optim template for rows of W using partial fn:
+/**
+* Optim template for MRF parameters
 */
-// Class definition with template
 template<typename T>
 class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
@@ -137,7 +136,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 
 /*
-* Optim template for rows of W using partial fn:
+* Optim template for rows of W.
 */
 template<typename T>
 class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is inheriting fn from cppoptlib::BoundedProblem
@@ -371,18 +370,29 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 
 
-/*
-* Main fn, currently one iteration is done. Change that with while loop
-*
-* Stopping criteria might seem confusing at first: 
-* W_old is used to compare between new and previous iteration parameters
-* and updated after each iteration
-* whereas f.W_old is updated at each voxel update.
-*
-* This would not work for parallel in this situation
-* because W_old and f.W_old are passed by reference.
-* So, compare W_init and W_old without updating W_old at each voxel.
-* Eventually update the W_old
+/**
+* The function for AECM estimation :
+* Inputs: 
+	W_init:		W matrix, passed 
+	Psi_inv:	Psi_inv matrix, passed
+	beta: 		beta vector, passed
+	TE_example: TE values for the train data
+	TR_example: TR values for the train data
+	sigma: 		sigma values for the train data
+	r: 			Observed values for the pixels, n x m matrix
+	n_x, 
+	n_y, 
+	n_z: 		
+	r_scale: 	scale for the r matrix, or equivalently rho.
+	TE_scale: 	scale used for TE
+	TR_scale: 	scale used for TR
+	MRF_obj:	MRF_param object
+	maxiter: 	Maximum number of iteration of EM algorithm - default value 20
+	penalized: 	1(default) if penalization is used - 0 if not
+	abs_diff: 	absolute difference bound for the EM algorithm
+	rel_diff: 	relative difference bound for the EM algorithm for the log-likelihood
+	verbose: 	verbose, default 0
+	verbose2:	Secondary level of verbose - default 0
 */
 void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 

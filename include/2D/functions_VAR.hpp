@@ -25,7 +25,7 @@
 ****************************************************/
 
 
-/*
+/**
 * Derivative of I_1/I_0
 */
 double h(double x){
@@ -45,12 +45,12 @@ double h(double x){
 
 
 /**
+* Calculating Hessian matrix (w.r.t. W)
 * W is a nx3 matrix.
-* Hessian matrix(w.r.t. W) would be 3n x 3n matrix - mostly 0's
-* d^2 l* / dW_{i'k'} dW_{ik}
+* The Hessian would be a sparse 3n x 3n matrix, d^2 l* / dW_{i'k'} dW_{ik}
 * {i,k} are arranged in a fashion so that k remains like a subdivision under division of i
 * i.e., 
-* l-th column/row represents: 
+* l-th column/row represents : 
 	k = l%3; 
 	i = (int) l/3;
 * and 
@@ -241,9 +241,6 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	W_hess.makeCompressed();
-	//Debug1("W_hess: \n");
-	//show_head(MatrixXd(-W_hess));
-	// show_head_sp(-W_hess);
 	
 	auto time_2_hess = std::chrono::high_resolution_clock::now();
 	auto duration_hess = std::chrono::duration_cast<std::chrono::seconds>(time_2_hess - time_1_hess);
@@ -314,10 +311,10 @@ void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_e
 
 
 
-/*
-* Hessian matrix iterative solution:
-* v_grad ' Hessian_mat_without_MRF v_grad is to be calculated 
-* j-th image's variance(n = n_x*n_y*n_z) is to be calculated.
+/**
+* Hessian matrix with respect to new test images
+* i.e., \nu_ij' \Sigma_ij^{-1} \nu_ij
+* Iterative solution is used.
 */
 Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                             const Vector_eig &TE_train, const Vector_eig &TR_train,
@@ -333,7 +330,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
 	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
 	assert(A.rows() == 3*n);
-	save_sparse(A, "Hessian_Matrix_26.csv", 1);
+	save_sparse(A, "Hessian_Matrix.csv", 1);
 	
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
 	Debug0("Diagonal");
@@ -362,7 +359,6 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
-			//if(i==100000 || i==300000 || i==500000 || i==700000 || i==900000 ){
 			if( i % 100 == 0){
 				std::cout << std::endl;
 				Debug1("Info i: "<< i << ", j: " << j);
@@ -373,9 +369,6 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 			
 			assert(b.size() == A.cols());
 			
-			// Thought about the j
-			// Should it be ind [j] or something like that?
-			// I don't think so!
 			tmp_soln = cg.solve(b);
 			if( i % 100 == 0)
 				std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
@@ -396,18 +389,84 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 
 
 
-
-
-/*
-* Parametric Bootstrap
-* 'const' are removed as AECM_optim inside needs non-const cases
-* -- No, just create another set of small matrices. Otherwise in main, Psi and beta would be changed
-* wait, there are no terain - test case?
+/**
+* Variance corresponding to Contrast using Information Matrix and Delta method
 */
+Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+                                     const Vector_eig &TE_train, const Vector_eig &TR_train,
+                                     const Vector_eig &sigma_train, const Matrix_eig_row &train, 
+                                     int n_x, int n_y, int n_z, MRF_param &MRF_obj,
+                                     const Vector_eig &TE_test, const Vector_eig &TR_test, 
+                                     const Vector_eig &sigma_test, const Matrix_eig_row &test,
+                                     const SpVec &contrast){
+
+	auto hess_1 = std::chrono::high_resolution_clock::now();
+	int n = W.rows();
+	Matrix_eig Var_est(contrast.nonZeros(), TE_test.size());
+	
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
+	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
+	assert(A.rows() == 3*n);
+	save_sparse(A, "Hessian_Matrix.csv", 1);
+	
+	// Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	// Debug0("Diagonal");
+	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+	Debug0("IncompleteCholesky");
+	cg.compute(A);
+	
+	
+	
+	
+	
+	Vector_eig tmp_soln(3*n);
+	SpVec b(3*n);
+	// Vector_eig b = Vector_eig::Zero(3*n);
+	
+	
+	// First i or j, which would be better? - check.
+	std::cout << std::endl << std::flush;
+	Debug1("Hessian loop starts!");
+	std::cout << std::endl << std::flush;
+	for(int j = 0; j < TE_test.size(); ++j){
+	
+		for(SpVec::InnerIterator i_(contrast); i_; ++i_){
+		
+			Debug1("Info i: "<< i_.index() << ", j: " << j);
+			
+			// b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j);
+			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j, b);
+			
+			assert(b.size() == A.cols());
+			
+			tmp_soln = cg.solve(b);
+			std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+			Var_est(i_.index(), j) = b.dot(tmp_soln);
+			
+			// b(3*i_.index()) = 0.0; b(3*i_.index()+1) = 0.0; b(3*i_.index()+2) = 0.0;
+			
+			Var_est(i_.index(), j) *= SQ(i_.value()); 
+			
+		}
+	}
+	
+	
+	
+	auto hess_2 = std::chrono::high_resolution_clock::now();
+	auto hess_duration = std::chrono::duration_cast<std::chrono::seconds>(hess_2 - hess_1);
+	Debug1("Time taken for Info matrix using Hessian: " << hess_duration.count() << " seconds\n");
+	
+	return Var_est.array().colwise().sum();
+}
 
 
-/*
+
+
+
+
+/**
 * Parametric Bootstrap
+* for test set of images
 */
 Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                               const Vector_eig &TE_train, const Vector_eig &TR_train, 
@@ -444,7 +503,6 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 
 		
 		//Generate an image matrix:
-		// generated_r = Gen_r(W, TE_test, TR_test, sigma_test); // Sorry, this is a mistake
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 

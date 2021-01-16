@@ -1996,5 +1996,80 @@ Matrix_eig combi(int n, int r){
 
 
 
+
+
+
+// Compressed Column (or Row) Storage schemes (CCS or CRS)
+// https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
+// https://eigen.tuxfamily.org/dox/classEigen_1_1SparseMatrix.html
+
+void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_triplet
+				// , int if_nnz = 1
+				){
+	
+	
+	// _Scalar is double here
+	// _StorageIndex default is int
+	// change if necessary.
+	
+	
+	std::ofstream file_connection;
+	file_connection.open(file_name);
+	// Use std::setprecision(8) if necessary
+
+	sm.makeCompressed();
+	
+	
+	
+	if(if_triplet){
+		for (int k = 0; k < sm.outerSize(); ++k) {
+			for (SpMat::InnerIterator it(sm,k); it; ++it) {
+				file_connection << it.row() << ", "; // row index
+				file_connection << it.col() << ", "; // col index
+				file_connection << it.value() << std::endl;
+			}
+		}
+	} else {
+		std::cout << "mat.innerSize: " << sm.innerSize() << "\n";
+		std::cout << "mat.outerSize: " << sm.outerSize() << "\n";
+		std::cout << "mat.nonZeros: " << sm.nonZeros() << "\n";
+ 	
+	
+		double* Values = sm.valuePtr();		  	// Pointer to the values
+		int* InnerIndices = sm.innerIndexPtr();	// Pointer to the indices.
+		int* OuterStarts = sm.outerIndexPtr();		// Pointer to the beginning of each inner vector
+		// int* InnerNNZs = sm.innerNonZeroPtr();	// Not needed for compressed case
+		
+		
+		
+		for(int i = 0; i < sm.nonZeros(); ++i){
+			file_connection << *(Values+i) << " ";
+		}
+		file_connection << std::endl;
+		for(int i = 0; i < sm.nonZeros(); ++i){
+			file_connection << *(InnerIndices+i) << " ";
+		}
+		file_connection << std::endl;
+		for(int i = 0; i <= sm.outerSize(); ++i){
+			file_connection << *(OuterStarts+i) << " ";
+		}
+		/*
+		if(if_nnz){
+			std::cout << std::endl;
+			for(int i = 0; i < sm.innerSize(); ++i){
+				std::cout << (*(InnerNNZs+i)) << " ";
+			}
+		}
+		*/
+	}
+	
+	
+	
+	file_connection << "\n";
+	file_connection.close();
+}
+
+
+
 #endif	/* MAIN_HEADER */
 

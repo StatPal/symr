@@ -51,7 +51,9 @@ int main(int argc, char * argv[]){
 
 
 
-
+/**
+* Optimization template for Least Square Estimates of the parameters.
+*/
 template<typename T>
 class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
   public:
@@ -132,7 +134,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 
 
-/*
+/**
 * Least square solution
 * 	Input:  
 *			W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale
@@ -263,7 +265,7 @@ void least_sq_solve(Matrix_eig_row &W,
 
 
 
-/*
+/**
 * Read the data and
 * replace the zeros by small number (0.5)
 */
@@ -286,7 +288,7 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 
 
 
-/*
+/**
 * Creates the initial matrix W
 * if do_least_sq is 1, 
 * 	it gives the least square solution.
@@ -336,7 +338,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 
 
 
-/*
+/**
 * Performance matrices:
 * W: 		parameter matrix:
 * test: 	test set image matrix

@@ -1,13 +1,10 @@
-/*
+/**
+ * header file to read from a NIFTI file to our required format.
  * 
  * Adapted from https://answers.opencv.org/question/179162/how-can-i-load-4d-medical-image-of-type-nifti/
  * 
- * Precompile header using
-g++ Read_files_2.hpp -I /usr/include/eigen3 -O3
- * - Don't do it now. taking huge gch file. 
-
  *
- * To do:
+ * To do :
  	* Other format
  	* Include scl_slope, scl_inter
  *

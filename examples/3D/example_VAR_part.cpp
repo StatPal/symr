@@ -1,23 +1,26 @@
 /**
 * 
+Example variance for contrast vector :
 
 
-* To compile:
-
-g++ example_VAR.cpp -o example_VAR -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
-
-g++ example_VAR.cpp -o example_VAR -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-
-g++ example_VAR.cpp -o example_VAR -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
 
-./example_VAR ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
+* To compile :
 
-./example_VAR ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
-./example_VAR ../Read_Data/small.nii Dummy_sd_3D.txt 0
+g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-nohup ./example_VAR ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_VAR.out & 
+g++ example_VAR_part.cpp -o example_VAR_part -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+
+
+./example_VAR_part ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
+
+./example_VAR_part ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+
+./example_VAR_part ../Read_Data/small.nii Dummy_sd_3D.txt 0
+
+nohup ./example_VAR_part ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_VAR.out & 
 
 * 
 */
@@ -278,6 +281,5 @@ int main(int argc, char * argv[]) {
 
 	return 0;
 }
-
 
 

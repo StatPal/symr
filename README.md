@@ -1,14 +1,12 @@
 # Synthetic MRI 1
 
-Very primitive situation in git - may contain errors.
-
 Revised version.
 
 
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
 The header files location must be with the proper PATH, or PATH should be added in time of compilation.
 The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
-It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processig.
+It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
 
 Locations:
 * The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp (or ./examples/3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
@@ -46,56 +44,58 @@ Locations:
 The current tree structure is as follows:
 ```bash
 .
-├── data
-│   ├── Dummy_sd.txt
-│   ├── new_phantom.nii
-│   ├── phantom.nii
-│   ├── smallest_phantom.nii
-│   ├── small.nii
-│   ├── small_phantom.nii
-│   └── ZHRTS1.nii
-├── docs
-├── examples
-│   ├── 2D
-│   │   ├── Dummy_sd.txt
-│   │   ├── example_AECM.cpp
-│   │   ├── example_OSL.cpp
-│   │   ├── example_VAR.cpp
-│   │   └── result
-│   └── 3D
-│       ├── All_possible_AECM.cpp
-│       ├── All_possible_OSL.cpp
-│       ├── Dummy_sd_3D.txt
-│       ├── Dummy_sd_brainweb.txt
-│       ├── example_AECM.cpp
-│       ├── example_OSL.cpp
-│       ├── example_VAR.cpp
-│       ├── result
-│       └── Var.cpp
-├── include
-│   ├── 2D
-│   │   ├── functions_AECM.hpp
-│   │   ├── functions_gen.hpp
-│   │   ├── functions_LS_and_init_value.hpp
-│   │   ├── functions_OSL.hpp
-│   │   ├── functions_VAR.hpp
-│   │   └── read_files.hpp
-│   └── 3D
-│       ├── functions_AECM.hpp
-│       ├── functions_gen.hpp
-│       ├── functions_LS_and_init_value.hpp
-│       ├── functions_OSL.hpp
-│       ├── functions_VAR.hpp
-│       └── read_files.hpp
-├── matlab
-├── R
-│   ├── 2D_AECM.cpp
-│   ├── 2D_AECM.hpp
-│   ├── 2D_AECM_old.hpp
-│   ├── Analyse_Hessian.R
-│   └── Analyse_Var_est.R
-├── README.md
-└── TODO
+|-- data
+|   |-- Dummy_sd.txt
+|   |-- new_phantom.nii
+|   |-- phantom.nii
+|   |-- smallest_phantom.nii
+|   |-- small.nii
+|   |-- small_phantom.nii
+|   `-- ZHRTS1.nii
+|-- docs
+|   `-- Doxyfile
+|-- examples
+|   |-- 2D
+|   |   |-- Dummy_sd.txt
+|   |   |-- example_AECM.cpp
+|   |   |-- example_OSL.cpp
+|   |   |-- example_VAR.cpp
+|   |   `-- result
+|   `-- 3D
+|       |-- All_possible_AECM.cpp
+|       |-- All_possible_OSL.cpp
+|       |-- Dummy_sd_3D.txt
+|       |-- Dummy_sd_brainweb.txt
+|       |-- example_AECM.cpp
+|       |-- example_OSL.cpp
+|       |-- example_VAR.cpp
+|       |-- example_VAR_part.cpp
+|       |-- result
+|       `-- Var.cpp
+|-- include
+|   |-- 2D
+|   |   |-- functions_AECM.hpp
+|   |   |-- functions_gen.hpp
+|   |   |-- functions_LS_and_init_value.hpp
+|   |   |-- functions_OSL.hpp
+|   |   |-- functions_VAR.hpp
+|   |   `-- read_files.hpp
+|   `-- 3D
+|       |-- functions_AECM.hpp
+|       |-- functions_gen.hpp
+|       |-- functions_LS_and_init_value.hpp
+|       |-- functions_OSL.hpp
+|       |-- functions_VAR.hpp
+|       `-- read_files.hpp
+|-- matlab
+|-- R
+|   |-- 2D_AECM.cpp
+|   |-- 2D_AECM.hpp
+|   |-- 2D_AECM_old.hpp
+|   |-- Analyse_Hessian.R
+|   `-- Analyse_Var_est.R
+|-- README.md
+`-- TODO
 
 ```
 
