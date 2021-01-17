@@ -426,12 +426,14 @@ double logBesselI0(double x) {
 * Covariance matrix from a data matrix x
 */
 // [[Rcpp::export]]
+/*
 Matrix_eig Cov_1(Matrix_eig x) {
 	int nRows = x.rows();
 	Vector_eig colMean = x.colwise().mean();
 	x.rowwise() -= colMean.transpose();
 	return x.transpose()*x/(nRows-1);
 }
+*/
 
 
 double var(const Vector_eig &x){
@@ -550,9 +552,11 @@ Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
 Crude Determinant of a sparse matrix - not needed I guess
 */
 // [[Rcpp::export]]
+/*
 double sp_det_1(const SpMat &A){
 	return Matrix_eig(A).determinant();
 }
+*/
 
 
 /**
@@ -583,17 +587,20 @@ double abs_sum(const Vector_eig &x){
 * Not needed now
 */
 // [[Rcpp::export]]
+/*
 double sp_log_det_2(const SpMat &B){					// Log determinant
 	Matrix_eig A = Matrix_eig(B);
 	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(A);
 	return log_vec(es.eigenvalues()).sum();
 }
+*/
 
 
 
 /**
 * Not needed now
 */
+/*
 double sp_log_det_7(SpMat A){			// Log determinant - LU
 	Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
 	Debug2("Solver initiated!");
@@ -608,6 +615,7 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 	Debug2("logAbsDeterminant calculated!");
 	return temp;
 }
+*/
 
 
 
@@ -730,6 +738,10 @@ void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_ei
 
 
 
+/**
+* Checks whether any vector of size 3(x) is inside proper bounds(lb and ub) or not
+* @return number of cases of going outside bound
+*/
 int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
 
 	int bad_bound_1 = 0, bad_bound_2 = 0;
@@ -824,10 +836,12 @@ int check_nan_vec(const Vector_eig &A){
 
 
 
-/*
+/**
 * Kroneker product of two dense Matrices
 * or use the experimental module
+* not used now
 */
+/*
 Matrix_eig Kron_eig(const Matrix_eig &m1, const Matrix_eig &m2){
 
 	Matrix_eig m3(m1.rows()*m2.rows(), m1.cols()*m2.cols());
@@ -838,6 +852,8 @@ Matrix_eig Kron_eig(const Matrix_eig &m1, const Matrix_eig &m2){
 	}
 	return m3;
 }
+*/
+
 
 /*
 * Kroneker product of two Vectors
@@ -1601,6 +1617,7 @@ Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_e
 * Output: reparametrized vector (needed for the full set optimization)
 * Serious change is needed.
 */
+/*
 Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, double beta_y){
 	// to_vector can't handle const - use const and hard code temp -- Subrata 
 	// Or, just use W.data() -- I guess it would work - Check
@@ -1625,6 +1642,7 @@ Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, doubl
 
 	return temp;
 }
+*/
 // Change this for Matrix_eig_row.
 
 
@@ -1635,6 +1653,7 @@ Vector_eig to_param_vec(Matrix_eig W, Matrix3d_eig Psi_inv, double beta_x, doubl
 * I forgot this - The change is in Psi_inv?
 * Possibly it is the reparametrization used for gradient calculation of all param
 */
+/*
 Vector_eig to_param_vec_grad(const Matrix_eig_row &W, const Matrix_eig &Psi_inv, double beta_x, double beta_y){
 	//const removed
 	int n = W.rows();		// check
@@ -1647,12 +1666,14 @@ Vector_eig to_param_vec_grad(const Matrix_eig_row &W, const Matrix_eig &Psi_inv,
 
 	return temp;
 }
+*/
 
 
 
 /*
 * Regaining Symmetric Psi_inv(3x3) from temp_psi(6) vector
 */
+/*
 Matrix3d_eig to_Psi_inv(const Vector_eig &temp_psi){
 	Matrix3d_eig Psi_inv = Matrix3d_eig::Zero(3,3);
 	Psi_inv(0,0) = temp_psi(0); Psi_inv(0,1) = temp_psi(1); Psi_inv(0,2) = temp_psi(2);
@@ -1660,11 +1681,13 @@ Matrix3d_eig to_Psi_inv(const Vector_eig &temp_psi){
 	Psi_inv(2,0) = temp_psi(2); Psi_inv(2,1) = temp_psi(4); Psi_inv(2,2) = temp_psi(5);
 	return Psi_inv;
 }
+*/
 
 
 /*
 * Regaining (lower Triangular) L matrix from temp_L vector (Cholesky part)
 */
+/*
 Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 	Matrix3d_eig L = Matrix3d_eig::Zero(3,3);
 	L(0,0) = temp_L(0); L(0,1) = 0.0;       L(0,2) = 0.0;
@@ -1672,6 +1695,7 @@ Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 	L(2,0) = temp_L(2); L(2,1) = temp_L(4); L(2,2) = temp_L(5);
 	return L;
 }
+*/
 
 
 
@@ -1681,6 +1705,7 @@ Matrix3d_eig to_L_mat(const Vector_eig &temp_L){
 * input: L: 3x3 Lower triangular matrix
 * Output: 6x1 vector
 */
+/*
 Vector_eig from_L_mat(const Matrix3d_eig &L) {
 	Vector_eig temp_L(6);
 	temp_L(0) = L(0,0);
@@ -1692,6 +1717,7 @@ Vector_eig from_L_mat(const Matrix3d_eig &L) {
 	
 	return temp_L;
 }
+*/
 
 
 
@@ -1699,9 +1725,11 @@ Vector_eig from_L_mat(const Matrix3d_eig &L) {
 /*
 * llt (opposite of llt decomposition)
 */
+/*
 Matrix3d_eig from_Cholesky(const Matrix3d_eig &L){
 	return (L*L.transpose());
 }
+*/
 
 
 
@@ -1713,6 +1741,7 @@ Matrix3d_eig from_Cholesky(const Matrix3d_eig &L){
 * Use Matrix3d_eig L( A.llt().matrixL() );
 * See the function log_det_3_chol
 */
+/*
 Matrix3d_eig to_Cholesky(const Matrix3d_eig &A){
 	
 	Matrix3d_eig L;
@@ -1723,6 +1752,7 @@ Matrix3d_eig to_Cholesky(const Matrix3d_eig &A){
 	
 	return L;
 }
+*/
 
 
 
@@ -1746,6 +1776,7 @@ Matrix3d_eig to_Cholesky(const Matrix3d_eig &A){
 * vec_chol(L) = [l_00, l_10, l_20, l_11, l_12, l_22]				// changed due to change in symmetry??
 * The parameter is: 
 */
+/*
 Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 	
 	Matrix_eig D = Matrix_eig::Zero(6, 6);
@@ -1759,6 +1790,7 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 	
 	return D;
 }
+*/
 
 
 
@@ -1820,6 +1852,7 @@ Matrix_eig_row Gen_r(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 
 
 // Not needed now - see next one
+/*
 double dee_v_ij_dee_W_ik(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, 
 						 int i, int j, int k){
 	if(k == 0){
@@ -1833,6 +1866,7 @@ double dee_v_ij_dee_W_ik(const Matrix_eig_row &W, const Vector_eig &TE, const Ve
 	}
 }
 // There was a mistake, W(i, 3) would be W(i,2) and so on ... C and R indexing case -- corrected
+*/
 
 
 /**
@@ -1870,6 +1904,7 @@ double simple_dee_v_ij_dee_W_ik(const Vector_eig &W, const Vector_eig &TE, const
 
 
 // Not needed now - see next one
+/*
 double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, 
                                      int i, int j, int k, int k1){
 
@@ -1891,6 +1926,7 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &
 	}
 }
 // BUG, see next
+*/
 
 
 
