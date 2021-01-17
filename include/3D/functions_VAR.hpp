@@ -359,8 +359,9 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 
 
 
-/**
-* Variance corresponding to Contrast using Information Matrix and Delta method
+/** @brief Variance corresponding to Contrast using Information Matrix and Delta method
+	@param[in]	W	The W matrix
+	@return		Void
 */
 Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                                      const Vector_eig &TE_train, const Vector_eig &TR_train,
@@ -373,6 +374,8 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	auto hess_1 = std::chrono::high_resolution_clock::now();
 	int n = W.rows();
 	Matrix_eig Var_est(contrast.nonZeros(), TE_test.size());
+	Vector_eig Var_est_vec(TE_test.size());
+	
 	
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
 	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
@@ -394,39 +397,26 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	// Vector_eig b = Vector_eig::Zero(3*n);
 	
 	
-	// First i or j, which would be better? - check.
-	std::cout << std::endl << std::flush;
-	Debug1("Hessian loop starts!");
-	std::cout << std::endl << std::flush;
+	Vector_eig x = Vector_eig::Zero(3*n);
 	for(int j = 0; j < TE_test.size(); ++j){
-	
 		for(SpVec::InnerIterator i_(contrast); i_; ++i_){
-		
-			Debug1("Info i: "<< i_.index() << ", j: " << j);
-			
-			// b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j);
 			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j, b);
+			// assert(b.size() == A.cols());
 			
-			assert(b.size() == A.cols());
-			
-			tmp_soln = cg.solve(b);
-			std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-			Var_est(i_.index(), j) = b.dot(tmp_soln);
-			
-			// b(3*i_.index()) = 0.0; b(3*i_.index()+1) = 0.0; b(3*i_.index()+2) = 0.0;
-			
-			Var_est(i_.index(), j) *= SQ(i_.value()); 
-			
+			x += i_.value() * b;
 		}
+		
+		tmp_soln = cg.solve(x);
+		std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+		Var_est_vec(j) = x.dot(tmp_soln);
 	}
-	
 	
 	
 	auto hess_2 = std::chrono::high_resolution_clock::now();
 	auto hess_duration = std::chrono::duration_cast<std::chrono::seconds>(hess_2 - hess_1);
 	Debug1("Time taken for Info matrix using Hessian: " << hess_duration.count() << " seconds\n");
 	
-	return Var_est.array().colwise().sum();
+	return Var_est_vec;
 }
 
 
