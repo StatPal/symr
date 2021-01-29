@@ -569,6 +569,9 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		
+		Eigen::setNbThreads(1);
+		
+		
 		// * Loop over voxels: * //
 		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve, tmp2,    r, n_x, n_y, n_z, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, std::cout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
 		{
@@ -811,6 +814,9 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			
 		}
 		
+		
+		
+		Eigen::setNbThreads(0);
 		
 		
 		

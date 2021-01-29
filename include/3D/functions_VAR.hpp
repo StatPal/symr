@@ -96,7 +96,28 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
 	
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < m; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
+	if(verbose)
+		Debug0("Number of possible background voxels: " << (black_list.sum()));
+	
+	
+	
+	
+	
+	
+	// Make it parallel
 	for(i = 0; i < n; ++i) {
+	if(black_list(i) == 0){
 	
 		if(i % 10000 == 0){
 			std::cout << "\n";
@@ -208,6 +229,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 				}
 			}
 		}
+	}
 	}
 	
 	
@@ -380,14 +402,20 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
 	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
 	assert(A.rows() == 3*n);
-	save_sparse(A, "Hessian_Matrix.csv", 1);
+	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
-	// Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
-	// Debug0("Diagonal");
-	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
-	Debug0("IncompleteCholesky");
+	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	Debug0("Diagonal");
+//	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+//	Debug0("IncompleteCholesky");
+	
+	
+	cg.setMaxIterations(1000);
+	//cg.setTolerance(5e-4);
+	
 	cg.compute(A);
 	
+	Debug0("compute part done");
 	
 	
 	
@@ -406,6 +434,7 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 			x += i_.value() * b;
 		}
 		
+		Debug0("before cg solve");
 		tmp_soln = cg.solve(x);
 		std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 		Var_est_vec(j) = x.dot(tmp_soln);
