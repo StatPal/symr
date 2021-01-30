@@ -126,12 +126,12 @@ int main(int argc, char * argv[]) {
 	std::vector<int> train_ind{0, 8, 9};
 	std::vector<int> test_ind{};
 	
-	test_ind = whole_ind;
-	/*
+	//test_ind = whole_ind;
+	
 	std::set_difference(whole_ind.begin(), whole_ind.end(), 
 						train_ind.begin(), train_ind.end(),
                         std::inserter(test_ind, test_ind.begin()));
-	*/
+	
 	
 	std::cout << "\ntrain: \t";
 	for(int n1 : train_ind) {
@@ -227,11 +227,17 @@ int main(int argc, char * argv[]) {
 	// Variance estimation: 
 	
 	// Using Info matrix + delta method:
-	
+	/*
 	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
                                              train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test);
+	*/
 	
+	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
+                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
+                                             TE_test, TR_test, sigma_test, test, contrast_2);
+	
+	/*
 	// Write to a file:
 	std::ofstream info_var_file;
 	info_var_file.open ("result/info_var_26_new.txt");
@@ -239,10 +245,10 @@ int main(int argc, char * argv[]) {
 		info_var_file << info_var_1.row(i) << "\n";
 	}
 	info_var_file.close();
+	*/
 	
 	
-	
-	
+	/*
 	// Using Bootstrap
 	std::cout << "\n\n";
 	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
@@ -250,12 +256,23 @@ int main(int argc, char * argv[]) {
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
                                                TE_test, TR_test, sigma_test, test, 200, 500, 1e-1, 1e-4);
                                                //change
+	*/
 	
 	
+	Vector_eig boot_var_contrast = para_boot_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
+											   TE_train, TR_train, sigma_train,  
+                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
+                                               r_scale, TE_scale, TR_scale, MRF_obj_1,
+                                               TE_test, TR_test, sigma_test, test, contrast_2,
+                                               200, 50, 1e-1, 1e-3);
+	
+	
+	/*
 	std::cout << "\n\nVariance from Information matrix:\n";
 	show_head(info_var_1);
+	*/
 	
-	
+	/*
 	std::cout << "\nVariance from parametric bootstrap:\n";
 	show_head(boot_var_1);
 	
@@ -267,8 +284,17 @@ int main(int argc, char * argv[]) {
 		boot_var_file << boot_var_1.row(i) << "\n";
 	}
 	boot_var_file.close();
-	
+	*/
 
+	
+	
+	std::cout << "\n\nVariance from Information matrix:\n";
+	Debug0("Info var contrast : " << info_var_contrast.transpose());
+	
+	
+	std::cout << "\nVariance from parametric bootstrap:\n";
+	Debug0("boot_var_contrast: " << boot_var_contrast.transpose());
+	
 	
 	
 	

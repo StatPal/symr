@@ -427,6 +427,8 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	
 	Vector_eig x = Vector_eig::Zero(3*n);
 	for(int j = 0; j < TE_test.size(); ++j){
+	
+		x = Vector_eig::Zero(3*n);
 		for(SpVec::InnerIterator i_(contrast); i_; ++i_){
 			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j, b);
 			// assert(b.size() == A.cols());
@@ -510,6 +512,76 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 	auto boot_2 = std::chrono::high_resolution_clock::now();
 	auto boot_duration = std::chrono::duration_cast<std::chrono::seconds>(boot_2 - boot_1);
 	Debug1("Time taken for Info matrix using Parametric Bootstrap: " << boot_duration.count() << " seconds\n");
+	
+	return (sum_sq_mat);
+}
+
+
+
+
+
+
+/** @brief Variance corresponding to Contrast using Parametric Bootstrap
+	@param[in]	W	The W matrix
+	@return		Vector
+*/
+Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
+                                       const Vector_eig &TE_train, const Vector_eig &TR_train, 
+                                       const Vector_eig &sigma_train, const Matrix_eig_row &r,
+                                       int n_x, int n_y, int n_z, 
+                                       double r_scale, double TE_scale, double TR_scale, MRF_param &MRF_obj, 
+                                       const Vector_eig &TE_test, const Vector_eig &TR_test, 
+                                       const Vector_eig &sigma_test, const Matrix_eig_row &test,
+                                       const SpVec &contrast, 
+                                       int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3){
+
+	auto boot_1 = std::chrono::high_resolution_clock::now();
+	Debug1("Parametric Bootstrap starts!!");
+	
+	int n = W.rows();
+	int m_test = TE_test.size();
+	int m_train = TE_train.size();
+	
+	Vector_eig Var_est(m_test);
+	Matrix_eig_row W_init = W;
+	Matrix3d_eig Psi_inv_init = Psi_inv;
+	Vector_eig beta_init = beta;
+	
+	// All estimated parametrs:
+	Matrix_eig generated_r(n, m_train);		// train columns only
+	
+	// added cases: 
+	Matrix_eig tmp_mat = Matrix_eig::Zero(n, m_test);
+	Vector_eig tmp_vec = Vector_eig::Zero(m_test);
+	Vector_eig sum_mat = Vector_eig::Zero(m_test);
+	Vector_eig sum_sq_mat = Vector_eig::Zero(m_test);
+	
+	for(int b = 0; b < B; ++b){
+		if( b % 50 == 0){
+			Debug0("bootstrap sample " << b);
+		}
+
+		
+		//Generate an image matrix:
+		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
+		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
+		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
+							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, 1, abs_diff, rel_diff, 0);
+		tmp_mat = v_mat(W_init, TE_test, TR_test);
+		// This is the nu_hat matrix for b-th replication - would be of  size n x m_test
+		tmp_vec = tmp_mat.transpose() * contrast;
+		
+		sum_mat += tmp_vec;
+		sum_sq_mat += tmp_vec.array().square().matrix();
+	}
+	
+	sum_mat /= B;
+	sum_sq_mat /= B;
+	sum_sq_mat -= sum_mat.array().square().matrix();
+	
+	auto boot_2 = std::chrono::high_resolution_clock::now();
+	auto boot_duration = std::chrono::duration_cast<std::chrono::seconds>(boot_2 - boot_1);
+	Debug1("Time taken for Variance using Parametric Bootstrap: " << boot_duration.count() << " seconds\n");
 	
 	return (sum_sq_mat);
 }
