@@ -14,13 +14,13 @@ g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -l
 g++ example_VAR_part.cpp -o example_VAR_part -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
 
-./example_VAR_part ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./example_VAR_part ../Read_Data/ZHRTS2.nii Dummy_sd_3D.txt 0
 
-./example_VAR_part ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./example_VAR_part ../../data/ZHRTS2.nii Dummy_sd_3D.txt 0
 
 ./example_VAR_part ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
-nohup ./example_VAR_part ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_VAR.out & 
+nohup ./example_VAR_part ../Read_Data/ZHRTS2.nii Dummy_sd_3D.txt 0 > example_VAR.out & 
 
 * 
 */
@@ -206,7 +206,7 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
 	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
-	          500, 1, 0.1, 1e-7, 1);
+	          500, 1, 0.1, 1e-8, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
@@ -221,71 +221,49 @@ int main(int argc, char * argv[]) {
 	
 	
 	
+	// Read the contrast: 
+	int n = W_init.rows();
+	Debug0("Reading the contrast file");
+	// char const *contrast_file = "../data/ZHRTS2_class.nii"; // valid and safe in either C or C++.
+	// use char* const ... see the function def
+	char *contrast_file = (char*)"../../data/ZHRTS2_class.nii";
+	// https://stackoverflow.com/questions/20944784/why-is-conversion-from-string-constant-to-char-valid-in-c-but-invalid-in-c
+	Matrix_eig_row contrast = Read_nift1(contrast_file, our_dim, will_write);
+	Debug0("Contrast head");
+	show_head(contrast);
+	
+	
+	SpVec contrast_2(n);
+	for(int i = 0; i < n; ++i){
+		if(contrast(i) == 3){
+			contrast_2.insert(i) = 1.0;
+		}
+	}
 	
 	
 	
-	// Variance estimation: 
 	
-	// Using Info matrix + delta method:
-	/*
-	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
-                                             TE_test, TR_test, sigma_test, test);
-	*/
 	
-	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
+	
+	
+	/* Variance estimation: */ 
+	
+	// Using Info matrix + delta method:	
+	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
+											 TE_train, TR_train, sigma_train,  
                                              train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test, contrast_2);
 	
-	/*
-	// Write to a file:
-	std::ofstream info_var_file;
-	info_var_file.open ("result/info_var_26_new.txt");
-	for(int i = 0; i < info_var_1.rows(); ++i){
-		info_var_file << info_var_1.row(i) << "\n";
-	}
-	info_var_file.close();
-	*/
 	
 	
-	/*
 	// Using Bootstrap
-	std::cout << "\n\n";
-	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
-                                               r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, 200, 500, 1e-1, 1e-4);
-                                               //change
-	*/
-	
-	
 	Vector_eig boot_var_contrast = para_boot_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
 											   TE_train, TR_train, sigma_train,  
                                                train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
                                                TE_test, TR_test, sigma_test, test, contrast_2,
-                                               200, 50, 1e-1, 1e-3);
+                                               20, 50, 1e-1, 1e-3);
 	
-	
-	/*
-	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head(info_var_1);
-	*/
-	
-	/*
-	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head(boot_var_1);
-	
-	
-	// Write to a file: 
-	std::ofstream boot_var_file;
-	boot_var_file.open ("result/boot_var_26_new.txt");
-	for(int i = 0; i < boot_var_1.rows(); ++i) {
-		boot_var_file << boot_var_1.row(i) << "\n";
-	}
-	boot_var_file.close();
-	*/
-
 	
 	
 	std::cout << "\n\nVariance from Information matrix:\n";
@@ -294,9 +272,6 @@ int main(int argc, char * argv[]) {
 	
 	std::cout << "\nVariance from parametric bootstrap:\n";
 	Debug0("boot_var_contrast: " << boot_var_contrast.transpose());
-	
-	
-	
 	
 	
 	
