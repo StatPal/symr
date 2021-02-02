@@ -82,32 +82,31 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	Matrix_eig_row v = v_mat(W, TE, TR);
 	int n = n_x * n_y * n_z;
 	int m = v.cols();
-	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp31 = 0.0, tmp4 = 0.0;
+	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp4 = 0.0;
 	SpMat Gamma_inv;
 	SpMat W_hess(3*n, 3*n);
 	
 	if(with_MRF){
 		Gamma_inv = MRF_obj.Lambda(beta);
 		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 7*3) );
-	} else {
-		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 3) );
-	}
-	Debug1("Hessian matrix allocated");
-	
-	
-	
-	// First, the Kroneker product term:
-	if(with_MRF){
+		Debug1("Hessian matrix allocated");
+		
+		// First, the Kroneker product term:
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
 		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
 		Debug1("MRF part done of Hessian!");
+	} else {
+		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 3) );
+		Debug1("Hessian matrix allocated");
 	}
+	
+	
 	
 	
 	
 	
 	// Diagonal parts //
-	int i = 0, i1 = 0, k = 0, k1 = 0, j = 0;
+	int i = 0, k = 0, k1 = 0, j = 0;
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
 	
@@ -140,96 +139,43 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 			}
 			
 			
-			//temp_vec = W.row(i);
 			for(k = 0; k < 3; ++k) {
-				//for(k1 = 0; k1 < 3; ++k1) {
 				for(k1 = k; k1 < 3; ++k1){
 					
 					temp = 0.;
 					for(j = 0; j < m ; ++j) {
 						
 						tmp2 = r(i,j)/SQ(sigma(j));
-						//if(i == 0){
-							//Debug0(tmp2);
-						//}
 						tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
-						//if(i == 0){
-							//Debug0(tmp3);
-						//}
 						temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
-						//if(i == 0){
-							//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
-							//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-						//}
 						
-						
-						//tmp2 *= v(i,j);
-						//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-						//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-						// This is also valid
-						
-						
-						
-						
-						// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));  // BUG
 						tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
-						// This is also valid
 						
-						//if(i == 0){
-						//	Debug0(tmp2);
-						//	Debug0(v(i,j));
-						//	Debug0(SQ(sigma(j)));
-						//	Debug0(tmp2*v(i, j)/SQ(sigma(j)));
-						//	Debug0(h(tmp2*v(i, j)/SQ(sigma(j))));
-						//	Debug0(tmp4);
-						//}
 						temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
-						//if(i == 0){
-						//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
-						//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-						//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-						//	Debug0("Added:");
-						//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-						//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-						//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-						//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-						//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
-						//	Debug0("\n")
-						//}
-						//if(i == 0){
-						//	Debug0(temp);
-						//	Debug0("\n\n");
-						//}
 						
 						if(k == k1 && temp > 0.1){
-							Debug0("i: " << i << ", j: " << j << ", k: " << k);
-							Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
-							Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
-							Debug0("Added: 1st part: " << tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1)
-									<< ", 2nd part: " << tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+							Debug1("i: " << i << ", j: " << j << ", k: " << k);
+							Debug1("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
+							Debug1("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
+							Debug1("Added: 1st part: " << 
+									tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1)
+									<< ", 2nd part: " << 
+									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-							Debug0("final: " << (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+							Debug1("final: " << (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
 										tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 											simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) << "\n");
 							if(temp > 100){
-								Debug0("very high!!");
-								// exit(EXIT_FAILURE);
-								// change
+								Debug0("Very Bad value in Hessian Matrix!!");
 							}
 						}
 						
 					}
-					// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
 					
 					if(with_MRF){
 						if(k == k1){
 							W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
-							// BUG? check negativity and positivity
-							// minus added for Gamma * Psi						
 						} else {
 							W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
 							W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
@@ -265,10 +211,9 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 
 
 /**
-* Calculates the \nu_ij for \nu_ij' \Sigma_ij \nu_ij (i.e., w.r.t. \nu_ij)
-* where Sigma is an estimation of variance of (W_ik)_{i,k} 
-* 
-* i.e., it calculates d\nu_ij/dW_ik
+* @brief 	Calculates the \nu_ij for \nu_ij' \Sigma_ij \nu_ij (i.e., w.r.t. \nu_ij)
+			where Sigma is an estimation of variance of (W_ik)_{i,k} 
+ 			i.e., it calculates \f$d\nu_{ij}/dW_{ik}\f$
 * where j is fixed when we consider just one image and i corresponds to the i-th voxel
 * 
 * So, it would give a 3n x 1 vector: i.e., d\nu_ij/dW_{i1,k} (confusing notation)
@@ -284,6 +229,20 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 * 
 * // https://stackoverflow.com/questions/47694725/using-inneriterator
 
+  @param 	W
+  @param 	Psi_inv
+  @param 	beta
+  @param 	TE
+  @param 	TR
+  @param 	sigma
+  @param 	r
+  @param 	n_x
+  @param 	n_y
+  @param 	n_z
+  @param 	i
+  @param 	j
+  @param[in, out] 	grad
+  @return	Void
 * 
 */
 void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
@@ -454,7 +413,6 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	
 	Vector_eig tmp_soln(3*n);
 	SpVec b(3*n);
-	// Vector_eig b = Vector_eig::Zero(3*n);
 	
 	
 	Vector_eig x = Vector_eig::Zero(3*n);
@@ -606,7 +564,7 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
 	// All estimated parametrs:
 	Matrix_eig generated_r(n, m_train);		// train columns only
 	
-	// added cases: 
+	// added matrices and vectors: 
 	Matrix_eig tmp_mat = Matrix_eig::Zero(n, m_test);
 	Vector_eig tmp_vec = Vector_eig::Zero(m_test);
 	Vector_eig sum_mat = Vector_eig::Zero(m_test);
