@@ -50,15 +50,15 @@ int main(int argc, char * argv[]) {
 	
 	std::time_t t = std::time(nullptr);
 	std::tm tm = *std::localtime(&t);
-	std::cout << "Current time: " << std::put_time(&tm, "%c %Z") << '\n';
-	
-	
-	if (argc != 4) {
-		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
+	std::cout << "Current time: " << std::put_time(&tm, "%c %Z") << "\n";
+		
+	if (argc != 5) {
+		fprintf(stderr, "\nUsage: %s <data_file_name> <class_file_name> <SD_file_name> <will_write_to_a_file?> \n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	char *data_file, *sd_file;
-	data_file = argv[1]; 	sd_file = argv[2]; 	char will_write = *(argv[3])-48;		// Converted from ascii
+	char *data_file, *sd_file, *class_file;
+	data_file = argv[1]; 	class_file = argv[2];	sd_file = argv[3];
+	char will_write = *(argv[4])-48;		// Converted from ascii
 	short our_dim[8];
 	
 	
@@ -67,6 +67,11 @@ int main(int argc, char * argv[]) {
 	// Reading the data: 
 	Matrix_eig_row r = Preprocess_data(data_file, our_dim, will_write);
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
+	
+	Matrix_eig_row contrast = Read_nift1(class_file, our_dim, will_write);
+	//Debug1("Contrast head");
+	//show_head(contrast);
+	
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
@@ -219,17 +224,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Read the contrast: 
-	int n = W_init.rows();
-	Debug0("Reading the contrast file");
-	// char const *contrast_file = "../data/ZHRTS2_class.nii"; // valid and safe in either C or C++.
-	// use char* const ... see the function def
-	char *contrast_file = (char*)"../../data/ZHRTS2_class.nii";
-	// https://stackoverflow.com/questions/20944784/why-is-conversion-from-string-constant-to-char-valid-in-c-but-invalid-in-c
-	Matrix_eig_row contrast = Read_nift1(contrast_file, our_dim, will_write);
-	Debug0("Contrast head");
-	show_head(contrast);
 	
+	
+	// The contrast: 
+	int n = W_init.rows();
 	
 	SpVec contrast_2(n);
 	for(int i = 0; i < n; ++i){
@@ -237,10 +235,6 @@ int main(int argc, char * argv[]) {
 			contrast_2.insert(i) = 1.0;
 		}
 	}
-	
-	
-	
-	
 	
 	
 	
@@ -260,7 +254,7 @@ int main(int argc, char * argv[]) {
                                                train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
                                                TE_test, TR_test, sigma_test, test, contrast_2,
-                                               20, 50, 1e-1, 1e-3);
+                                               200, 50, 1e-1, 1e-3);
 	
 	
 	

@@ -56,6 +56,7 @@ double h(double x){
 * @param 	with_MRF = 1
 * @param 	verbose = 1
 * @return	Hessian Matrix
+* @todo		Parallize the big loop
 *
 * @details 	Hessian_Matrix would be a sparse 3n x 3n matrix
 * The values are: \f$d^2 l* / dW_{i'k'} dW_{ik}\f$
@@ -86,6 +87,8 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	SpMat Gamma_inv;
 	SpMat W_hess(3*n, 3*n);
 	
+	
+	
 	if(with_MRF){
 		Gamma_inv = MRF_obj.Lambda(beta);
 		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 7*3) );
@@ -105,7 +108,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	
-	// Diagonal parts //
+	// Block-Diagonal parts //
 	int i = 0, k = 0, k1 = 0, j = 0;
 	Vector_eig temp_vec(3), temp_vec_1(3), temp_vec_2(3);;
 	
@@ -135,7 +138,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		
 			if(i % 10000 == 0){
 				std::cout << "\n";
-				Debug1("Hess matrix i: "<< i << ", j: " << j);
+				Debug1("Hess matrix, i: "<< i);
 			}
 			
 			
@@ -374,6 +377,8 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	@param 	sigma_test
 	@param 	test
 	@param 	contrast
+	@param 	cg_maxiter
+	@param 	cg_tol
 	@param 	with_MRF = 1
 	@return	Variance corresponding to the contrast vector
 */
@@ -383,7 +388,10 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj,
                                      const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                      const Vector_eig &sigma_test, const Matrix_eig_row &test,
-                                     const SpVec &contrast, int with_MRF = 1){
+                                     const SpVec &contrast, int cg_maxiter = 1000, double cg_tol = 1e-6,
+                                     std::string preconditioner = "diagonal", 
+                                     //auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
+                                     int with_MRF = 1){
 
 	auto hess_1 = std::chrono::high_resolution_clock::now();
 	int n = W.rows();
@@ -395,18 +403,41 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	assert(A.rows() == 3*n);
 	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
-	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	/*
+	if(preconditioner == "diagonal"){
+		Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+		Debug0("Diagonal");
+	} else if(preconditioner == "incompletecholesky"){
+		Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+		Debug0("IncompleteCholesky");
+	}
+	*/
+	
+	/*
+	(preconditioner == "diagonal") ? Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	: Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+	*/
+	
+	/*
+	Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, 
+		(preconditioner == "diagonal" ? Eigen::DiagonalPreconditioner<double> : Eigen::IncompleteCholesky<double>)> cg;
+	*/
+	
+	/*
+	Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, preconditioner_2> cg;
+	*/
+	
+	Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
 	Debug0("Diagonal");
-//	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
-//	Debug0("IncompleteCholesky");
+	//Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+	//Debug0("IncompleteCholesky");
 	
 	
-	cg.setMaxIterations(1000);
-	//cg.setTolerance(5e-4);
+	cg.setMaxIterations(cg_maxiter);
+	cg.setTolerance(cg_tol);
 	
 	cg.compute(A);
-	
-	Debug0("compute part done");
+	Debug1("CG compute part done");
 	
 	
 	
@@ -421,12 +452,9 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 		x = Vector_eig::Zero(3*n);
 		for(SpVec::InnerIterator i_(contrast); i_; ++i_){
 			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j, b);
-			// assert(b.size() == A.cols());
-			
 			x += i_.value() * b;
 		}
 		
-		Debug0("before cg solve");
 		tmp_soln = cg.solve(x);
 		std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 		Var_est_vec(j) = x.dot(tmp_soln);
@@ -546,7 +574,7 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
                                        const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                        const Vector_eig &sigma_test, const Matrix_eig_row &test,
                                        const SpVec &contrast, 
-                                       int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3, 
+                                       int B = 15, int EM_iter = 10, double abs_diff = 1e-1, double rel_diff = 1e-4, 
                                        int with_MRF = 1){
 
 	auto boot_1 = std::chrono::high_resolution_clock::now();
@@ -583,8 +611,8 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
 							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, with_MRF, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		// This is the nu_hat matrix for b-th replication - would be of  size n x m_test
-		tmp_vec = tmp_mat.transpose() * contrast;
 		
+		tmp_vec = tmp_mat.transpose() * contrast;
 		sum_mat += tmp_vec;
 		sum_sq_mat += tmp_vec.array().square().matrix();
 	}

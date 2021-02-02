@@ -68,6 +68,9 @@ was negative/positive. Hessian had this BUG.
 #include <cmath> 	//For bessel fn if cpp17
 #include <chrono>
 
+#include <string>
+
+
 
 extern "C" {
 #include <gsl/gsl_sf_bessel.h>
