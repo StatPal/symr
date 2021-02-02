@@ -26,7 +26,9 @@
 
 
 /**
-* Derivative of I_1/I_0
+* @brief	Derivative of \f$I_1/I_0\f$
+* @param	x
+* @return	\f$d(I_1/I_0)/dx\f$ 
 */
 double h(double x){
 	double tmp = (1.0 + ratio_bessel_20(x) - 2*SQ(ratio_bessel_10(x)) ); // besselI1_I0 replaced
@@ -39,14 +41,28 @@ double h(double x){
 
 
 /**
-* Hessian matrix(w.r.t. W)
-* W is a nx3 matrix.
-* Hessian_Matrix would be a sparse 3n x 3n matrix
-* The values are: d^2 l* / dW_{i'k'} dW_{ik}
+* @brief	Hessian matrix(w.r.t. W)
+* @param 	W is a nx3 matrix.
+* @param 	Psi_inv
+* @param 	beta 
+* @param 	TE 
+* @param 	TR
+* @param 	sigma
+* @param 	r
+* @param 	n_x
+* @param 	n_y
+* @param 	n_z
+* @param 	MRF_obj
+* @param 	with_MRF = 1
+* @param 	verbose = 1
+* @return	Hessian Matrix
+*
+* @details 	Hessian_Matrix would be a sparse 3n x 3n matrix
+* The values are: \f$d^2 l* / dW_{i'k'} dW_{ik}\f$
 * {i,k} are arranged in a fashion so that k remains like a subdivision under division of i
 * i.e., 
 * l-th column/row representste k, i corresponding to : 
-	k = l%3; 
+	k = l % 3; 
 	i = (int) l/3;
 * and accordingly,
 	l = 3 * i + k;
@@ -68,11 +84,10 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	int m = v.cols();
 	double temp = 0.0, tmp2 = 0.0, tmp3 = 0.0, tmp31 = 0.0, tmp4 = 0.0;
 	SpMat Gamma_inv;
+	SpMat W_hess(3*n, 3*n);
+	
 	if(with_MRF){
 		Gamma_inv = MRF_obj.Lambda(beta);
-	}
-	SpMat W_hess(3*n, 3*n);
-	if(with_MRF){
 		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 7*3) );
 	} else {
 		W_hess.reserve( Eigen::VectorXi::Constant(3*n, 3) );
@@ -81,11 +96,11 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	
-	// First, the Kroneker prod term:
+	// First, the Kroneker product term:
 	if(with_MRF){
 		SpMat Psi_inv_sp = Psi_inv.sparseView();
 		W_hess = -Kron_Sparse_eig(Gamma_inv, Psi_inv_sp);
-		Debug0("MRF part done of Hessian!");
+		Debug1("MRF part done of Hessian!");
 	}
 	
 	
@@ -116,120 +131,120 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	// Make it parallel
-	for(i = 0; i < n; ++i) {
-	if(black_list(i) == 0){
-	
-		if(i % 10000 == 0){
-			std::cout << "\n";
-			Debug1("Hess matrix i: "<< i << ", j: " << j);
-		}
+	for(i = 0; i < n; ++i){
+		if(black_list(i) == 0){
 		
-		
-		//temp_vec = W.row(i);
-		for(k = 0; k < 3; ++k) {
-			//for(k1 = 0; k1 < 3; ++k1) {
-			for(k1 = k; k1 < 3; ++k1){
-				
-				temp = 0.;
-				for(j = 0; j < m ; ++j) {
+			if(i % 10000 == 0){
+				std::cout << "\n";
+				Debug1("Hess matrix i: "<< i << ", j: " << j);
+			}
+			
+			
+			//temp_vec = W.row(i);
+			for(k = 0; k < 3; ++k) {
+				//for(k1 = 0; k1 < 3; ++k1) {
+				for(k1 = k; k1 < 3; ++k1){
 					
-					tmp2 = r(i,j)/SQ(sigma(j));
-					//if(i == 0){
-						//Debug0(tmp2);
-					//}
-					tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
-					//if(i == 0){
-						//Debug0(tmp3);
-					//}
-					temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
-					//if(i == 0){
-						//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
-						//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//}
-					
-					
-					//tmp2 *= v(i,j);
-					//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
-					//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
-					// This is also valid
-					
-					
-					
-					
-					// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));  // BUG
-					tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
-					// This is also valid
-					
-					//if(i == 0){
-					//	Debug0(tmp2);
-					//	Debug0(v(i,j));
-					//	Debug0(SQ(sigma(j)));
-					//	Debug0(tmp2*v(i, j)/SQ(sigma(j)));
-					//	Debug0(h(tmp2*v(i, j)/SQ(sigma(j))));
-					//	Debug0(tmp4);
-					//}
-					temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
-					//if(i == 0){
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
-					//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0("Added:");
-					//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
-					//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-					//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-					//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-					//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
-					//	Debug0("\n")
-					//}
-					//if(i == 0){
-					//	Debug0(temp);
-					//	Debug0("\n\n");
-					//}
-					
-					if(k == k1 && temp > 0.1){
-						Debug0("i: " << i << ", j: " << j << ", k: " << k);
-						Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
-						Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
-						Debug0("Added: 1st part: " << tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1)
-								<< ", 2nd part: " << tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-									simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
-						Debug0("final: " << (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
-									tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
-										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) << "\n");
-						if(temp > 100){
-							Debug0("very high!!");
-							// exit(EXIT_FAILURE);
-							// change
+					temp = 0.;
+					for(j = 0; j < m ; ++j) {
+						
+						tmp2 = r(i,j)/SQ(sigma(j));
+						//if(i == 0){
+							//Debug0(tmp2);
+						//}
+						tmp3 = - v(i,j)/SQ(sigma(j)) + tmp2 * besselI1_I0(tmp2 * v(i,j));
+						//if(i == 0){
+							//Debug0(tmp3);
+						//}
+						temp += tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1);
+						//if(i == 0){
+							//Debug0(simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));  // problem
+							//Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+						//}
+						
+						
+						//tmp2 *= v(i,j);
+						//tmp3 = (1 + ratio_bessel_20(tmp2) - 2*SQ(besselI1_I0(tmp2)) );
+						//tmp4 = -1/SQ(sigma(j)) +  0.5*SQ(r(i,j)/SQ(sigma(j)))*tmp3;
+						// This is also valid
+						
+						
+						
+						
+						// tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j)/SQ(sigma(j)));  // BUG
+						tmp4 = (-1)/SQ(sigma(j)) + SQ(tmp2) * h(tmp2*v(i, j));
+						// This is also valid
+						
+						//if(i == 0){
+						//	Debug0(tmp2);
+						//	Debug0(v(i,j));
+						//	Debug0(SQ(sigma(j)));
+						//	Debug0(tmp2*v(i, j)/SQ(sigma(j)));
+						//	Debug0(h(tmp2*v(i, j)/SQ(sigma(j))));
+						//	Debug0(tmp4);
+						//}
+						temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
+						//if(i == 0){
+						//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k));
+						//	Debug0(simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						//	Debug0("Added:");
+						//	Debug0(tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1));
+						//	Debug0(tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+						//				simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+						//	Debug0((tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+						//				tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+						//					simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)));
+						//	Debug0("\n")
+						//}
+						//if(i == 0){
+						//	Debug0(temp);
+						//	Debug0("\n\n");
+						//}
+						
+						if(k == k1 && temp > 0.1){
+							Debug0("i: " << i << ", j: " << j << ", k: " << k);
+							Debug0("W.row(i): " << W.row(i) << "\t r.row(i): " << r.row(i) << "\tsigma(j): " << sigma(j));
+							Debug0("tmp3: " << tmp3 << "\t tmp4: " << tmp4);
+							Debug0("Added: 1st part: " << tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1)
+									<< ", 2nd part: " << tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1));
+							Debug0("final: " << (tmp3 * simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W.row(i), TE, TR, j, k, k1) + 
+										tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
+											simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1)) << "\n");
+							if(temp > 100){
+								Debug0("very high!!");
+								// exit(EXIT_FAILURE);
+								// change
+							}
 						}
+						
 					}
+					// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
 					
-				}
-				// W_hess.insert(i+k*n, i+k1*n) = temp;		// old way - not very visually pleasing I guess.
-				
-				if(with_MRF){
-					if(k == k1){
-						W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
-						// BUG? check negativity and positivity
-						// minus added for Gamma * Psi						
+					if(with_MRF){
+						if(k == k1){
+							W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
+							// BUG? check negativity and positivity
+							// minus added for Gamma * Psi						
+						} else {
+							W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
+							W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
+						}
 					} else {
-						W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
-						W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
-					}
-				} else {
-					if(k == k1){
-						W_hess.insert(3 * i + k, 3 * i + k) = temp;
-					} else {
-						W_hess.insert(3 * i + k, 3 * i + k1) = temp;
-						W_hess.insert(3 * i + k1, 3 * i + k) = temp;
+						if(k == k1){
+							W_hess.insert(3 * i + k, 3 * i + k) = temp;
+						} else {
+							W_hess.insert(3 * i + k, 3 * i + k1) = temp;
+							W_hess.insert(3 * i + k1, 3 * i + k) = temp;
+						}
 					}
 				}
 			}
 		}
-	}
 	}
 	
 	
@@ -249,7 +264,6 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 
 
 
-// https://stackoverflow.com/questions/47694725/using-inneriterator
 /**
 * Calculates the \nu_ij for \nu_ij' \Sigma_ij \nu_ij (i.e., w.r.t. \nu_ij)
 * where Sigma is an estimation of variance of (W_ik)_{i,k} 
@@ -267,6 +281,9 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 * 
 * 
 * grad is changed.
+* 
+* // https://stackoverflow.com/questions/47694725/using-inneriterator
+
 * 
 */
 void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
@@ -382,8 +399,24 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 
 
 /** @brief Variance corresponding to Contrast using Information Matrix and Delta method
-	@param[in]	W	The W matrix
-	@return		Void
+	@param	W			The W matrix
+	@param 	Psi_inv
+	@param 	beta 
+	@param 	TE_train
+	@param 	TR_train
+	@param 	sigma_train
+	@param 	train
+	@param 	n_x
+	@param 	n_y
+	@param 	n_z
+	@param 	MRF_obj
+	@param 	TE_test
+	@param 	TR_test
+	@param 	sigma_test
+	@param 	test
+	@param 	contrast
+	@param 	with_MRF = 1
+	@return	Variance corresponding to the contrast vector
 */
 Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                                      const Vector_eig &TE_train, const Vector_eig &TR_train,
@@ -391,7 +424,7 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj,
                                      const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                      const Vector_eig &sigma_test, const Matrix_eig_row &test,
-                                     const SpVec &contrast){
+                                     const SpVec &contrast, int with_MRF = 1){
 
 	auto hess_1 = std::chrono::high_resolution_clock::now();
 	int n = W.rows();
@@ -399,8 +432,7 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	Vector_eig Var_est_vec(TE_test.size());
 	
 	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
-	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, with_MRF);	
 	assert(A.rows() == 3*n);
 	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
@@ -522,8 +554,31 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 
 
 /** @brief Variance corresponding to Contrast using Parametric Bootstrap
-	@param[in]	W	The W matrix
-	@return		Vector
+	@param	W			The W matrix
+	@param 	Psi_inv
+	@param 	beta 
+	@param 	TE_train
+	@param 	TR_train
+	@param 	sigma_train
+	@param 	train
+	@param 	n_x
+	@param 	n_y
+	@param 	n_z
+	@param 	r_scale
+	@param 	TE_scale
+	@param 	TR_scale
+	@param 	MRF_obj
+	@param 	TE_test
+	@param 	TR_test
+	@param 	sigma_test
+	@param 	test
+	@param 	contrast
+	@param 	B			Bootstrap number of replication
+	@param 	EM_iter		Number of EM iterations
+	@param 	abs_diff	absolute diff (parameters for the AECM)
+	@param 	rel_diff	relative diff (parameters for the AECM)
+	@param 	with_MRF = 1
+	@return	Variance corresponding to the contrast vector
 */
 Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                                        const Vector_eig &TE_train, const Vector_eig &TR_train, 
@@ -533,7 +588,8 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
                                        const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                        const Vector_eig &sigma_test, const Matrix_eig_row &test,
                                        const SpVec &contrast, 
-                                       int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3){
+                                       int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3, 
+                                       int with_MRF = 1){
 
 	auto boot_1 = std::chrono::high_resolution_clock::now();
 	Debug1("Parametric Bootstrap starts!!");
@@ -566,7 +622,7 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
-							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, 1, abs_diff, rel_diff, 0);
+							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, with_MRF, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		// This is the nu_hat matrix for b-th replication - would be of  size n x m_test
 		tmp_vec = tmp_mat.transpose() * contrast;
