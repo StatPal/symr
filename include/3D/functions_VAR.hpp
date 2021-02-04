@@ -130,6 +130,8 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	
+	Matrix_eig A = Matrix_eig::Zero(3, 3);
+	Eigen::LDLT<Matrix_eig> ldltOfA; // compute the Cholesky decomposition of A
 	
 	
 	// Make it parallel
@@ -138,12 +140,14 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		
 			if(i % 10000 == 0){
 				std::cout << "\n";
-				Debug1("Hess matrix, i: "<< i);
+				Debug1("Hessian matrix, i: "<< i);
 			}
 			
 			
+			
+			A.setZero(3, 3);
 			for(k = 0; k < 3; ++k) {
-				for(k1 = k; k1 < 3; ++k1){
+				for(k1 = k; k1 < 3; ++k1) {
 					
 					temp = 0.;
 					for(j = 0; j < m ; ++j) {
@@ -156,6 +160,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 						
 						temp += tmp4 * simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k) * 
 										simple_dee_v_ij_dee_W_ik(W.row(i), TE, TR, j, k1);
+						
 						
 						if(k == k1 && temp > 0.1){
 							Debug1("i: " << i << ", j: " << j << ", k: " << k);
@@ -176,20 +181,36 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 						
 					}
 					
-					if(with_MRF){
-						if(k == k1){
-							W_hess.coeffRef(3 * i + k, 3 * i + k) += temp;
-						} else {
-							W_hess.coeffRef(3 * i + k, 3 * i + k1) += temp;
-							W_hess.coeffRef(3 * i + k1, 3 * i + k) += temp;
-						}
+					
+					if(k == k1){
+						A(k, k) = temp;
 					} else {
-						if(k == k1){
-							W_hess.insert(3 * i + k, 3 * i + k) = temp;
-						} else {
-							W_hess.insert(3 * i + k, 3 * i + k1) = temp;
-							W_hess.insert(3 * i + k1, 3 * i + k) = temp;
-						}
+						A(k, k1) = temp;
+						A(k1, k) = temp;
+					}
+					
+					// Chek the block is pd or not, then add
+				}
+			}
+			
+			
+			ldltOfA.compute(A);
+			if(ldltOfA.info() == Eigen::NumericalIssue){
+				std::cout << "Boom, not psd\n";
+			} else {
+				if(with_MRF){
+					if(k == k1){
+						W_hess.coeffRef(3 * i + k, 3 * i + k) += A(k, k);
+					} else {
+						W_hess.coeffRef(3 * i + k, 3 * i + k1) += A(k, k1);
+						W_hess.coeffRef(3 * i + k1, 3 * i + k) += A(k, k1);
+					}
+				} else {
+					if(k == k1){
+						W_hess.insert(3 * i + k, 3 * i + k) = A(k, k);
+					} else {
+						W_hess.insert(3 * i + k, 3 * i + k1) = A(k, k1);
+						W_hess.insert(3 * i + k1, 3 * i + k) = A(k, k1);
 					}
 				}
 			}
@@ -449,7 +470,8 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	Vector_eig x = Vector_eig::Zero(3*n);
 	for(int j = 0; j < TE_test.size(); ++j){
 	
-		x = Vector_eig::Zero(3*n);
+		x.setZero(3*n);
+		// setzero
 		for(SpVec::InnerIterator i_(contrast); i_; ++i_){
 			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i_.index(), j, b);
 			x += i_.value() * b;
