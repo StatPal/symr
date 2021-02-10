@@ -301,6 +301,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
                const Vector_eig &sigma, const Matrix_eig_row &r, 
                int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
+               const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list, 
                int maxiter = 20, int penalized = 1, 
                double abs_diff = 0.1, double rel_diff = 1e-4, int verbose = 0, int verbose2 = 0) {
 // Change
@@ -319,17 +320,17 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
-	
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < m; ++j){
-			if(r(i, j) > 50){
-				black_list(i) = 0;
-				break;
-			}
-		}
-	}
-	Debug0("Number of possible background voxels: " << (black_list.sum()));
+//	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+//	
+//	for(int i = 0; i < n; ++i){
+//		for(int j = 0; j < m; ++j){
+//			if(r(i, j) > 50){
+//				black_list(i) = 0;
+//				break;
+//			}
+//		}
+//	}
+//	Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	

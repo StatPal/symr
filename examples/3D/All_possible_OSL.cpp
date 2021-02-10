@@ -12,7 +12,7 @@
 
 g++ All_possible_26_GEM.cpp -o all_26_3D -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-g++ All_possible_26_GEM.cpp -o all_26_3D -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ All_possible_26_GEM.cpp -o all_26_3D -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
 
 

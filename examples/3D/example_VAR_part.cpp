@@ -69,8 +69,6 @@ int main(int argc, char * argv[]) {
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
 	
 	Matrix_eig_row contrast = Read_nift1(class_file, our_dim, will_write);
-	//Debug1("Contrast head");
-	//show_head(contrast);
 	
 	
 	// Scaled: r, sigma, ub would change.
