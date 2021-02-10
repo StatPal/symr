@@ -315,6 +315,27 @@ void v_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_e
 * Hessian matrix with respect to new test images
 * i.e., \nu_ij' \Sigma_ij^{-1} \nu_ij
 * Iterative solution is used.
+
+	@brief Variance corresponding to Test images using Information Matrix and Delta method
+	@param	W			The W matrix
+	@param 	Psi_inv
+	@param 	beta 
+	@param 	TE_train
+	@param 	TR_train
+	@param 	sigma_train
+	@param 	train
+	@param 	n_x
+	@param 	n_y
+	@param 	n_z
+	@param 	MRF_obj
+	@param 	TE_test
+	@param 	TR_test
+	@param 	sigma_test
+	@param 	test
+	@param 	cg_maxiter
+	@param 	cg_tol
+	@param 	with_MRF = 1
+	@return	Variance corresponding to the test images
 */
 Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                             const Vector_eig &TE_train, const Vector_eig &TR_train,
@@ -322,25 +343,28 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
                             int n_x, int n_y, int n_z, MRF_param &MRF_obj,
                             const Vector_eig &TE_test, const Vector_eig &TR_test, 
                             const Vector_eig &sigma_test, const Matrix_eig_row &test,
-                            const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list){
+                            const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
+                            int cg_maxiter = 1000, double cg_tol = 1e-6,
+                            int with_MRF = 1){
 
 	auto hess_1 = std::chrono::high_resolution_clock::now();
 	int n = W.rows();
 	Matrix_eig Var_est(n, TE_test.size());
 	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, 1);	
-	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, with_MRF);
 	assert(A.rows() == 3*n);
 	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
-	// Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
-	// Debug0("Diagonal");
-	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
-	Debug0("IncompleteCholesky");
 	
 	
-	cg.setMaxIterations(80);
-//	cg.setTolerance(1e-10);
+	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	Debug0("Diagonal");
+//	Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
+//	Debug0("IncompleteCholesky");
+	
+	
+	cg.setMaxIterations(cg_maxiter);
+	cg.setTolerance(cg_tol);
 	cg.compute(A);
 	
 	
@@ -355,6 +379,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	std::cout << std::endl << std::flush;
 	Debug1("Hessian loop starts!");
 	std::cout << std::endl << std::flush;
+	
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
@@ -363,18 +388,12 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 				Debug1("Info i: "<< i << ", j: " << j);
 			}
 			
-			// b = v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j);
 			v_grad(W, Psi_inv, beta, TE_test, TR_test, sigma_test, test, n_x, n_y, n_z, i, j, b);
 			
-			assert(b.size() == A.cols());
-			
 			tmp_soln = cg.solve(b);
-			if( i % 100 == 0)
+			if( i % 1000 == 0)
 				std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-			Var_est(i, j) = b.dot(tmp_soln);
-			
-			// b(3*i) = 0.0; b(3*i+1) = 0.0; b(3*i+2) = 0.0;
-			
+			Var_est(i, j) = b.dot(tmp_soln);			
 		}
 	}
 	auto hess_2 = std::chrono::high_resolution_clock::now();
@@ -431,9 +450,9 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	Vector_eig Var_est_vec(TE_test.size());
 	
 	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, with_MRF);	
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, with_MRF);
 	assert(A.rows() == 3*n);
-	save_sparse(A, "Hessian_Matrix.csv", 1);
+	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
 	/*
 	if(preconditioner == "diagonal"){
@@ -510,9 +529,31 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 
 
 
-/**
-* Parametric Bootstrap
-* for test set of images
+/** @brief Variance corresponding to New images using Parametric Bootstrap
+	@param	W			The W matrix
+	@param 	Psi_inv
+	@param 	beta 
+	@param 	TE_train
+	@param 	TR_train
+	@param 	sigma_train
+	@param 	train
+	@param 	n_x
+	@param 	n_y
+	@param 	n_z
+	@param 	r_scale
+	@param 	TE_scale
+	@param 	TR_scale
+	@param 	MRF_obj
+	@param 	TE_test
+	@param 	TR_test
+	@param 	sigma_test
+	@param 	test
+	@param 	B			Bootstrap number of replication
+	@param 	EM_iter		Number of EM iterations
+	@param 	abs_diff	absolute diff (parameters for the AECM)
+	@param 	rel_diff	relative diff (parameters for the AECM)
+	@param 	with_MRF = 1
+	@return	Variance corresponding to the test images
 */
 Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                               const Vector_eig &TE_train, const Vector_eig &TR_train, 
@@ -522,7 +563,8 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
                               const Vector_eig &TE_test, const Vector_eig &TR_test, 
                               const Vector_eig &sigma_test, const Matrix_eig_row &test,
                               const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
-                              int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3){
+                              int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3,
+                              int with_MRF = 1){
 
 	auto boot_1 = std::chrono::high_resolution_clock::now();
 	Debug1("Parametric Bootstrap starts!!");
@@ -555,7 +597,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
-							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, black_list, EM_iter, 1, abs_diff, rel_diff, 0);
+							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, black_list, EM_iter, with_MRF, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		sum_mat += tmp_mat;
 		sum_sq_mat += tmp_mat.array().square().matrix();
