@@ -218,7 +218,7 @@ int main(int argc, char * argv[]) {
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	// Penalised:
 	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
 	          500, 1, 0.1, 1e-8, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -252,7 +252,7 @@ int main(int argc, char * argv[]) {
 	// Using Info matrix + delta method:	
 	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
 											 TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
+                                             train, MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test, contrast_2, black_list);
 	
 	
@@ -260,7 +260,7 @@ int main(int argc, char * argv[]) {
 	// Using Bootstrap
 	Vector_eig boot_var_contrast = para_boot_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
 											   TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
+                                               train, 
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
                                                TE_test, TR_test, sigma_test, test, contrast_2, black_list,
                                                200, 50, 1e-1, 1e-8);

@@ -215,7 +215,7 @@ int main(int argc, char * argv[]) {
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	// Penalised:
 	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          500, 1, 0.1, 1e-7, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -239,7 +239,7 @@ int main(int argc, char * argv[]) {
 	// Using Info matrix + delta method:
 	
 	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
+                                             train, MRF_obj_1,
                                              TE_test, TR_test, sigma_test, test, black_list);
 	
 	// Write to a file:
@@ -256,7 +256,7 @@ int main(int argc, char * argv[]) {
 	// Using Bootstrap
 	std::cout << "\n\n";
 	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
+                                               train, 
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
                                                TE_test, TR_test, sigma_test, test, black_list, 
                                                200, 500, 1e-1, 1e-4);

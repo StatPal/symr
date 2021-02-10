@@ -265,7 +265,7 @@ int main(int argc, char * argv[]) {
 	// Non -penalized:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
 	          50, 0, 0.1, 1e-5, 1);
 	//change
 	
@@ -322,7 +322,7 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 1, 0.1, 1e-5, 1);
 	//change
 	Debug1("W - Penalized Likelihood");

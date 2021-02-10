@@ -29,7 +29,7 @@ Penalised NEGATIVE log likelihood -- to be minimised
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-              int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
+              MRF_param &MRF_obj, int penalized){
 
 	Matrix_eig_row v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
@@ -153,7 +153,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	
 	TMatrix_row &W, &W_old;
 	
-	int i, n_x, n_y, n_z, penalized;
+	int i, penalized;
 	double beta_z = 1.0;
 	const TVector &lb, &ub, &sigma, &TE, &TR;										// lb, ub are for extra check
 	TVector& beta;
@@ -167,7 +167,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
   public:
 	Likeli_optim(MRF_param &MRF_obj_optim_, const TMatrix_row& r_, TMatrix_row& Theta_, 
 				 TMatrix_row& W_, TMatrix_row& W_old_,
-				 int n_x_, int n_y_, int n_z_, int penalized_,
+				 int penalized_,
 				 const TVector& lb_, const TVector& ub_, 
 				 const TVector& sigma_, const TVector& TE_, const TVector& TR_,
 				 TVector& beta_, Matrix3d_eig Psi_inv_) : 
@@ -176,7 +176,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 		r(r_), 
 		Theta(Theta_), 
 		W(W_), W_old(W_old_), 
-		n_x(n_x_), n_y(n_y_), n_z(n_z_), penalized(penalized_),
+		penalized(penalized_),
 		lb(lb_), ub(ub_),
 		sigma(sigma_), TE(TE_), TR(TR_),
 		beta(beta_),
@@ -380,9 +380,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	TR_example: TR values for the train data
 	sigma: 		sigma values for the train data
 	r: 			Observed values for the pixels, n x m matrix
-	n_x, 
-	n_y, 
-	n_z: 		
 	r_scale: 	scale for the r matrix, or equivalently rho.
 	TE_scale: 	scale used for TE
 	TR_scale: 	scale used for TR
@@ -397,7 +394,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig_row &r, 
-               int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
+               double r_scale, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
                const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list, 
                int maxiter = 50, int penalized = 1, 
@@ -420,7 +417,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int n = r.rows(), m = r.cols();
 	
 	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-							sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+							sigma, r, MRF_obj, penalized);
 	
 	
 //	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
@@ -574,13 +571,13 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// * Loop over voxels: * //
-		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve, tmp2,    r, n_x, n_y, n_z, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, std::cout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
+		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve, tmp2,    r, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, std::cout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
 		{
 		
-			// lb, ub, n_x, etc would be shared
+			// lb, ub, etc would be shared
 			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
 			// 
-			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, n_x, n_y, n_z, penalized, lb, ub,
+			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, penalized, lb, ub,
 									sigma, TE_example, TR_example, beta, Psi_inv);
 			f.setLowerBound(lb);	f.setUpperBound(ub);
 			f.update_size();
@@ -853,7 +850,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				
 		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+									 sigma, r, MRF_obj, penalized);
 		
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
