@@ -73,7 +73,9 @@ double h(double x){
 SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, 
                   const Vector_eig &TE, const Vector_eig &TR, 
                   const Vector_eig &sigma, const Matrix_eig_row &r, 
-                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, int with_MRF = 1, int verbose = 1){
+                  int n_x, int n_y, int n_z, MRF_param &MRF_obj, 
+                  const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list, 
+                  int with_MRF = 1, int verbose = 1){
 
 	
 	auto time_1_hess = std::chrono::high_resolution_clock::now();
@@ -114,20 +116,19 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 	
 	
 	
-	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
-	
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < m; ++j){
-			if(r(i, j) > 50){
-				black_list(i) = 0;
-				break;
-			}
-		}
-	}
-	if(verbose)
-		Debug0("Number of possible background voxels: " << (black_list.sum()));
-	
-	
+//	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+//	
+//	for(int i = 0; i < n; ++i){
+//		for(int j = 0; j < m; ++j){
+//			if(r(i, j) > 50){
+//				black_list(i) = 0;
+//				break;
+//			}
+//		}
+//	}
+//	if(verbose)
+//		Debug0("Number of possible background voxels: " << (black_list.sum()));
+
 	
 	
 	Matrix_eig A = Matrix_eig::Zero(3, 3);
@@ -178,7 +179,6 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 								Debug0("Very Bad value in Hessian Matrix!!");
 							}
 						}
-						
 					}
 					
 					
@@ -196,21 +196,29 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 			
 			ldltOfA.compute(A);
 			if(ldltOfA.info() == Eigen::NumericalIssue){
-				std::cout << "Boom, not psd\n";
+				std::cout << "Not psd\n";
 			} else {
 				if(with_MRF){
-					if(k == k1){
-						W_hess.coeffRef(3 * i + k, 3 * i + k) += A(k, k);
-					} else {
-						W_hess.coeffRef(3 * i + k, 3 * i + k1) += A(k, k1);
-						W_hess.coeffRef(3 * i + k1, 3 * i + k) += A(k, k1);
+					for(k = 0; k < 3; ++k) {
+						for(k1 = k; k1 < 3; ++k1) {
+							if(k == k1){
+								W_hess.coeffRef(3 * i + k, 3 * i + k) += A(k, k);
+							} else {
+								W_hess.coeffRef(3 * i + k, 3 * i + k1) += A(k, k1);
+								W_hess.coeffRef(3 * i + k1, 3 * i + k) += A(k, k1);
+							}
+						}
 					}
 				} else {
-					if(k == k1){
-						W_hess.insert(3 * i + k, 3 * i + k) = A(k, k);
-					} else {
-						W_hess.insert(3 * i + k, 3 * i + k1) = A(k, k1);
-						W_hess.insert(3 * i + k1, 3 * i + k) = A(k, k1);
+					for(k = 0; k < 3; ++k) {
+						for(k1 = k; k1 < 3; ++k1) {
+							if(k == k1){
+								W_hess.insert(3 * i + k, 3 * i + k) = A(k, k);
+							} else {
+								W_hess.insert(3 * i + k, 3 * i + k1) = A(k, k1);
+								W_hess.insert(3 * i + k1, 3 * i + k) = A(k, k1);
+							}
+						}
 					}
 				}
 			}
@@ -313,16 +321,17 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
                             const Vector_eig &sigma_train, const Matrix_eig_row &train, 
                             int n_x, int n_y, int n_z, MRF_param &MRF_obj,
                             const Vector_eig &TE_test, const Vector_eig &TR_test, 
-                            const Vector_eig &sigma_test, const Matrix_eig_row &test){
+                            const Vector_eig &sigma_test, const Matrix_eig_row &test,
+                            const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list){
 
 	auto hess_1 = std::chrono::high_resolution_clock::now();
 	int n = W.rows();
 	Matrix_eig Var_est(n, TE_test.size());
 	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 1);	
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, 1);	
 	//SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, 0);
 	assert(A.rows() == 3*n);
-	save_sparse(A, "Hessian_Matrix.csv", 1);
+	// save_sparse(A, "Hessian_Matrix.csv", 1);
 	
 	// Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
 	// Debug0("Diagonal");
@@ -409,7 +418,9 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
                                      int n_x, int n_y, int n_z, MRF_param &MRF_obj,
                                      const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                      const Vector_eig &sigma_test, const Matrix_eig_row &test,
-                                     const SpVec &contrast, int cg_maxiter = 1000, double cg_tol = 1e-6,
+                                     const SpVec &contrast, 
+                                     const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list, 
+                                     int cg_maxiter = 1000, double cg_tol = 1e-6,
                                      std::string preconditioner = "diagonal", 
                                      //auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
                                      int with_MRF = 1){
@@ -420,9 +431,9 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	Vector_eig Var_est_vec(TE_test.size());
 	
 	
-	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, with_MRF);	
+	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, n_x, n_y, n_z, MRF_obj, black_list, with_MRF);	
 	assert(A.rows() == 3*n);
-	// save_sparse(A, "Hessian_Matrix.csv", 1);
+	save_sparse(A, "Hessian_Matrix.csv", 1);
 	
 	/*
 	if(preconditioner == "diagonal"){
@@ -477,7 +488,11 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 			x += i_.value() * b;
 		}
 		
+		auto hess_1_tmp = std::chrono::high_resolution_clock::now();		
 		tmp_soln = cg.solve(x);
+		auto hess_2_tmp = std::chrono::high_resolution_clock::now();
+		auto hess_duration_tmp = std::chrono::duration_cast<std::chrono::seconds>(hess_2_tmp - hess_1_tmp);
+		Debug1("Time taken for Info matrix using Hessian: " << hess_duration_tmp.count() << " seconds\n");
 		std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 		Var_est_vec(j) = x.dot(tmp_soln);
 	}
@@ -506,6 +521,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
                               double r_scale, double TE_scale, double TR_scale, MRF_param &MRF_obj, 
                               const Vector_eig &TE_test, const Vector_eig &TR_test, 
                               const Vector_eig &sigma_test, const Matrix_eig_row &test,
+                              const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
                               int B = 15, int EM_iter = 10, double abs_diff = 1.0e-4, double rel_diff = 1e-3){
 
 	auto boot_1 = std::chrono::high_resolution_clock::now();
@@ -539,7 +555,7 @@ Matrix_eig para_boot_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_i
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
-							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, 1, abs_diff, rel_diff, 0);
+							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, black_list, EM_iter, 1, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		sum_mat += tmp_mat;
 		sum_sq_mat += tmp_mat.array().square().matrix();
@@ -596,6 +612,7 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
                                        const Vector_eig &TE_test, const Vector_eig &TR_test, 
                                        const Vector_eig &sigma_test, const Matrix_eig_row &test,
                                        const SpVec &contrast, 
+                                       const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
                                        int B = 15, int EM_iter = 10, double abs_diff = 1e-1, double rel_diff = 1e-4, 
                                        int with_MRF = 1){
 
@@ -630,7 +647,7 @@ Vector_eig para_boot_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_e
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
-							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, EM_iter, with_MRF, abs_diff, rel_diff, 0);
+							n_x, n_y, n_z, r_scale, TE_scale, TR_scale, MRF_obj, black_list, EM_iter, with_MRF, abs_diff, rel_diff, 0);
 		tmp_mat = v_mat(W_init, TE_test, TR_test);
 		// This is the nu_hat matrix for b-th replication - would be of  size n x m_test
 		

@@ -9,12 +9,12 @@ Example variance for contrast vector :
 
 g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-g++ example_VAR_part.cpp -o example_VAR_part -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ example_VAR_part.cpp -o example_VAR_part -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
 
 ./example_VAR_part ../Read_Data/ZHRTS2.nii Dummy_sd_3D.txt 0
 
-./example_VAR_part ../../data/ZHRTS2.nii Dummy_sd_3D.txt 0
+./example_VAR_part ../../data/ZHRTS2.nii ../../data/ZHRTS2_class.nii Dummy_sd_3D.txt 0
 
 ./example_VAR_part ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
@@ -112,7 +112,19 @@ int main(int argc, char * argv[]) {
 	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
 
-
+	
+	
+	int n = r.rows();
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 12; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
 
 
 	
@@ -208,7 +220,7 @@ int main(int argc, char * argv[]) {
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	// Penalised:
 	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
 	          500, 1, 0.1, 1e-8, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -227,15 +239,14 @@ int main(int argc, char * argv[]) {
 	
 	
 	// The contrast: 
-	int n = W_init.rows();
-	
 	SpVec contrast_2(n);
 	for(int i = 0; i < n; ++i){
 		if(contrast(i) == 3){
 			contrast_2.insert(i) = 1.0;
 		}
 	}
-	
+	contrast_2 = contrast_2/(contrast_2.sum());
+	show_head_sp(contrast_2);
 	
 	
 	/* Variance estimation: */ 
@@ -244,7 +255,7 @@ int main(int argc, char * argv[]) {
 	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
 											 TE_train, TR_train, sigma_train,  
                                              train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
-                                             TE_test, TR_test, sigma_test, test, contrast_2);
+                                             TE_test, TR_test, sigma_test, test, contrast_2, black_list);
 	
 	
 	
@@ -253,8 +264,8 @@ int main(int argc, char * argv[]) {
 											   TE_train, TR_train, sigma_train,  
                                                train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, contrast_2,
-                                               200, 50, 1e-1, 1e-3);
+                                               TE_test, TR_test, sigma_test, test, contrast_2, black_list,
+                                               200, 50, 1e-1, 1e-8);
 	
 	
 	
