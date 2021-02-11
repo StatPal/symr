@@ -68,9 +68,7 @@ The current tree structure is as follows:
 ```bash
 .
 |-- data
-|   |-- new_phantom.nii
-|   |-- phantom.nii
-|   `-- small.nii
+|   `-- new_phantom.nii.gz
 |-- docs
 |   `-- Doxyfile
 |-- examples
