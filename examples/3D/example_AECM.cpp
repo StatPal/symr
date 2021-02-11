@@ -186,7 +186,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_29.txt");
+	file_performance.open ("result/Performances_AECM.txt");
 
 
 	
@@ -205,7 +205,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_LS;
-	file_LS.open ("result/W_LS_29.txt");
+	file_LS.open ("result/W_LS.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -214,7 +214,7 @@ int main(int argc, char * argv[]) {
 	// Save the estimated values: 
 	Vector_eig v_new = Vector_eig::Zero(TE_test.size());
 	std::ofstream file_predicted;
-	file_predicted.open ("result/v_predicted_LS_29.txt");
+	file_predicted.open ("result/v_predicted_LS.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";
@@ -271,7 +271,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
-	file_Likeli.open ("result/W_Likeli_29.txt");
+	file_Likeli.open ("result/W_Likeli.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -280,7 +280,7 @@ int main(int argc, char * argv[]) {
 	
 	// Save the estimated values: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_Likeli_29.txt");
+	file_predicted.open ("result/v_predicted_Likeli.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";
@@ -327,7 +327,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_final;
-	file_final.open ("result/W_final_29.txt");
+	file_final.open ("result/W_final.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_final << W_init.row(i) << "\n";
 	}
@@ -335,7 +335,7 @@ int main(int argc, char * argv[]) {
 	
 	// Save the estimated values: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_MPLE_29.txt");
+	file_predicted.open ("result/v_predicted_MPLE.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";

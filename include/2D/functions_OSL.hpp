@@ -32,7 +32,7 @@ Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-              int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
+              MRF_param &MRF_obj, int penalized){
 
 	Matrix_eig_row v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
@@ -146,7 +146,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 	Likeli_optim() : cppoptlib::BoundedProblem<T>(3){}
 
 
-	int i, n_x, n_y, n_z;
+	int i;
 	double beta_z = 1.0;										//or get the value. 
 	TVector TE, TR, sigma, beta, lb, ub, c_i;					// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
@@ -279,9 +279,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 	TR_example: TR values for the train data
 	sigma: 		sigma values for the train data
 	r: 			Observed values for the pixels, n x m matrix
-	n_x, 
-	n_y, 
-	n_z: 		
 	r_scale: 	scale for the r matrix, or equivalently rho.
 	TE_scale: 	scale used for TE
 	TR_scale: 	scale used for TR
@@ -296,8 +293,9 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig_row &r, 
-               int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
+               double r_scale, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
+               const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
                int maxiter = 20, int penalized = 1, 
                double abs_diff = 0.1, double rel_diff = 1e-4, int verbose = 0, int verbose2 = 0) {
 // Change
@@ -317,16 +315,16 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < m; ++j){
-			if(r(i, j) > 50){
-				black_list(i) = 0;
-				break;
-			}
-		}
-	}
-	Debug0("Number of possible background voxels: " << (black_list.sum()));
+//	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+//	for(int i = 0; i < n; ++i){
+//		for(int j = 0; j < m; ++j){
+//			if(r(i, j) > 50){
+//				black_list(i) = 0;
+//				break;
+//			}
+//		}
+//	}
+//	Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	
@@ -378,7 +376,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Debug2("ub: " << ub.transpose());
 	
 	
-	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
 	f.update_penalized(penalized);
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
@@ -407,7 +404,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
 	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+									 sigma, r, MRF_obj, penalized);
 	
 	
 	
@@ -606,7 +603,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+									 sigma, r, MRF_obj, penalized);
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here

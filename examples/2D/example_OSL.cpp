@@ -112,6 +112,21 @@ int main(int argc, char * argv[]) {
 	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
 	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
+	
+	
+	
+	int n = r.rows();
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 18; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
+
 
 
 
@@ -246,7 +261,7 @@ int main(int argc, char * argv[]) {
 	// Non -penalized:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 0, 0.1, 1e-5, 1);
 	//change
 	
@@ -303,7 +318,7 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 1, 0.1, 1e-5, 1);
 	//change
 	Debug1("W - Penalized Likelihood");

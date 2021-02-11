@@ -1,19 +1,19 @@
 /**
 * 
-
-
-* To compile:
-
-g++ example_VAR.cpp -o example_VAR -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-
-g++ example_VAR.cpp -o example_VAR -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+Example variance for contrast vector :
 
 
 
-./example_VAR ../../data/new_phantom.nii Dummy_sd.txt 0
 
-./example_VAR ../Read_Data/small.nii Dummy_sd_3D.txt 0
+* To compile :
 
+g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+
+g++ example_VAR_part.cpp -o example_VAR_part -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+
+
+
+./example_VAR_part ../../data/new_phantom.nii ../../data/new_phantom_class.nii Dummy_sd.txt 0
 
 * 
 */
@@ -46,14 +46,15 @@ int main(int argc, char * argv[]) {
 	std::time_t t = std::time(nullptr);
 	std::tm tm = *std::localtime(&t);
 	std::cout << "Current time: " << std::put_time(&tm, "%c %Z") << '\n';
-	
-	
-	if (argc != 4) {
-		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
+
+		
+	if (argc != 5) {
+		fprintf(stderr, "\nUsage: %s <data_file_name> <class_file_name> <SD_file_name> <will_write_to_a_file?> \n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	char *data_file, *sd_file;
-	data_file = argv[1]; 	sd_file = argv[2]; 	char will_write = *(argv[3])-48;		// Converted from ascii
+	char *data_file, *sd_file, *class_file;
+	data_file = argv[1]; 	class_file = argv[2];	sd_file = argv[3];
+	char will_write = *(argv[4])-48;		// Converted from ascii
 	short our_dim[8];
 	
 	
@@ -62,6 +63,9 @@ int main(int argc, char * argv[]) {
 	// Reading the data: 
 	Matrix_eig_row r = Preprocess_data(data_file, our_dim, will_write);
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
+	
+	Matrix_eig_row contrast = Read_nift1(class_file, our_dim, will_write);
+	
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
@@ -230,55 +234,44 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// Variance estimation: 
 	
-	// Using Info matrix + delta method:
-	
-	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train,  MRF_obj_1, 
-                                             TE_test, TR_test, sigma_test, test, black_list);
-	
-	// Write to a file:
-	std::ofstream info_var_file;
-	info_var_file.open ("result/info_var_new.txt");
-	for(int i = 0; i < info_var_1.rows(); ++i){
-		info_var_file << info_var_1.row(i) << "\n";
+	// The contrast: 
+	SpVec contrast_2(n);
+	for(int i = 0; i < n; ++i){
+		if(contrast(i) == 3){
+			contrast_2.insert(i) = 1.0;
+		}
 	}
-	info_var_file.close();
+	contrast_2 = contrast_2/(contrast_2.sum());
+	show_head_sp(contrast_2);
 	
+	
+	/* Variance estimation: */ 
+	
+	// Using Info matrix + delta method:	
+	Vector_eig info_var_contrast = Var_est_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
+											 TE_train, TR_train, sigma_train,  
+                                             train, MRF_obj_1,
+                                             TE_test, TR_test, sigma_test, test, contrast_2, black_list);
 	
 	
 	
 	// Using Bootstrap
-	std::cout << "\n\n";
-	
-	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
+	Vector_eig boot_var_contrast = para_boot_test_mat_contrast(W_init, Psi_inv_init, beta_init, 
+											   TE_train, TR_train, sigma_train,  
                                                train, 
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, black_list,  
-                                               200, 500, 1e-1, 1e-4);
-                                               //change
+                                               TE_test, TR_test, sigma_test, test, contrast_2, black_list,
+                                               200, 50, 1e-1, 1e-8);
+	
 	
 	
 	std::cout << "\n\nVariance from Information matrix:\n";
-	show_head(info_var_1);
+	Debug0("Info var contrast : " << info_var_contrast.transpose());
 	
 	
 	std::cout << "\nVariance from parametric bootstrap:\n";
-	show_head(boot_var_1);
-	
-	
-	// Write to a file: 
-	std::ofstream boot_var_file;
-	boot_var_file.open ("result/boot_var_new.txt");
-	for(int i = 0; i < boot_var_1.rows(); ++i) {
-		boot_var_file << boot_var_1.row(i) << "\n";
-	}
-	boot_var_file.close();
-	
-
-	
-	
+	Debug0("boot_var_contrast: " << boot_var_contrast.transpose());
 	
 	
 	
@@ -289,6 +282,5 @@ int main(int argc, char * argv[]) {
 
 	return 0;
 }
-
 
 

@@ -8,36 +8,43 @@ The header files location must be with the proper PATH, or PATH should be added 
 The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
 It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
 
-Locations:
-* The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp (or ./examples/3D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 for single core)
+Intructions:
+* The file to be executed (for 2D) ECM: ./examples/2D/example_AECM.cpp
+    
+    First go to examples/2D
+    ```console
+    	cd ./examples/2D/
+    ``` 
+    Then compile:
+    ```console
+    	g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+    ```
+    Then run:
+    ```console
+    	./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
+    ```
+
+* For *OSL*, everything would be similar, just the cpp file would be changed to `example_AECM.cpp' 
+
+* For Variance estimate 
+
+* The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp
     
     First go to examples/3D/
     Then compile:
-        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
     
     Then run:
         ./example_AECM ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-* The file to be executed for 2D ECM: ./examples/2D/example_AECM.cpp (or ./examples/2D/scheme_new_OSL_EM_29_GEM.cpp, or number 25 - single core)
-    
-    First go to examples/2D
-    Then compile:
-        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
-    
-    Then run:
-        ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
 
-
-* The file to be executed for OSL-EM: 
-	./examples/3D/example_OSL.cpp
-	or 
-	./examples/2D/example_OSL.cpp
 
 * The data: ./data/ZHRTS1.nii (or ./data/small.nii)
 
 	OR
 	    ./data/new_phantom.nii (or ./data/small_phantom.nii)
   (see `*' for any 2D file)
+
 * The optimizer location: ./CppNumericalSolvers
 
 
