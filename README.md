@@ -5,7 +5,7 @@ Revised version.
 
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
 The header files location must be with the proper PATH (or should be added in time of compilation using -I path).
-The **[optimizer]**(https://github.com/PatWie/CppNumericalSolvers) also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers). It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
+The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers). It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
 
 
 **Instructions:**
