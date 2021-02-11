@@ -32,7 +32,8 @@ Instructions:
     ```console
     ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
     ```
-    where `../data/new_phantom.nii` is the 2D data and `Dummy_sd.txt` is the file for $\sigma_j$'s generated using sigma.cpp.(See `*' for details)
+    where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See `*' for details).
+
 
 * For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
 
@@ -49,7 +50,7 @@ Instructions:
     ```console
     ./example_VAR_part ../data/new_phantom.nii ../data/new_phantom_class.nii Dummy_sd.txt 0
     ```
-    where `new_phantom_class.nii` is the file denoting class file. 
+    where `../data/new_phantom_class.nii` is the file denoting class file. 
 
 
 
@@ -57,7 +58,7 @@ Instructions:
 
 
 
-* The 2D data: ./data/new_phantom.nii (see `**' for any 2D file)
+* The location of 2D data: ./data/new_phantom.nii (see `**' for any 2D file)
   and the 3D data ./data/ZHRTS1.nii
 
 
@@ -105,6 +106,23 @@ The current tree structure is as follows:
 
 ```
 
+
+(* To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
+	
+	First go to examples/2D
+    ```console
+    cd ./examples/2D/
+    ``` 
+    Then compile:
+    ```console
+    g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+    ```
+    Then run:
+    ```console
+    ./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+    ```
+    where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
+)
 
 
 
