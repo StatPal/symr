@@ -106,8 +106,8 @@ The current tree structure is as follows:
 ```
 
 
-(* To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
-	
+(* 
+To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
 	First go to examples/2D
     ```console
     cd ./examples/2D/
