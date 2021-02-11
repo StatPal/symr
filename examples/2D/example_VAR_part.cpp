@@ -64,7 +64,17 @@ int main(int argc, char * argv[]) {
 	Matrix_eig_row r = Preprocess_data(data_file, our_dim, will_write);
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
 	
+	// The contrast: 
 	Matrix_eig_row contrast = Read_nift1(class_file, our_dim, will_write);
+	int n = r.rows();
+	SpVec contrast_2(n);
+	for(int i = 0; i < n; ++i){
+		if(contrast(i) == 1){
+			contrast_2.insert(i) = 1.0;
+		}
+	}
+	contrast_2 = contrast_2/(contrast_2.sum());
+	
 	
 	
 	// Scaled: r, sigma, ub would change.
@@ -108,7 +118,6 @@ int main(int argc, char * argv[]) {
 
 
 
-	int n = r.rows();
 	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
 	
 	for(int i = 0; i < n; ++i){
@@ -235,15 +244,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	// The contrast: 
-	SpVec contrast_2(n);
-	for(int i = 0; i < n; ++i){
-		if(contrast(i) == 3){
-			contrast_2.insert(i) = 1.0;
-		}
-	}
-	contrast_2 = contrast_2/(contrast_2.sum());
-	show_head_sp(contrast_2);
 	
 	
 	/* Variance estimation: */ 

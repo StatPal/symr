@@ -4,15 +4,16 @@ Revised version.
 
 
 **This code needs [Eigen](http://eigen.tuxfamily.org/) - a C++ library header files**. 
-The header files location must be with the proper PATH, or PATH should be added in time of compilation.
+The header files location must be with the proper PATH (or should be added in time of compilation using -I path).
 The **optimizer** also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers).
 It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
+
 
 Intructions:
 * The file to be executed (for 2D) ECM: **./examples/2D/example_AECM.cpp**
     
     First go to examples/2D
-    ```shell
+    ```console
     cd ./examples/2D/
     ``` 
     Then compile:
@@ -26,7 +27,21 @@ Intructions:
 
 * For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
 
-* For **Variance estimate**
+* For **Variance estimate** of a contrast vector(c, of size n), we have an example file with class (generated with R package mritc)
+	First go to examples/2D
+    ```console
+    cd ./examples/2D/
+    ``` 
+    Then compile:
+    ```console
+    g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+    ```
+    Then run:
+    ```console
+    ./example_VAR_part ../data/new_phantom.nii ../data/new_phantom_class.nii Dummy_sd.txt 0
+    ```
+
+
 
 * The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp
     
@@ -39,11 +54,10 @@ Intructions:
 
 
 
-* The data: ./data/ZHRTS1.nii (or ./data/small.nii)
-
+* The data: ./data/new_phantom.nii (or ./data/small_phantom.nii) (see `*' for any 2D file)
 	OR
-	    ./data/new_phantom.nii (or ./data/small_phantom.nii)
-  (see `*' for any 2D file)
+		./data/ZHRTS1.nii (or ./data/small.nii)	    
+
 
 * The optimizer location: ./CppNumericalSolvers
 
@@ -58,7 +72,9 @@ The current tree structure is as follows:
 |   |-- smallest_phantom.nii
 |   |-- small.nii
 |   |-- small_phantom.nii
-|   `-- ZHRTS1.nii
+|   |-- ZHRTS1.nii
+|   |-- ZHRTS2_class.nii
+|   `-- ZHRTS2.nii
 |-- docs
 |   `-- Doxyfile
 |-- examples
@@ -67,6 +83,7 @@ The current tree structure is as follows:
 |   |   |-- example_AECM.cpp
 |   |   |-- example_OSL.cpp
 |   |   |-- example_VAR.cpp
+|   |   |-- example_VAR_part.cpp
 |   |   `-- result
 |   `-- 3D
 |       |-- All_possible_AECM.cpp
@@ -94,7 +111,6 @@ The current tree structure is as follows:
 |       |-- functions_OSL.hpp
 |       |-- functions_VAR.hpp
 |       `-- read_files.hpp
-|-- matlab
 |-- R
 |   |-- 2D_AECM.cpp
 |   |-- 2D_AECM.hpp
