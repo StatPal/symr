@@ -107,21 +107,21 @@ The current tree structure is as follows:
 
 
 `*' 
-To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
+To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present
 
-	First go to examples/2D
-	```console
-	cd ./examples/2D/
-	``` 
-	Then compile:
-	```console
-	g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-	```
-	Then run:
-	```console
-	./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-	```
-	where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
+First go to examples/2D
+```console
+cd ./examples/2D/
+``` 
+Then compile:
+```console
+g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+```
+Then run:
+```console
+./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+```
+where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
 
 
 
