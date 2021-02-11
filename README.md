@@ -1,4 +1,4 @@
-# Synthetic MRI 1
+# Synthetic MRI
 
 Revised version.
 
@@ -9,7 +9,18 @@ The **optimizer** also uses Eigen, and recent versions can be found [here](https
 It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
 
 
-Intructions:
+**Instructions:**
+* The data files (and the mask files) should be in Nifti format, unzipped. 
+	If gziped, unzip the files: 
+	```console 
+	cd ./data
+	gunzip new_phantom.nii.gz
+	gunzip ZHRTS2.nii.gz
+	gunzip ZHRTS2_class.nii.gz
+	cd ..
+	```
+
+
 * The file to be executed (for 2D) ECM: **./examples/2D/example_AECM.cpp**
     
     First go to examples/2D
@@ -50,7 +61,7 @@ Intructions:
 
 
 * The 2D data: ./data/new_phantom.nii (see `*' for any 2D file)
-  and the 3D data ./data/ZHRTS1.nii
+  and the 3D data ./data/ZHRTS2.nii
 
 
 * The optimizer location: ./CppNumericalSolvers
@@ -60,15 +71,14 @@ The current tree structure is as follows:
 ```bash
 .
 |-- data
-|   |-- Dummy_sd.txt
-|   |-- new_phantom.nii
-|   |-- phantom.nii
-|   |-- smallest_phantom.nii
-|   |-- small.nii
-|   |-- small_phantom.nii
-|   |-- ZHRTS1.nii
-|   |-- ZHRTS2_class.nii
-|   `-- ZHRTS2.nii
+|   |-- new_phantom.nii.gz
+|   |-- phantom.nii.gz
+|   |-- smallest_phantom.nii.gz
+|   |-- small.nii.gz
+|   |-- small_phantom.nii.gz
+|   |-- ZHRTS1.nii.gz
+|   |-- ZHRTS2_class.nii.gz
+|   `-- ZHRTS2.nii.gz
 |-- docs
 |   `-- Doxyfile
 |-- examples
