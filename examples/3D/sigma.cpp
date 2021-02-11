@@ -16,15 +16,11 @@ And EM is directly translated from Dr. Maitra's code.
 
 
 * To compile:
-g++ Var.cpp -o test_var -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-
-g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
+g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 
 * To run:
-./test_var ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
-
-./test_var ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./sigma ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
 ./test_var ../Read_Data/brainweb_all.nii Dummy_sd_brainweb.txt 0
 

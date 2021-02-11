@@ -24,6 +24,7 @@ Intructions:
     ```console
     ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
     ```
+    where `../data/new_phantom.nii` is the 2D data and `Dummy_sd.txt` is the file for $\sigma_j$'s generated using sigma.cpp.
 
 * For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
 
@@ -40,23 +41,16 @@ Intructions:
     ```console
     ./example_VAR_part ../data/new_phantom.nii ../data/new_phantom_class.nii Dummy_sd.txt 0
     ```
+    where `new_phantom_class.nii` is the file denoting class file. 
 
 
 
-* The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp
-    
-    First go to examples/3D/
-    Then compile:
-        g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-    
-    Then run:
-        ./example_AECM ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+* For 3D, you have to go to `./example/3D` instead of `./example/2D` and run everything similarly with 3D data. 
 
 
 
-* The data: ./data/new_phantom.nii (or ./data/small_phantom.nii) (see `*' for any 2D file)
-	OR
-		./data/ZHRTS1.nii (or ./data/small.nii)	    
+* The 2D data: ./data/new_phantom.nii (see `*' for any 2D file)
+  and the 3D data ./data/ZHRTS1.nii
 
 
 * The optimizer location: ./CppNumericalSolvers
@@ -84,7 +78,8 @@ The current tree structure is as follows:
 |   |   |-- example_OSL.cpp
 |   |   |-- example_VAR.cpp
 |   |   |-- example_VAR_part.cpp
-|   |   `-- result
+|   |   |-- result
+|   |   `-- sigma.cpp
 |   `-- 3D
 |       |-- All_possible_AECM.cpp
 |       |-- All_possible_OSL.cpp
@@ -95,7 +90,7 @@ The current tree structure is as follows:
 |       |-- example_VAR.cpp
 |       |-- example_VAR_part.cpp
 |       |-- result
-|       `-- Var.cpp
+|       `-- sigma.cpp
 |-- include
 |   |-- 2D
 |   |   |-- functions_AECM.hpp
@@ -127,11 +122,11 @@ The current tree structure is as follows:
 
 (* new_phantom.nii is actually transformed from phantom.nii(2D)
 
+For any 2D data, the dimension format should be c(4, n_x, n_y, 1, m, 1, 1, 1)
+
 You can use R('oro.nifti') to read phantom.nii and then use
 dim_(phantom) <- c(4, 256, 256, 1, 18, 1, 1, 1) # or equivalent
 to change the dimension - as the dim are written in X, Y, Z, T/M - in this order.
 It wold be directly incorporated through Read_files_2.cpp later. 
 
-To change the dim, dim function of base R  would not work.
-'RNifti' package is faster, but can't change dim of internal image.
 )
