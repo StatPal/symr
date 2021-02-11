@@ -18,38 +18,38 @@ The **[optimizer]**(https://github.com/PatWie/CppNumericalSolvers) also uses Eig
 	```
 
 * The file to be executed (for 2D) ECM: **./examples/2D/example_AECM.cpp**
-    
-    First go to examples/2D
-    ```console
-    cd ./examples/2D/
-    ``` 
-    Then compile:
-    ```console
-    g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-    ```
-    Then run:
-    ```console
-    ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
-    ```
-    where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See `*' for details).
+	
+	First go to examples/2D
+	```console
+	cd ./examples/2D/
+	``` 
+	Then compile:
+	```console
+	g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+	```
+	Then run:
+	```console
+	./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
+	```
+	where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See `*' for details).
 
 
 * For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
 
 * For **Variance estimate** of a contrast vector(c, of size n), we have an example file with class (generated with R package mritc)
 	First go to examples/2D
-    ```console
-    cd ./examples/2D/
-    ``` 
-    Then compile:
-    ```console
-    g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-    ```
-    Then run:
-    ```console
-    ./example_VAR_part ../data/new_phantom.nii ../data/new_phantom_class.nii Dummy_sd.txt 0
-    ```
-    where `../data/new_phantom_class.nii` is the file denoting class file. 
+	```console
+	cd ./examples/2D/
+	``` 
+	Then compile:
+	```console
+	g++ example_VAR_part.cpp -o example_VAR_part -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
+	```
+	Then run:
+	```console
+	./example_VAR_part ../data/new_phantom.nii ../data/new_phantom_class.nii Dummy_sd.txt 0
+	```
+	where `../data/new_phantom_class.nii` is the file denoting class file. 
 
 
 
@@ -108,19 +108,19 @@ The current tree structure is as follows:
 
 (* 
 To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
-	First go to examples/2D
-    ```console
-    cd ./examples/2D/
-    ``` 
-    Then compile:
-    ```console
-    g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-    ```
-    Then run:
-    ```console
-    ./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
-    ```
-    where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
+First go to examples/2D
+```console
+	cd ./examples/2D/
+	``` 
+	Then compile:
+	```console
+	g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+	```
+	Then run:
+	```console
+	./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+	```
+	where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
 )
 
 
