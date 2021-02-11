@@ -12,7 +12,7 @@ Intructions:
 * The file to be executed (for 2D) ECM: **./examples/2D/example_AECM.cpp**
     
     First go to examples/2D
-    ```console
+    ```shell
     cd ./examples/2D/
     ``` 
     Then compile:
@@ -24,9 +24,9 @@ Intructions:
     ./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
     ```
 
-* For *OSL*, everything would be similar, just the cpp file would be changed to `example_AECM.cpp` 
+* For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
 
-* For Variance estimate 
+* For **Variance estimate**
 
 * The file to be executed for 3D ECM: ./examples/3D/example_AECM.cpp
     
