@@ -106,7 +106,7 @@ The current tree structure is as follows:
 ```
 
 
-(* 
+`*' 
 To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present:
 
 	First go to examples/2D
@@ -122,11 +122,11 @@ To create the file corresponding to the $sigma_j$(rice noise parameter) for each
 	./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 	```
 	where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
-)
 
 
 
-(** new_phantom.nii is actually transformed from phantom.nii(2D)
+
+(`**' new_phantom.nii is actually transformed from phantom.nii(2D)
 
 For any 2D data, the dimension format should be c(4, n_x, n_y, 1, m, 1, 1, 1)
 
