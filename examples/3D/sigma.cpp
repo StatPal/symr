@@ -16,15 +16,11 @@ And EM is directly translated from Dr. Maitra's code.
 
 
 * To compile:
-g++ Var.cpp -o test_var -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-
-g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
+g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 
 * To run:
-./test_var ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
-
-./test_var ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./sigma ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
 ./test_var ../Read_Data/brainweb_all.nii Dummy_sd_brainweb.txt 0
 
@@ -34,9 +30,9 @@ g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
 #include <fstream>
 #include <random>
@@ -49,7 +45,7 @@ g++ Var.cpp -o test_var -I ../eigen-3.3.7 -O3
 // Initial value part:
 
 
-/*
+/**
 * Choose points based on the prob values
 */
 int choose_rnd_prob(const Vector_eig &p){
@@ -83,7 +79,7 @@ int choose_rnd_prob(const Vector_eig &p){
 }
 
 
-/*
+/**
 * Finds closest dist of mu's from R_i.
 */
 int closest_dist(double R_i, Vector_eig mu){
@@ -97,8 +93,8 @@ int closest_dist(double R_i, Vector_eig mu){
 
 
 
-/*
-* Modified version of Initial value determination
+/**
+* Modified version of Initial value determination to estimate sigma_j
 * The whole init_value part is run more than 1 time (init_iter)
 * and the mean of the voxels of that class is taken as mu 
 * (as opposed to taking a random point from that group)
@@ -236,8 +232,8 @@ double dlrice(double x, double mu, double sig_sq) {
 
 
 
-/*   This is the E-Step: assigns the responsibilities of each of the k groups 
-     to each of the n observations. 
+/**
+     This is the E-Step: assigns the responsibilities of each of the k groups  to each of the n observations. 
      Inputs:
      n     = number of Ricean observations
      k     = number of components (all Rice; Rayleigh incorporated within, in 
@@ -287,7 +283,8 @@ void rice_estep(int n, int k, const Vector_eig &X, Matrix_eig &Gamma, Matrix_eig
 
 
 
-/*   This is the M-Step: Maximize the parameters w.r.t. old ones.
+/*   
+     This is the M-Step: Maximize the parameters w.r.t. old ones.
      Inputs:
      n     = number of Ricean observations
      k     = number of components (all Rice; Rayleigh incorporated within, in 
@@ -356,9 +353,9 @@ double observedDataLogLikelihood(const Vector_eig &y, const int numPoints,
 
 
 
-/*
+/**
 * Full EM cycle:
-* llhdval is the likelihood
+* llhdval is the log-likelihood value
 * BIC is BIC
 */
 Eigen::VectorXi rice_emcluster(int n, int k, const Vector_eig &X, Vector_eig &pi, Vector_eig &Mu, 
@@ -400,7 +397,9 @@ Eigen::VectorXi rice_emcluster(int n, int k, const Vector_eig &X, Vector_eig &pi
 
 
 
-// Change
+/**
+* Estimate of sigma_j
+*/
 double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15, 
 				int init_iter = 4, int EM_iter = 15, double eps = 0.0001){
 	
@@ -440,6 +439,9 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15,
 	
 	return best_sig;
 }
+
+
+
 
 
 

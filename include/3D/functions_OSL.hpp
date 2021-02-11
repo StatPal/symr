@@ -10,9 +10,9 @@
 #include "functions_LS_and_init_value.hpp"
 
 
-#include "../CppNumericalSolvers/include/cppoptlib/meta.h"
-#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
-#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 #include <ctime>
 #include <iomanip>
@@ -26,13 +26,13 @@
 
 
 
-/*
+/**
 Penalised NEGATIVE log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
-              int n_x, int n_y, int n_z, MRF_param &MRF_obj, int penalized){
+              MRF_param &MRF_obj, int penalized){
 
 	Matrix_eig_row v = v_mat(W, TE, TR);						// Can be passed
 	int m = v.cols(), n = v.rows();
@@ -64,21 +64,20 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 
 
 
-/*
+/**
 * Optim template for rows of W using partial fn:
 */
-// Class definition with template
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {
+class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
-	using typename cppoptlib::BoundedProblem<T>::TVector;
+	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
 	typedef Matrix_eig_row TMatrix_row;
 	
 	
 	const TMatrix_row &W1;
 	MRF_param &MRF_obj_optim;
-	TMatrix tmp1, tmp2;
+	TMatrix tmp1, tmp2, tmp3;
 	double fx;
 	
 
@@ -89,37 +88,39 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
 		tmp1(W1.transpose() * MRF_obj_optim_.H_1 * W1),
-		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1) {}
+		tmp2(W1.transpose() * MRF_obj_optim_.H_2 * W1),
+		tmp3(W1.transpose() * MRF_obj_optim_.H_3 * W1) {}
 	
 
 	TMatrix Psi_est, Psi_inv_est;
-	TVector beta1 = (TVector(3) << 1, 1, 0).finished();
+	TVector beta1 = (TVector(3) << 1, 1, 1).finished();
 	
 	
 	void update_tmp(const TMatrix &W1){
 		tmp1 = W1.transpose() * MRF_obj_optim.H_1 * W1;
 		tmp2 = W1.transpose() * MRF_obj_optim.H_2 * W1;
+		tmp3 = W1.transpose() * MRF_obj_optim.H_3 * W1;
 	}
 	
 
 	// Get back the Psi_inv vector from beta vector
 	TMatrix Psi_inv_mat(TVector &x) {
-		beta1 << x(0), 1, 0;
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
+		beta1 << x(0), x(1), 1;
+		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3 )/MRF_obj_optim.n;
 		Psi_inv_est = Psi_est.llt().solve(Matrix3d_eig::Identity(3, 3));
 		return (Psi_inv_est);
 	}
 	
 	// Objective function: 
 	T value(const TVector &x) {
-		beta1(0) = x(0);
-		Psi_est = (x(0) * tmp1 + tmp2 )/(MRF_obj_optim.n);
+		beta1(0) = x(0); beta1(1) = x(1);
+		Psi_est = (x(0) * tmp1 + x(1) * tmp2 + tmp3)/(MRF_obj_optim.n);
 		fx = -(3 * MRF_obj_optim.sp_log_det_specific(beta1) - 
 								MRF_obj_optim.n * log_det_3(Psi_est))/2;
 		// Check the sign.
 		return (fx);
 	}
-
+	
 };
 
 
@@ -128,7 +129,8 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {
 
 
 
-/*
+
+/**
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
@@ -147,9 +149,9 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 	Likeli_optim() : cppoptlib::BoundedProblem<T>(3){}
 
 
-	int i, n_x, n_y, n_z;
-	double beta_z = 1.0;										//or get the value. 
-	TVector TE, TR, sigma, beta, lb, ub, c_i;					// lb, ub are for extra check
+	int i;
+	double beta_z = 1.0;
+	TVector TE, TR, sigma, beta, lb, ub, c_i;								// lb, ub are for extra check
 	Matrix3d_eig Psi_inv;
 	TMatrix_row W, W_old;
 	int penalized;
@@ -195,7 +197,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 		W.row(i) = x.transpose();
 		Bloch_vec(W.row(i), TE, TR, v_i);
 		int m = TE.size();
-		double likeli_sum = 0.0, tmp2 = 0.0, tmp3 = 0.0;
+		double likeli_sum = 0.0;
 		
 		//Rice part://
 		for(int j = 0; j < m; ++j) {
@@ -270,7 +272,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 
 
-/*
+/**
 * The function for One Step Late estimation:  
 * Inputs: 
 	W_init:		W matrix, passed 
@@ -280,9 +282,6 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 	TR_example: TR values for the train data
 	sigma: 		sigma values for the train data
 	r: 			Observed values for the pixels, n x m matrix
-	n_x, 
-	n_y, 
-	n_z: 		
 	r_scale: 	scale for the r matrix, or equivalently rho.
 	TE_scale: 	scale used for TE
 	TR_scale: 	scale used for TR
@@ -297,12 +296,12 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig_row &r, 
-               int n_x, int n_y, int n_z, double r_scale, double TE_scale, double TR_scale, 
+               double r_scale, double TE_scale, double TR_scale, 
                MRF_param &MRF_obj,
+               const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list, 
                int maxiter = 20, int penalized = 1, 
                double abs_diff = 0.1, double rel_diff = 1e-4, int verbose = 0, int verbose2 = 0) {
 // Change
-
 
 	if(verbose)
 		std::cout << "\n\n\n";
@@ -314,25 +313,26 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 
 	
-	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx;
+	double old_val = 1.0e+15, old_likeli = 1.0e+15, current_best_likeli = 1.0e+15, fx = 0.0;
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	Eigen::Matrix<char, Dynamic, 1> black_list = Eigen::Matrix<char, Dynamic, 1>::Ones(n);
-	for(int i = 0; i < n; ++i){
-		for(int j = 0; j < m; ++j){
-			if(r(i, j) > 50){
-				black_list(i) = 0;
-				break;
-			}
-		}
-	}
-	Debug0("Number of possible background voxels: " << (unsigned long int)(black_list.sum()));
+//	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+//	
+//	for(int i = 0; i < n; ++i){
+//		for(int j = 0; j < m; ++j){
+//			if(r(i, j) > 50){
+//				black_list(i) = 0;
+//				break;
+//			}
+//		}
+//	}
+//	Debug0("Number of possible background voxels: " << (black_list.sum()));
 	
 	
 	
 	
-	///** First estimate other MRF parameters: Psi and beta **///
+	///** First estimate other MRF parameters **///
 	
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
@@ -340,14 +340,19 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		MRF_optim<double> f_2(W_init, MRF_obj);
 		cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
 		
-		Vector_eig x_MRF(1), lb_MRF(1), ub_MRF(1), x_MRF_old(1);
-		lb_MRF(0) = 1e-5; ub_MRF(0) = 1e+5;	f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
-		x_MRF(0) = beta(0);
+		
+		// *MRF based initial values:* //
+		Vector_eig x_MRF(2), lb_MRF(2), ub_MRF(2), x_MRF_old(2);
+		lb_MRF = Vector_eig::Constant(2, 1e-5); ub_MRF = Vector_eig::Constant(2, 1e+5);
+		f_2.setLowerBound(lb_MRF);	f_2.setUpperBound(ub_MRF);
+		x_MRF(0) = beta(0); x_MRF(1) = beta(1);
 		x_MRF_old.noalias() = x_MRF;
 		
 		cppoptlib::Criteria<double> crit_MRF = cppoptlib::Criteria<double>::defaults();
-		crit_MRF.iterations = 25;							// change
+		crit_MRF.iterations = 25;
 		solver_2.setStopCriteria(crit_MRF);
+		//Change 
+		
 	//}
 
 
@@ -379,7 +384,6 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Debug2("ub: " << ub.transpose());
 	
 	
-	f.n_x = n_x; f.n_y = n_y; f.n_z = n_z;
 	f.update_penalized(penalized);
 	f.beta.noalias() = beta;
 	f.Psi_inv.noalias() = Psi_inv;
@@ -408,7 +412,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
 	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+									 sigma, r, MRF_obj, penalized);
 	
 	
 	
@@ -420,6 +424,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		if(verbose){
 			Debug1("\n" << std::string(75, '-') << "\nIteration: " << iter << "\n");
 		}
+		
+		
 		
 		if(penalized){
 		
@@ -517,7 +523,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				old_val = f.value(x);
 				
 				
-				// Check derivative
+				// Check derivative - new: 			// see Rosenbrock files in the Optimization folder
 				/*
 				bool probably_correct = f.checkGradient(x);
 				if(probably_correct){
@@ -540,7 +546,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				fx = f.current_best_val;
 				
 				
-				Debug2("Solver status: " << solver.status());
+				Debug2("Solver status: " << solver.status());	//Guess: bad reports: under constraints => grad is not ~0 
 				Debug2("Final criteria values: " << "\n" << solver.criteria());
 				
 				
@@ -548,7 +554,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						"\t old val: " << old_val << "\t diff: " << fx - old_val);
 				
 				
-				if(fx >= old_val) {
+				if(fx >= old_val) {								//Compares best value inside
 					if(verbose2){
 						Debug1("Value have not decreased!!\nold x:" << W_init.row(i) << " & val: " << old_val << 
 								";\t x: " << x.transpose() << " val: " << fx << " i:" << i << "\n");					
@@ -558,7 +564,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 						bad_count_o_2++;
 					}
 				} else {
-					if(check_nan_vec(x) == 0){
+					if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
 						W_init.row(i) = x;
 					} else {
 						Debug1("nan in EM estimate. \n" << "i: " << i << ", x: " << x.transpose() << 
@@ -570,8 +576,9 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				// Restore values:
 				f.W.row(i) = W_init.row(i);
 				f.W_old.row(i) = W_init.row(i);
+				
+				
 			}
-			
 		}
 		
 		// E_step:
@@ -610,7 +617,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// with penalized negative log likelihood:
 		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
-									 sigma, r, n_x, n_y, n_z, MRF_obj, penalized);
+									 sigma, r, MRF_obj, penalized);
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
 			if(verbose){											// I guesss it is not good to have verbose here

@@ -4,14 +4,14 @@
 
 * To compile:
 
-g++ example_VAR.cpp -o example_VAR -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ example_VAR.cpp -o example_VAR -I/usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-g++ example_VAR.cpp -o example_VAR -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ example_VAR.cpp -o example_VAR -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
 
 ./example_VAR ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-./example_VAR ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./example_VAR ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
 ./example_VAR ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
@@ -23,12 +23,12 @@ nohup ./example_VAR ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_VAR.out 
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
-#include "functions_AECM.hpp"
-#include "functions_VAR.hpp"
+#include "../../include/3D/functions_AECM.hpp"
+#include "../../include/3D/functions_VAR.hpp"
 
 #include <ctime>
 #include <iomanip>
@@ -107,6 +107,21 @@ int main(int argc, char * argv[]) {
 
 
 
+
+	int n = r.rows();
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 12; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
+
+
+
 	
 	
 	
@@ -143,7 +158,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig_row train(r.rows(), train_ind.size());
 	Vector_eig TE_train(train_ind.size()), TR_train(train_ind.size()), sigma_train(train_ind.size());
 	short our_dim_train[8];
-	for(int i = 0; i < train_ind.size(); ++i) {
+	for(int i = 0; i < (int)train_ind.size(); ++i) {
 		train.col(i) = r.col(train_ind[i]);
 		TE_train[i] = TE_example(train_ind[i]);
 		TR_train[i] = TR_example(train_ind[i]);
@@ -156,7 +171,7 @@ int main(int argc, char * argv[]) {
 	
 	Matrix_eig_row test(r.rows(), test_ind.size());
 	Vector_eig TE_test(test_ind.size()), TR_test(test_ind.size()), sigma_test(test_ind.size());
-	for(int i = 0; i < test_ind.size(); ++i){
+	for(int i = 0; i < (int)test_ind.size(); ++i){
 		test.col(i) = r.col(test_ind[i]);
 		TE_test[i] = TE_example(test_ind[i]);
 		TR_test[i] = TR_example(test_ind[i]);
@@ -200,7 +215,7 @@ int main(int argc, char * argv[]) {
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	// Penalised:
 	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          500, 1, 0.1, 1e-7, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -224,12 +239,12 @@ int main(int argc, char * argv[]) {
 	// Using Info matrix + delta method:
 	
 	Matrix_eig info_var_1 = Var_est_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                             train, our_dim_train[1], our_dim_train[2], our_dim_train[3], MRF_obj_1,
-                                             TE_test, TR_test, sigma_test, test);
+                                             train, MRF_obj_1,
+                                             TE_test, TR_test, sigma_test, test, black_list);
 	
 	// Write to a file:
 	std::ofstream info_var_file;
-	info_var_file.open ("result/info_var_26_new.txt");
+	info_var_file.open ("result/info_var_whole_new.txt");
 	for(int i = 0; i < info_var_1.rows(); ++i){
 		info_var_file << info_var_1.row(i) << "\n";
 	}
@@ -241,9 +256,10 @@ int main(int argc, char * argv[]) {
 	// Using Bootstrap
 	std::cout << "\n\n";
 	Matrix_eig boot_var_1 = para_boot_test_mat(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train,  
-                                               train, our_dim_train[1], our_dim_train[2], our_dim_train[3],
+                                               train, 
                                                r_scale, TE_scale, TR_scale, MRF_obj_1,
-                                               TE_test, TR_test, sigma_test, test, 200, 500, 1e-1, 1e-4);
+                                               TE_test, TR_test, sigma_test, test, black_list, 
+                                               200, 500, 1e-1, 1e-4);
                                                //change
 	
 	
@@ -257,7 +273,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream boot_var_file;
-	boot_var_file.open ("result/boot_var_26_new.txt");
+	boot_var_file.open ("result/boot_var_whole_new.txt");
 	for(int i = 0; i < boot_var_1.rows(); ++i) {
 		boot_var_file << boot_var_1.row(i) << "\n";
 	}

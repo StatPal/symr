@@ -1,47 +1,44 @@
 /**
 * 
-* OSL EM algorithm
+* Multicycle EM (AECM) algorithm
 * Psi and beta are updated at every loop
+* Checkerboard structure implemented.
+* Some more advancement in MRF likeli num for faster AECM
+* E step is done seperately in that class of optimization. 
 
-* E step done seperately : 
-
-
+* Parallelized
 
 
 * To compile:
 
-g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
+g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
-g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-
-g++ example_OSL.cpp -o example_OSL -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ example_AECM.cpp -o example_AECM -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
 
 
-./example_OSL ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./example_AECM ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-./example_OSL ../data/new_phantom.nii Dummy_sd.txt 0
+./example_AECM ../../data/ZHRTS1.nii Dummy_sd_3D.txt 0
 
-./example_OSL ../Read_Data/small_phantom.nii Dummy_sd.txt 0
+./example_AECM ../Read_Data/small.nii Dummy_sd_3D.txt 0
 
-nohup ./example_OSL ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > example_OSL.out & 
-
-
-
+nohup ./example_AECM ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_AECM.out & 
 
 * 
 */
 
 
 
+#include "../../include/3D/read_files.hpp"
+#include "../../include/3D/functions_gen.hpp"
+#include "../../include/3D/functions_LS_and_init_value.hpp"
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../../include/3D/functions_AECM.hpp"
 
-#include "functions_OSL.hpp"
 
 #include <ctime>
 #include <iomanip>
+
 
 
 
@@ -70,14 +67,13 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	
 	// Reading the data: 
 	Matrix_eig_row r = Preprocess_data(data_file, our_dim, will_write);
 	Vector_eig sigma = read_sd(sd_file, our_dim[4]);
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
-	r_scale = 10.0;
+	r_scale = 1.0;
 	r.array() /= r_scale;
 	sigma.array() /= r_scale;
 	
@@ -86,14 +82,9 @@ int main(int argc, char * argv[]) {
 	
 	
 	
+	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
 	
-	
-	
-	
-	
-	
-	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
-	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
 	double TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
 	double TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
 	Debug0("r_scale: " << r_scale);
@@ -109,30 +100,45 @@ int main(int argc, char * argv[]) {
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
-		if(lb[i]<1.0e-8){
+		if(lb[i] < 1.0e-8){
 			lb[i] = 1.0e-8;
 		}
 	}
-	Debug0("lb:" << lb.transpose());
-	Debug0("ub:" << ub.transpose());
+	Debug0("lower bound:" << lb.transpose());
+	Debug0("upper bound:" << ub.transpose());
 	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
 	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
 
 
+	int n = r.rows();
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 12; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
 
 
+	
+	
+	
 	
 	// Divide into train and test:
-//	std::vector<int> train_ind{0, 6, 13};
-//	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
+//	std::vector<int> train_ind{0, 9, 11};
+//	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
 	
-	int m_total = 18;
+	
+	int m_total = 12;
 	std::vector<int> whole_ind = {};
 	for(int i = 0; i < m_total; ++i)
 		whole_ind.push_back(i);
 	
-	std::vector<int> train_ind{0, 6, 13};
+	std::vector<int> train_ind{0, 8, 9};
 	std::vector<int> test_ind{};
 	
 	test_ind = whole_ind;
@@ -142,12 +148,22 @@ int main(int argc, char * argv[]) {
                         std::inserter(test_ind, test_ind.begin()));
 	*/
 	
+	std::cout << "\ntrain: \t";
+	for(int n1 : train_ind) {
+		std::cout << n1 << ' ';
+	}
+	std::cout << "\ntest: \t";
+	for(int n1 : test_ind) {
+		std::cout << n1 << ' ';
+	}
+	std::cout << "\n" << std::flush;
+	
 	
 	
 	Matrix_eig_row train(r.rows(), train_ind.size());
 	Vector_eig TE_train(train_ind.size()), TR_train(train_ind.size()), sigma_train(train_ind.size());
 	short our_dim_train[8];
-	for(int i = 0; i < train_ind.size(); ++i) {
+	for(int i = 0; i < (int)train_ind.size(); ++i) {
 		train.col(i) = r.col(train_ind[i]);
 		TE_train[i] = TE_example(train_ind[i]);
 		TR_train[i] = TR_example(train_ind[i]);
@@ -160,7 +176,7 @@ int main(int argc, char * argv[]) {
 	
 	Matrix_eig_row test(r.rows(), test_ind.size());
 	Vector_eig TE_test(test_ind.size()), TR_test(test_ind.size()), sigma_test(test_ind.size());
-	for(int i = 0; i < test_ind.size(); ++i){
+	for(int i = 0; i < (int)test_ind.size(); ++i){
 		test.col(i) = r.col(test_ind[i]);
 		TE_test[i] = TE_example(test_ind[i]);
 		TR_test[i] = TR_example(test_ind[i]);
@@ -170,11 +186,9 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_26.txt");
+	file_performance.open ("result/Performances_AECM.txt");
 
 
-	
-	
 	
 	
 	
@@ -191,17 +205,16 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_LS;
-	file_LS.open ("result/W_LS_26.txt");
+	file_LS.open ("result/W_LS.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
 	file_LS.close();
 	
-	
 	// Save the estimated values: 
 	Vector_eig v_new = Vector_eig::Zero(TE_test.size());
 	std::ofstream file_predicted;
-	file_predicted.open ("result/v_predicted_LS_26.txt");
+	file_predicted.open ("result/v_predicted_LS.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";
@@ -233,6 +246,7 @@ int main(int argc, char * argv[]) {
 	
 	
 	
+	
 	// Test:
 	Matrix_eig_row W_LS = W_init;
 	
@@ -246,19 +260,18 @@ int main(int argc, char * argv[]) {
 	
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
 	
-	
-	
+		
 	
 	// Non -penalized:
 	
-	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list,
 	          50, 0, 0.1, 1e-5, 1);
 	//change
 	
 	// Write to a file: 
 	std::ofstream file_Likeli;
-	file_Likeli.open ("result/W_Likeli_26.txt");
+	file_Likeli.open ("result/W_Likeli.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_LS << W_init.row(i) << "\n";
 	}
@@ -267,7 +280,7 @@ int main(int argc, char * argv[]) {
 	
 	// Save the estimated values: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_Likeli_26.txt");
+	file_predicted.open ("result/v_predicted_Likeli.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";
@@ -280,9 +293,6 @@ int main(int argc, char * argv[]) {
 	show_head(W_likeli);
 	
 	
-	
-	
-	
 	perf_1 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 1, 1);
 	perf_2 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 3, 1);
 	perf_3 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 1, 2);
@@ -293,7 +303,8 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images Likelihood: " << perf_2.transpose() << "\n";
 	std::cout << "Performances over images Likelihood: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images Likelihood: " << perf_4.transpose() << "\n\n\n" << std::endl;
-	
+	Debug0("Avg perfs MLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
+						 << perf_3.mean() << ", " << perf_4.mean());
 	
 	file_performance << "Performances over images Likelihood: \t" << perf_1.transpose() << "\n";
 	file_performance << "Performances over images Likelihood: \t" << perf_2.transpose() << "\n";
@@ -305,11 +316,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	
 	// Penalised:
 	
-	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 1, 0.1, 1e-5, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -317,7 +327,7 @@ int main(int argc, char * argv[]) {
 	
 	// Write to a file: 
 	std::ofstream file_final;
-	file_final.open ("result/W_final_26.txt");
+	file_final.open ("result/W_final.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		file_final << W_init.row(i) << "\n";
 	}
@@ -325,7 +335,7 @@ int main(int argc, char * argv[]) {
 	
 	// Save the estimated values: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_OSL_26.txt");
+	file_predicted.open ("result/v_predicted_MPLE.txt");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
 		file_predicted << v_new.transpose() << "\n";
@@ -335,6 +345,8 @@ int main(int argc, char * argv[]) {
 	
 	
 	
+	
+	// Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
@@ -348,12 +360,10 @@ int main(int argc, char * argv[]) {
 	std::cout << "Performances over images Penalized: " << perf_3.transpose() << "\n";
 	std::cout << "Performances over images Penalized: " << perf_4.transpose() << "\n\n\n" << std::endl;
 	
-	
 	file_performance << "Performances over images Penalized: \t" << perf_1.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_2.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_3.transpose() << "\n";
 	file_performance << "Performances over images Penalized: \t" << perf_4.transpose() << "\n\n\n";
-	
 	file_performance.close();
 	
 	
@@ -366,9 +376,6 @@ int main(int argc, char * argv[]) {
 
 	return 0;
 }
-
-
-
 
 
 

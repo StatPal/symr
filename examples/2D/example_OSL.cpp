@@ -10,20 +10,16 @@
 
 * To compile:
 
-g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
-
-g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
-
-g++ example_OSL.cpp -o example_OSL -I ~/program/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
+g++ example_OSL.cpp -o example_OSL -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp -DEIGEN_DONT_PARALLELIZE
 
 
-./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd.txt 0
+./example_OSL ../Read_Data/new_phantom.nii Dummy_sd.txt 0
 
-./example_OSL ../data/ZHRTS1.nii Dummy_sd_3D.txt 0
+./example_OSL ../../data/new_phantom.nii Dummy_sd.txt 0
 
-./example_OSL ../Read_Data/small.nii Dummy_sd_3D.txt 0
+./example_OSL ../Read_Data/small_phantom.nii Dummy_sd.txt 0
 
-nohup ./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_OSL.out & 
+nohup ./example_OSL ../Read_Data/new_phantom.nii Dummy_sd.txt 0 > example_OSL.out & 
 
 
 
@@ -33,12 +29,10 @@ nohup ./example_OSL ../Read_Data/ZHRTS1.nii Dummy_sd_3D.txt 0 > example_OSL.out 
 
 
 
-
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
-
-#include "functions_OSL.hpp"
+#include "../../include/2D/read_files.hpp"
+#include "../../include/2D/functions_gen.hpp"
+#include "../../include/2D/functions_LS_and_init_value.hpp"
+#include "../../include/2D/functions_OSL.hpp"
 
 #include <ctime>
 #include <iomanip>
@@ -77,7 +71,7 @@ int main(int argc, char * argv[]) {
 	
 	// Scaled: r, sigma, ub would change.
 	double r_scale = r.maxCoeff();
-	r_scale = 1.0;
+	r_scale = 10.0;
 	r.array() /= r_scale;
 	sigma.array() /= r_scale;
 	
@@ -92,9 +86,8 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
-	// 1.01 -> 2.01
+	Vector_eig TE_example((Vector_eig(18) << 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10).finished());
+	Vector_eig TR_example((Vector_eig(18) << 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3).finished());
 	double TE_scale = 2.01/TE_example.minCoeff();		// 1.01/0.03
 	double TR_scale = 2.01/TR_example.minCoeff();		// 1.01/1.00
 	Debug0("r_scale: " << r_scale);
@@ -116,24 +109,39 @@ int main(int argc, char * argv[]) {
 	}
 	Debug0("lb:" << lb.transpose());
 	Debug0("ub:" << ub.transpose());
-	double W1_init = exp(-1/(2.0*TR_scale));
-	double W2_init = exp(-1/(0.1*TE_scale));
+	double W1_init = exp(-1/(2.0*TR_scale));		// exp(-1/(2.0*1.01))
+	double W2_init = exp(-1/(0.1*TE_scale));		// exp(-1/(0.1*1.01/0.03))
 	
+	
+	
+	
+	int n = r.rows();
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list = Eigen::Matrix<char, Eigen::Dynamic, 1>::Ones(n);
+	
+	for(int i = 0; i < n; ++i){
+		for(int j = 0; j < 18; ++j){
+			if(r(i, j) > 50){
+				black_list(i) = 0;
+				break;
+			}
+		}
+	}
+
 
 
 
 
 	
 	// Divide into train and test:
-//	std::vector<int> train_ind{0, 9, 11};
-//	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 10};
+//	std::vector<int> train_ind{0, 6, 13};
+//	std::vector<int> test_ind{1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17};
 	
-	int m_total = 12;
+	int m_total = 18;
 	std::vector<int> whole_ind = {};
 	for(int i = 0; i < m_total; ++i)
 		whole_ind.push_back(i);
 	
-	std::vector<int> train_ind{0, 8, 9};
+	std::vector<int> train_ind{0, 6, 13};
 	std::vector<int> test_ind{};
 	
 	test_ind = whole_ind;
@@ -148,7 +156,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig_row train(r.rows(), train_ind.size());
 	Vector_eig TE_train(train_ind.size()), TR_train(train_ind.size()), sigma_train(train_ind.size());
 	short our_dim_train[8];
-	for(int i = 0; i < train_ind.size(); ++i) {
+	for(int i = 0; i < (int)train_ind.size(); ++i) {
 		train.col(i) = r.col(train_ind[i]);
 		TE_train[i] = TE_example(train_ind[i]);
 		TR_train[i] = TR_example(train_ind[i]);
@@ -161,7 +169,7 @@ int main(int argc, char * argv[]) {
 	
 	Matrix_eig_row test(r.rows(), test_ind.size());
 	Vector_eig TE_test(test_ind.size()), TR_test(test_ind.size()), sigma_test(test_ind.size());
-	for(int i = 0; i < test_ind.size(); ++i){
+	for(int i = 0; i < (int)test_ind.size(); ++i){
 		test.col(i) = r.col(test_ind[i]);
 		TE_test[i] = TE_example(test_ind[i]);
 		TR_test[i] = TR_example(test_ind[i]);
@@ -253,7 +261,7 @@ int main(int argc, char * argv[]) {
 	// Non -penalized:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 0, 0.1, 1e-5, 1);
 	//change
 	
@@ -310,7 +318,7 @@ int main(int argc, char * argv[]) {
 	// Penalised:
 	
 	OSL_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
-	          our_dim_train[1], our_dim_train[2], our_dim_train[3], r_scale, TE_scale, TR_scale, MRF_obj_1, 
+	          r_scale, TE_scale, TR_scale, MRF_obj_1, black_list, 
 	          50, 1, 0.1, 1e-5, 1);
 	//change
 	Debug1("W - Penalized Likelihood");
@@ -336,8 +344,6 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	
-	// Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	
 	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
