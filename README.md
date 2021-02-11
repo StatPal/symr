@@ -8,7 +8,7 @@ The header files location must be with the proper PATH (or should be added in ti
 The **[optimizer]**(https://github.com/PatWie/CppNumericalSolvers) also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers). It uses [gsl library](https://www.gnu.org/software/gsl/) for bessel functions and [openmp](https://www.openmp.org/) for parallel processing.
 
 
-Instructions:
+**Instructions:**
 * The data files (and the mask files) should be in Nifti format, unzipped. 
 	If gziped, unzip the files: 
 	```console 
