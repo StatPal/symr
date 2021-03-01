@@ -467,7 +467,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// Calculated values: 
 			beta(0) = x_MRF(0); beta(1) = x_MRF(1); beta(2) = 1.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
-			Debug0("MRF optimization done!");
+			// Debug0("MRF optimization done!");
 			
 			// * Optimization over other parameters ends * //
 		
