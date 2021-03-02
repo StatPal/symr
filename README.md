@@ -75,10 +75,7 @@ The current tree structure is as follows:
 |   |-- phantom.nii.gz
 |   |-- smallest_phantom.nii.gz
 |   |-- small.nii.gz
-|   |-- small_phantom.nii.gz
-|   |-- ZHRTS1.nii.gz
-|   |-- ZHRTS2_class.nii.gz
-|   `-- ZHRTS2.nii.gz
+|   `-- small_phantom.nii.gz
 |-- docs
 |   `-- Doxyfile
 |-- examples
