@@ -28,7 +28,6 @@
 
 /**
 Penalised NEGATIVE log likelihood -- to be minimised
-Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 */
 double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
@@ -44,7 +43,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 	for(i = 0; i < n; ++i) {
 		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)/SQ(sigma(j));
-			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/SQ(sigma(j));
+			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/( 2*SQ(sigma(j)) );
 			tmp1 = logBesselI0(tmp2*v(i,j));
 			likeli_sum += (log(tmp2) + tmp1 - 0.5*tmp3) ;
 		}
@@ -270,7 +269,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 
 /**
-* The function for One Step Late estimation:  
+* The function for One Step Late estimation :
 * Inputs: 
 	W_init:		W matrix, passed 
 	Psi_inv:	Psi_inv matrix, passed
@@ -642,6 +641,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// ** OSL-EM loop ends ** //
 	
 	
+	
+	// ** Final Psi and beta ** //
+	double tmp_sum = 0;
+	tmp_sum = (beta(0) + beta(1) + beta(2)) * 2;
+	beta /= tmp_sum;
+	Psi_inv *= tmp_sum;
 	
 	
 	

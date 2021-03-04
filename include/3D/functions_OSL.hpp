@@ -44,7 +44,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 	for(i = 0; i < n; ++i) {
 		for(j = 0; j < m; ++j) {
 			tmp2 = r(i,j)/SQ(sigma(j));
-			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/SQ(sigma(j));
+			tmp3 = (SQ(r(i,j))+SQ(v(i,j)))/( 2*SQ(sigma(j)) );
 			tmp1 = logBesselI0(tmp2*v(i,j));
 			likeli_sum += (log(tmp2) + tmp1 - 0.5*tmp3) ;
 		}
@@ -467,7 +467,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// Calculated values: 
 			beta(0) = x_MRF(0); beta(1) = x_MRF(1); beta(2) = 1.0;
 			Psi_inv = f_2.Psi_inv_mat(x_MRF);
-			// Debug0("MRF optimization done!");
+			Debug0("MRF optimization done!");
 			
 			// * Optimization over other parameters ends * //
 		
@@ -658,6 +658,12 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
+	
+	// ** Final Psi and beta ** //
+	double tmp_sum = 0;
+	tmp_sum = (beta(0) + beta(1) + beta(2)) * 2;
+	beta /= tmp_sum;
+	Psi_inv *= tmp_sum;
 	
 	
 	// std::cout << "\n";
