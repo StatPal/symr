@@ -46,7 +46,6 @@ BUG: In some later version, there is an extra sigma^2 inside h().
 
 
 
-//#include <RcppEigen.h>
 
 #ifndef MAIN_HEADER
 #define MAIN_HEADER
@@ -425,7 +424,6 @@ double logBesselI0(double x) {
 /* 
 * Covariance matrix from a data matrix x
 */
-// [[Rcpp::export]]
 /*
 Matrix_eig Cov_1(Matrix_eig x) {
 	int nRows = x.rows();
@@ -518,7 +516,6 @@ double mean_rice(double nu, double sigma){
 /**
 * Change vector to matrix
 */
-//[[Rcpp::export]]
 Matrix_eig to_matrix(Vector_eig v1, int nrow_in, int ncol_in){
 	return(Eigen::Map<Matrix_eig> (v1.data(), nrow_in, ncol_in));
 }
@@ -551,7 +548,6 @@ Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
 /**
 Crude Determinant of a sparse matrix - not needed I guess
 */
-// [[Rcpp::export]]
 /*
 double sp_det_1(const SpMat &A){
 	return Matrix_eig(A).determinant();
@@ -586,7 +582,6 @@ double abs_sum(const Vector_eig &x){
 /**
 * Not needed now
 */
-// [[Rcpp::export]]
 /*
 double sp_log_det_2(const SpMat &B){					// Log determinant
 	Matrix_eig A = Matrix_eig(B);
@@ -623,7 +618,6 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 * Log determinant of a matrix
 * Not used now - see finding det with Cholesky
 */
-// [[Rcpp::export]]
 double log_det_2(const Matrix_eig &B){
 	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(B);
 	return log_vec(es.eigenvalues()).sum();
@@ -899,7 +893,6 @@ SpMat Kron_Sparse_eig(const SpMat &m1, const SpMat &m2){
 /*
 * Sparse Identity matrix of size n_x
 */
-// [[Rcpp::export]]
 SpMat I_n(int n_x){
 	SpMat temp(n_x, n_x);				//temp.reserve(n_x);
 	temp.setIdentity();
@@ -913,7 +906,6 @@ SpMat I_n(int n_x){
 * Sparse J_n matrix of size n_x
 * One eigenvalue is 0, hence determinant is 0
 */
-// [[Rcpp::export]]
 SpMat J_n(int n_x){				// has determinant 0???				// When n_x =1
 	SpMat temp(n_x, n_x);
 	if(n_x==1){
@@ -1599,7 +1591,6 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 * Have not used till now - raw rho, T_1, T_2 are nowhere used
 * SHOULD BE CHANGED AS TE_SCALE AND TR_SCALE HAS ARRIVED.
 */
-//[[Rcpp::export]]
 Matrix_eig_row to_W(const Vector_eig &rho, const Vector_eig &T_1, const Vector_eig &T_2){
 	Matrix_eig_row W = Matrix_eig_row::Zero(rho.size(), 3);
 	W.col(0) = rho;
