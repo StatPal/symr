@@ -346,7 +346,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		 Scaling factor is sd / MAD w.r.t. mean
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
-							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
+							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
 							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
 
@@ -361,61 +361,64 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	Vector_eig v_new = Vector_eig::Zero(n_test);
 	Vector_eig v_star(n_test);
 	
+	int fg_num = 0;
+	
 	
 	// Not exactly correct: Subrata - Check
 	
 	#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < n; ++i) {
-		Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
-		
-		
-		if(v_type == 1){
-			v_star = v_new;
-		} else if (v_type == 2){
-			// Need to be done - mode of rice distn to be calculated with NR method
-		} else if (v_type == 3){
-			for(int j = 0; j < n_test; ++j){
-				v_star(j) = mean_rice(v_new(j), sigma_test(j));
+		if(black_list == 0){
+			Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
+			
+			
+			if(v_type == 1){
+				v_star = v_new;
+			} else if (v_type == 2){
+				// Need to be done - mode of rice distn to be calculated with NR method
+			} else if (v_type == 3){
+				for(int j = 0; j < n_test; ++j){
+					v_star(j) = mean_rice(v_new(j), sigma_test(j));
+				}
 			}
-		}
+			
+			tmp = (v_star - test.row(i).transpose()).array().abs();
 		
-		tmp = (v_star - test.row(i).transpose()).array().abs();
-		
-		if(measure_type == 2){
-			for(int j = 0; j < n_test; ++j){
-				tmp(j) = SQ(tmp(j));
+			if(measure_type == 2){
+				for(int j = 0; j < n_test; ++j){
+					tmp(j) = SQ(tmp(j));
+				}
 			}
-		}
-		
-		
-		if(verbose){
-			if(i < 100){
-				Debug1("i: " << i << ", v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
-						",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
-						 ", tmp: " << tmp.transpose() << "\n");
-			}			
-		}
-		
-		int bad_ct = 0;
-		for(int j = 0; j < tmp.size(); ++j){
-			if(std::isnan(tmp(j))){
-				bad_ct++;
-				Debug1("i: " << i << ", W.row(i): " << W.row(i) << 
-						"\n, v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
-						",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
-						 ", tmp: " << tmp.transpose() << "\n");
-				//break;
-				exit(EXIT_FAILURE);
+			
+			
+			if(verbose){
+				if(i < 100){
+					Debug1("i: " << i << ", v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
+							",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
+							 ", tmp: " << tmp.transpose() << "\n");
+				}			
 			}
-		}
-		
-		
-		Perf_mat.row(i) = tmp;
-		// Performance_test = Performance_test + tmp;				// This is main
+			
+			int bad_ct = 0;
+			for(int j = 0; j < tmp.size(); ++j){
+				if(std::isnan(tmp(j))){
+					bad_ct++;
+					Debug1("i: " << i << ", W.row(i): " << W.row(i) << 
+							"\n, v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
+							",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
+							 ", tmp: " << tmp.transpose() << "\n");
+					//break;
+					exit(EXIT_FAILURE);
+				}
+			}
+			
+			
+			Perf_mat.row(i) = tmp;
+			// Performance_test = Performance_test + tmp;				// This is main
 	}	
 	
 	// Performance_test = Performance_test/W.rows();
-	Performance_test = Perf_mat.array().colwise().mean();
+	Performance_test = Perf_mat.array().colwise().sum()/fg_num;
 	
 	
 	
