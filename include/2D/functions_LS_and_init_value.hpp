@@ -299,6 +299,10 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		if(W(i, 0)>450.0){
 			W(i, 0) = 425.0;
 		}
+		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possiblw due to scaling sown
+			W(i, 0) = 0.0001;
+		}
+
 		
 	}
 	Debug1("1st level preprocess of initial value done!\n----------------\n----------------\n");
@@ -366,9 +370,9 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	// Not exactly correct: Subrata - Check
 	
-	#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
+	// #pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < n; ++i) {
-		if(black_list == 0){
+		if(black_list(i) == 0){
 			Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 			
 			
@@ -415,7 +419,8 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 			
 			Perf_mat.row(i) = tmp;
 			// Performance_test = Performance_test + tmp;				// This is main
-	}	
+		}
+	}
 	
 	// Performance_test = Performance_test/W.rows();
 	Performance_test = Perf_mat.array().colwise().sum()/fg_num;

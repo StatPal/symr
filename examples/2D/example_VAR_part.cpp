@@ -208,10 +208,10 @@ int main(int argc, char * argv[]) {
 	show_head(W_init);
 	std::cout << std::flush;
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs LS: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	
@@ -230,10 +230,10 @@ int main(int argc, char * argv[]) {
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs MPLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	

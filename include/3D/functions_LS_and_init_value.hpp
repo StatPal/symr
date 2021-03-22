@@ -314,6 +314,9 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		if(W(i, 0)>450){
 			W(i, 0) = 425;
 		}
+		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possible due to scaling sown
+			W(i, 0) = 0.0001;
+		}
 	}
 	Debug1("1st level preprocess of initial value done!\n----------------\n----------------\n");
 

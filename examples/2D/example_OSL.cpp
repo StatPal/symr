@@ -219,10 +219,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list,  1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs LS: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images LS: " << perf_1.transpose() << "\n";
@@ -292,10 +292,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	perf_1 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
+	perf_2 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs MLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images Likelihood: " << perf_1.transpose() << "\n";
@@ -346,10 +346,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs MPLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images Penalized: " << perf_1.transpose() << "\n";
