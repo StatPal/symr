@@ -1,3 +1,23 @@
+/*
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) 2021  Subrata Pal, Somak Dutta, Ranjan Maitra
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*/
+
+
 /**
 *
 * File to get initial values through Least Squares :
@@ -314,6 +334,9 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		if(W(i, 0)>450){
 			W(i, 0) = 425;
 		}
+		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possible due to scaling sown
+			W(i, 0) = 0.0001;
+		}
 	}
 	Debug1("1st level preprocess of initial value done!\n----------------\n----------------\n");
 
@@ -361,6 +384,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
 							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
+							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
 							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
 	int n_test = TE_test.size();
@@ -372,51 +396,56 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	Vector_eig v_new = Vector_eig::Zero(n_test);
 	Vector_eig v_star(n_test);
+	
+	int fg_num = 0;
 
 	
 	// Not exactly correct: Subrata - Check
 	
 	//#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < W.rows(); ++i) {
-		Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
+		if(black_list == 0){
+			fg_num++;
+			Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 		
 		
-		if(v_type == 1){
-			v_star = v_new;
-		} else if (v_type == 2){
-			// Need to be done - mode of rice distn to be calculated with NR method
-		} else if (v_type == 3){
-			for(int j = 0; j < n_test; ++j){					// BUG resolved, j started from 1 - R style indexing
-				v_star(j) = mean_rice(v_new(j), sigma_test(j));
+			if(v_type == 1){
+				v_star = v_new;
+			} else if (v_type == 2){
+				// Need to be done - mode of rice distn to be calculated with NR method
+			} else if (v_type == 3){
+				for(int j = 0; j < n_test; ++j){					// BUG resolved, j started from 1 - R style indexing
+					v_star(j) = mean_rice(v_new(j), sigma_test(j));
+				}
 			}
-		}
-		
-		tmp = (v_star - test.row(i).transpose()).array().abs();
-		
-		if(measure_type == 2){
-			for(int j = 0; j < n_test; ++j){
-				tmp(j) = SQ(tmp(j));
+			
+			tmp = (v_star - test.row(i).transpose()).array().abs();
+			
+			if(measure_type == 2){
+				for(int j = 0; j < n_test; ++j){
+					tmp(j) = SQ(tmp(j));
+				}
 			}
+			
+			
+		
+			
+			//std::cout << tmp.transpose() << "\n";
+			// Perf_mat.row(i) = v_star.transpose() - test.row(i);
+			
+			if(verbose){
+				if(i < 100){
+					Debug1("i: " << i << ", v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
+							",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
+							 ", tmp: " << tmp.transpose() << "\n");
+				}			
+			}
+			
+		
+			Perf_mat.row(i) = tmp;
+			// Performance_test = Performance_test + tmp;				// This is main
+			// Debug1("i: " << i << ", Performance_test" << Performance_test.transpose());
 		}
-		
-		
-		
-		
-		//std::cout << tmp.transpose() << "\n";
-		// Perf_mat.row(i) = v_star.transpose() - test.row(i);
-		
-		if(verbose){
-			if(i < 100){
-				Debug1("i: " << i << ", v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
-						",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
-						 ", tmp: " << tmp.transpose() << "\n");
-			}			
-		}
-		
-		
-		Perf_mat.row(i) = tmp;
-		// Performance_test = Performance_test + tmp;				// This is main
-		// Debug1("i: " << i << ", Performance_test" << Performance_test.transpose());
 	}
 	// Debug1("Performance_test" << Performance_test);
 	// std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
@@ -424,7 +453,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	
 	// Performance_test = Performance_test/W.rows();
-	Performance_test = Perf_mat.array().colwise().mean();
+	Performance_test = Perf_mat.array().colwise().sum()/fg_num;
 	
 	
 	
