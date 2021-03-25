@@ -4,13 +4,14 @@ Revised version.
 
 ## What is symr?
 
-``symr'' is a C++ software for Synthetic Magnetic Resonance (MR) technique which predicts images at new design parameter from few observed MR scans. The speciality of the method behind the ``symr'' is that it carefully uses both the physical and statistical properties of the underlying MR ssignal and noise. This is a theoretically sound and computationally practical matrix-free approach using multi-layered Gausssain Markov Random Field, which can predict images from as small as three MR scans, which can be used in individualized patient- and anatomy-specific contexts. We have also developed an accurate estimation of standard errors of the regional means in in the predicted images. 
+*symr* is a C++ software for Synthetic Magnetic Resonance (MR) technique which predicts images at new design parameter from few observed MR scans. The speciality of the method behind the *symr* is that it carefully uses both the physical and statistical properties of the underlying MR ssignal and noise. This is a theoretically sound and computationally practical matrix-free approach using multi-layered Gausssain Markov Random Field, which can predict images from as small as three MR scans, which can be used in individualized patient- and anatomy-specific contexts. We have also developed an accurate estimation of standard errors of the regional means in in the predicted images. 
 
 
 
 ## Installation and Usage:
 
 ### Dependencies:
+
 Make sure your system have the following softwares installed
 * C++ compiler
 * [Eigen](http://eigen.tuxfamily.org/) - a header only C++ library
@@ -20,13 +21,12 @@ Make sure your system have the following softwares installed
 We have used an **optimizer** in C++, which also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers)
 
 ### Download:
-As this library is header only, you have to first clone/download the repository, then compile and run the files. 
+
+As this library is header only, you have to first clone/download the repository, then compile and run the files.
 If you have git in your system, go to a working folder and run:
-
-	```console
-	git clone --depth=1 https://github.com/StatPal/symr.git
-	```
-
+~~~~
+git clone --depth=1 https://github.com/StatPal/symr.git
+~~~~
 If you don't have git, you can go click to the [link](https://github.com/StatPal/symr.git) and unzip it. 
 
 
