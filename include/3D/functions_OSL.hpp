@@ -50,7 +50,7 @@
 Penalised NEGATIVE log likelihood -- to be minimised
 Matrix sizes: nx3, 3x3, 3(2)x1, mx1, mx1, mx1, nxm, ...
 */
-double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
+double l_star_OSL(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
               MRF_param &MRF_obj, int penalized){
 
@@ -88,7 +88,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim_OSL : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -103,7 +103,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 
   public:	
-	MRF_optim(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
+	MRF_optim_OSL(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
@@ -154,7 +154,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 * Optim template for rows of W using partial fn:
 */
 template<typename T>
-class Likeli_optim : public cppoptlib::BoundedProblem<T> {
+class Likeli_optim_OSL : public cppoptlib::BoundedProblem<T> {
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -166,7 +166,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {
 
 
   public:
-	Likeli_optim() : cppoptlib::BoundedProblem<T>(3){}
+	Likeli_optim_OSL() : cppoptlib::BoundedProblem<T>(3){}
 
 
 	int i;
@@ -357,8 +357,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
 		
-		MRF_optim<double> f_2(W_init, MRF_obj);
-		cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
+		MRF_optim_OSL<double> f_2(W_init, MRF_obj);
+		cppoptlib::LbfgsbSolver<MRF_optim_OSL<double>> solver_2;
 		
 		
 		// *MRF based initial values:* //
@@ -385,8 +385,8 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	// * Voxel based initial values * //
 	
 	int iter = 0;
-	Likeli_optim<double> f;
-	cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
+	Likeli_optim_OSL<double> f;
+	cppoptlib::LbfgsbSolver<Likeli_optim_OSL<double>> solver;			// For MRF parameters!
 	
 	Eigen::VectorXd x(3), lb(3), ub(3);
 	//Bounds of rho, W1, W2:
@@ -431,7 +431,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	Matrix_eig MRF_grad = Gamma_inv * W_old * Psi_inv;					// Subrata - change to Matrix_eig_row and check
 	f.c_i = Vector_eig::Zero(3);		// Would be changed if penalized
 	
-	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+	old_likeli = l_star_OSL(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, MRF_obj, penalized);
 	
 	
@@ -636,7 +636,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		
 		// with penalized negative log likelihood:
-		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+		current_best_likeli = l_star_OSL(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, MRF_obj, penalized);
 		
 		if(current_best_likeli >= old_likeli){ 						// As everything is "-ve" log-likeli.
