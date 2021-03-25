@@ -29,7 +29,8 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
 
 
 
-### Usage
+### Usage and Instructions:
+
 * The data files (and the mask files) should be in Nifti format, unzipped. 
 	If gziped, unzip the files: 
 	```console 
