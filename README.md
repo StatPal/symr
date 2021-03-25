@@ -83,7 +83,7 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
   and the 3D data ./data/ZHRTS1.nii
 
 
-* The optimizer location: ./CppNumericalSolvers
+* The 3rd-party optimizer location: ./CppNumericalSolvers
 
 
 The current tree structure is as follows:
