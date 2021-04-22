@@ -31,6 +31,7 @@ img_cols = 128
 channels = 1
 
 img_shape = (img_rows, img_cols, channels)
+img_shape_8 = (img_rows, img_cols, 8)
 pix_shape = (1, 1, 8)
 
 z_dim = 100				## Size of noise vector z, used as input to the generator
@@ -61,19 +62,20 @@ get_custom_objects().update({'sq_activation': Activation(custom_activation)})
 # cGAN generator: 
 
 
-def build_generator(pix_shape):
+def build_generator(img_shape_8):
     print("\n\n\nGenerator:")
-    print("pix_shape")
-    print(pix_shape)
+    print("img_shape_8")
+    print(img_shape_8)
     
-    visible = Input(pix_shape, name="img")
-    TE_seq_1 = Input(pix_shape, name="TE")
-    TR_seq_1 = Input(pix_shape, name="TR")
+    visible = Input(img_shape_8, name="img")
+    TE_seq_1 = Input(img_shape_8, name="TE")
+    TR_seq_1 = Input(img_shape_8, name="TR")
     
     vis_final = concatenate([visible, TE_seq_1, TR_seq_1])
     print(vis_final.shape)
+    print("Check 1")
     
-    vis_final = Reshape((1,1,24))(vis_final)								## Check the formation
+    vis_final = Reshape((128,128,24))(vis_final)								## Check the formation
     # vis_final = Concatenate(axis=-1)([visible, TE_seq_1, TR_seq_1])
     
     print(vis_final.shape)
@@ -93,12 +95,12 @@ def build_generator(pix_shape):
     model = Model(inputs=[visible, TE_seq_1, TR_seq_1], outputs=final, name="try_gen")  ## No, this would have same dim as ??
 
     plot_model(model, to_file='gan_gen.pdf', show_shapes=True, show_layer_names=True)
-    print(model.summary())				# Added by Subrata
+    # print(model.summary())				# Added by Subrata
     return model
 
 
 
-build_generator(pix_shape)
+build_generator(img_shape_8)
 
 
 
@@ -215,7 +217,7 @@ def build_discriminator(img_shape):
     
     plot_model(model, to_file='gan_dis.pdf', show_shapes=True, show_layer_names=True) # , expand_nested=True
     # model_to_dot(model, show_shapes=True, show_layer_names=True, expand_nested=True)
-    print(model.summary())
+    #print(model.summary())
     return model
 
 
@@ -227,31 +229,23 @@ build_discriminator(img_shape)
 
 
 def define_gan(g_model, d_model):
-    print("Check1")
     # make weights in the discriminator not trainable
     d_model.trainable = False
     # get noise and label inputs from generator model
-    print("Check2")
     gen_raw, gen_TE, gen_TR = g_model.input
-    print("Check3")
     # get image output from the generator model
     gen_output = g_model.output
-    print("Check4")
     print(gen_output.shape)  ## (None, 1, 1, 1) -- not matching with input of d_model in the next line
     # wants img_shape (128, 128, 1)
-    print("Check5")
+    
     # connect image output and label input from generator as inputs to discriminator
     gan_output = d_model(gen_output)
-    print("Check6")
     # define gan model as taking noise and label and outputting a classification
     model = Model([gen_raw, gen_TE, gen_TR], gan_output)
     # compile model
-    print("Check7")
     opt = Adam(lr=0.0002, beta_1=0.5)
-    print("Check8")
     model.compile(loss='binary_crossentropy', optimizer=opt)
-    print("Check9")
-    plot_model(model, to_file='gan_all.pdf', show_shapes=False, show_layer_names=True)
+    plot_model(model, to_file='gan_all.pdf', show_shapes=True, show_layer_names=True)
     return model
 
 
@@ -260,10 +254,7 @@ def define_gan(g_model, d_model):
 # create the discriminator
 d_model = build_discriminator(img_shape)
 # create the generator
-g_model = build_generator(pix_shape)
-
-
-print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+g_model = build_generator(img_shape_8)
 
 d_model
 
@@ -303,10 +294,6 @@ gan_model = define_gan(g_model, d_model)
 #    return [X, labels], y
 
 
-
-
-
-
 ## generate points in latent space as input for the generator
 #def generate_latent_points(latent_dim, n_samples, n_classes=10):
 #    # generate points in the latent space
@@ -329,13 +316,30 @@ gan_model = define_gan(g_model, d_model)
 
 
 
+def train1(g_model, d_model, gan_model, dataset, n_batch=128):
+    # manually enumerate epochs
+    for i in range(n_epochs):
+        # enumerate batches over the training set
+        for j in range(bat_per_epo):
+            # get a 128x128 patch from the main data
+            
+            # update discriminator model weights
+            d_loss1, _ = d_model.train_on_batch([X_real, labels_real], y_real)
+            # generate 'fake' examples
+            [X_fake, labels], y_fake = generate_fake_samples(g_model, latent_dim, half_batch)
+            # update discriminator model weights
+            d_loss2, _ = d_model.train_on_batch([X_fake, labels], y_fake)
+            # prepare points in latent space as input for the generator
+            [z_input, labels_input] = generate_latent_points(latent_dim, n_batch)
+            # create inverted labels for the fake samples
+            y_gan = ones((n_batch, 1))
+            # update the generator via the discriminator's error
+            g_loss = gan_model.train_on_batch([z_input, labels_input], y_gan)
 
 
 
 
-
-
-## train the generator and discriminator
+### train the generator and discriminator
 #def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=100, n_batch=128):
 #    bat_per_epo = int(dataset[0].shape[0] / n_batch)
 #    half_batch = int(n_batch / 2)
@@ -377,9 +381,9 @@ gan_model = define_gan(g_model, d_model)
 ## create the gan
 #gan_model = define_gan(g_model, d_model)
 ## load image data
-#dataset = load_real_samples()
+# dataset = load_real_samples()
 ## train model
-#train(g_model, d_model, gan_model, dataset, latent_dim)
+train1(g_model, d_model, gan_model, dataset, latent_dim)
 
 
 
