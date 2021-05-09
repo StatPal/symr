@@ -19,52 +19,26 @@ from keras.models import Model, Sequential
 from keras.optimizers import Adam
 
 
-#from keras import backend as K
-#K.set_session(K.tf.Session(config=K.tf.ConfigProto(intra_op_parallelism_threads=15 , inter_op_parallelism_threads=15)))
-
-
 import tensorflow as tf
 tf.config.threading.set_intra_op_parallelism_threads(1)
 tf.config.threading.set_inter_op_parallelism_threads(15)
-
 run_opts = tf.compat.v1.RunOptions(report_tensor_allocations_upon_oom = True)
 
-
-
-
 from keras.utils.vis_utils import plot_model
-# or use from keras_visualizer import visualizer 
-# visualizer(model, format='png', view=True)
-## from keras.utils import model_to_dot
 from random import randint
-
-
 from numpy import (zeros, ones)
 
 
 import nibabel as nib
-
 img = nib.load("../data/brainweb_all_6.nii")
-
 a = np.array(img.dataobj)
 
-
-
-
 import glob as glob
-from numpy import genfromtxt
-import csv
-
 from pandas import read_csv
 
-
-# create list of vegetation files to be opened
 # VegList = sorted(glob.glob('../brainweb_new/result/generated_r_5_*.csv'))
 VegList = sorted(glob.glob('../brainweb_new/result/generated_r_5_1[12].csv'))
 data = []
-
-
-
 
 data = []
 for f in VegList:
@@ -76,10 +50,12 @@ for f in VegList:
 
 data_array = np.asarray(data)
 # print(data_array)
+
+data_orig = data_array[:,:,:,:,7]
 data_array = data_array[:,:,:,:,0:5]
 print(data_array.shape)
 
-
+## data contains data with 2 people, 181 n_x, 217 n_y, 181 n_z, 6 TE/TR settings
 
 
 
@@ -103,18 +79,75 @@ TR_seq = (0.2, .2, 0.2, 0.2, 0.03, .03)
 
 
 
+## cGAN Discriminator:
+def build_discriminator(img_shape):
+    print("\n\n\nDiscriminator:")
+    visible = Input(img_shape)
+    
+    print("\nImage shape is:")
+    print(visible.shape)
+    
+    x1_n = Conv3D(filters=1, kernel_size=64, strides=32, activation="elu",padding='same',name="x1_n")(visible)    
+    x2_n = Conv3D(filters=1, kernel_size=64, strides=1, activation="elu",padding='same',name="x2_n")(visible)
+    x3_n = Conv3D(filters=1, kernel_size=64, strides=2, activation="elu",padding='same',name="x3_n")(visible)
+    x4_n = Conv3D(filters=1, kernel_size=64, strides=4, activation="elu",padding='same',name="x4_n")(visible)
+    x5_n = Conv3D(filters=1, kernel_size=64, strides=8, activation="elu",padding='same',name="x5_n")(visible)
+    x6_n = Conv3D(filters=1, kernel_size=64, strides=16, activation="elu",padding='same',name="x6_n")(visible)
+    
+    ## My fix: faltten and then connect using - https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8662660
+    x1_flat = Flatten()(x1_n)
+    x2_flat = Flatten()(x2_n)
+    x3_flat = Flatten()(x3_n)
+    x4_flat = Flatten()(x4_n)
+    x5_flat = Flatten()(x5_n)
+    x6_flat = Flatten()(x6_n)
+
+    x1_flat = Dense(units=1, activation="sigmoid")(x1_flat)
+    x2_flat = Dense(units=1, activation="sigmoid")(x2_flat)
+    x3_flat = Dense(units=1, activation="sigmoid")(x3_flat)
+    x4_flat = Dense(units=1, activation="sigmoid")(x4_flat)
+    x5_flat = Dense(units=1, activation="sigmoid")(x5_flat)
+    x6_flat = Dense(units=1, activation="sigmoid")(x6_flat)
+    
+    final_1 = concatenate([x1_flat, x2_flat, x3_flat, x4_flat, x5_flat, x6_flat])
+    final_2 = Dense(units=1, activation="sigmoid")(final_1)
+    
+    model = Model(inputs=visible, outputs=final_2)
+    
+    # compile model
+    opt = Adam(lr=0.0002, beta_1=0.5)
+    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
+    plot_model(model, to_file='gan_dis_test.pdf', show_shapes=True, show_layer_names=True) # , expand_nested=True
+    #print(model.summary())
+    return model
+
+
+#build_discriminator(img_shape)
+
+# select real samples
+def generate_real_samples(dataset, n_batch):
+    # choose random instances
+    ix = randint(0, dataset.shape[1]-128); iy = randint(0, dataset.shape[2]-128); iz = randint(0, dataset.shape[3]-128)
+    # select images and labels
+    X = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128)]	## (no_sample, X, Y, Z, settings_no)
+    return X, ix, iy, iz
+
+
+
+
+
+
+
 
 ## cGAN generator: 
-
-
-def build_generator(img_shape_8):
+def build_generator(img_shape_gen):
     print("\n\n\nGenerator:")
-    print("img_shape_8")
-    print(img_shape_8)
-    
-    visible = Input(img_shape_8, name="img")
-    TE_seq_1 = Input(img_shape_8, name="TE")
-    TR_seq_1 = Input(img_shape_8, name="TR")
+    print("img_shape_gen")
+    print(img_shape_gen)
+    		
+    visible = Input(img_shape_gen, name="img")
+    TE_seq_1 = Input(img_shape_gen, name="TE")
+    TR_seq_1 = Input(img_shape_gen, name="TR")
     
     vis_final = concatenate([visible, TE_seq_1, TR_seq_1])
     print(vis_final.shape)
@@ -124,7 +157,6 @@ def build_generator(img_shape_8):
     
     print(vis_final.shape)
     print("\n\n\n\n\n")
-    # vis_final = visible
     print(vis_final)
 
     x1 = Dense(units=128, activation="sigmoid")(vis_final)
@@ -138,294 +170,152 @@ def build_generator(img_shape_8):
     return model
 
 
-
-# build_generator(img_shape_8)
-
-
-
-
-
-
-
-## cGAN Discriminator:
-
-def build_discriminator(img_shape):
-    print("\n\n\nDiscriminator:")
-    visible = Input(img_shape)
-    
-    print("\nImage shape is:")
-    print(visible.shape)
-    
-    x1_n = Conv3D(filters=1, kernel_size=64, strides=32, activation="elu",padding='same',name="x1_n")(visible)
-#    print("x1_n shape")
-#    print(x1_n.shape)
-    
-    x2_n = Conv3D(filters=1, kernel_size=64, strides=1, activation="elu",padding='same',name="x2_n")(visible)
-#    print("x2_n shape")
-#    print(x2_n.shape)
-    
-    x3_n = Conv3D(filters=1, kernel_size=64, strides=2, activation="elu",padding='same',name="x3_n")(visible)
-#    print("x3_n shape")
-#    print(x3_n.shape)
-    
-    x4_n = Conv3D(filters=1, kernel_size=64, strides=4, activation="elu",padding='same',name="x4_n")(visible)
-#    print("x4_n shape")
-#    print(x4_n.shape)
-    
-    x5_n = Conv3D(filters=1, kernel_size=64, strides=8, activation="elu",padding='same',name="x5_n")(visible)
-#    print("x5_n shape")
-#    print(x5_n.shape)
-    
-    x6_n = Conv3D(filters=1, kernel_size=64, strides=16, activation="elu",padding='same',name="x6_n")(visible)
-#    print("x6_n shape")
-#    print(x6_n.shape)
-    
-    
-    
-#    outputs_1 = []
-#    outputs_1.append(x1_n); outputs_1.append(x2_n); outputs_1.append(x3_n); outputs_1.append(x3_n); 
-#    outputs_1.append(x4_n); outputs_1.append(x5_n); outputs_1.append(x6_n);
-    # model = Model(inputs=visible, outputs=[x1_n, x2_n, x3_n, x4_n, x5_n, x6_n])
-#    model = Model(inputs=visible, outputs=outputs_1)
-
-    ### Problem is in this line. 
-    
-    
-    
-    
-    ## My fix: faltten and then connect using - https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8662660
-    
-#    x1_flat = Flatten()(x1)
-#    x2_flat = Flatten()(x2)
-#    x3_flat = Flatten()(x3)
-#    x4_flat = Flatten()(x4)
-#    x5_flat = Flatten()(x5)
-#    x6_flat = Flatten()(x6)
-#    
-#    
-#    final_1 = concatenate([x1_flat, x2_flat, x3_flat, x4_flat, x5_flat, x6_flat])
-#    final_2 = Dense(units=1, activation="sigmoid")(final_1)
-#    
-#    model = Model(inputs=visible, outputs=final_2)
-
-
-    x1_flat = Flatten()(x1)
-    x2_flat = Flatten()(x2)
-    x3_flat = Flatten()(x3)
-    x4_flat = Flatten()(x4)
-    x5_flat = Flatten()(x5)
-    x6_flat = Flatten()(x6)
-
-    
-    
-    x1_flat = Dense(units=1, activation="sigmoid")(x1_flat)
-    x2_flat = Dense(units=1, activation="sigmoid")(x2_flat)
-    x3_flat = Dense(units=1, activation="sigmoid")(x3_flat)
-    x4_flat = Dense(units=1, activation="sigmoid")(x4_flat)
-    x5_flat = Dense(units=1, activation="sigmoid")(x5_flat)
-    x6_flat = Dense(units=1, activation="sigmoid")(x6_flat)
-    
-    print("x1: "); print(x1.shape)
-    print("x6: "); print(x6.shape)
-    print("x1_flat: "); print(x1_flat.shape)
-    print("x6_flat: "); print(x6_flat.shape)
-    
-    final_1 = concatenate([x1_flat, x2_flat, x3_flat, x4_flat, x5_flat, x6_flat])
-    final_2 = Dense(units=1, activation="sigmoid")(final_1)
-    
-    model = Model(inputs=visible, outputs=final_2)
-    
-    
-    
-    
-    # compile model
-    opt = Adam(lr=0.0002, beta_1=0.5)
-    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'], options = run_opts)
-    
-    plot_model(model, to_file='gan_dis_test.pdf', show_shapes=True, show_layer_names=True) # , expand_nested=True
-    # model_to_dot(model, show_shapes=True, show_layer_names=True, expand_nested=True)
-    #print(model.summary())
-    return model
-
-
-
-#build_discriminator(img_shape)
-
-
-#print("\n\n\n\n\n\n\nDis and gen defined!!!!!")
-
-
-def define_gan(g_model, d_model):
-    # make weights in the discriminator not trainable
-    d_model.trainable = False
-    # get noise and label inputs from generator model
-    gen_raw, gen_TE, gen_TR = g_model.input
-    # get image output from the generator model
-    gen_output = g_model.output
-    print("gen_output.shape:")
-    print(gen_output.shape)  ## (None, 1, 1, 1) -- not matching with input of d_model in the next line
-    # wants img_shape (128, 128, 1)
-    
-    # connect image output and label input from generator as inputs to discriminator
-    gan_output = d_model(gen_output)
-    # define gan model as taking noise and label and outputting a classification
-    model = Model([gen_raw, gen_TE, gen_TR], gan_output)
-    # compile model
-    opt = Adam(lr=0.0002, beta_1=0.5)
-    model.compile(loss='binary_crossentropy', optimizer=opt, options = run_opts)
-    return model
-
-
-
-
-## create the discriminator
-#d_model = build_discriminator(img_shape)
-## create the generator
-#g_model = build_generator(img_shape_8)
-
-#d_model
-
-#g_model
-
-## create the gan
-#gan_model = define_gan(g_model, d_model)
-## load image data
-
-#print("\n\n\n\n\n\nGAN model defined!!!!!")
-
-
-
-# select real samples
-def generate_real_samples(dataset, n_batch):
-    # choose random instances
-    ix = randint(0, dataset.shape[1]-128); iy = randint(0, dataset.shape[2]-128); iz = randint(0, dataset.shape[3]-128)
-    # select images and labels
-    X = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128),:]	## (no_sample, X, Y, Z, settings_no)
-    return X, ix, iy, iz
-
-
-def generate_fake_samples(generator, dataset, ix, iy, iz, n_samples):
-	# generate points in latent space
-	# z_input, labels_input = generate_latent_points(latent_dim, n_samples)
-	# predict outputs
-	images = generator.predict([z_input, labels_input])
-	# create class labels
-	y = zeros((n_samples, 1))
-	return [images, labels_input], y
-
-
+# create the discriminator
+d_model = build_discriminator(img_shape)
+# create the generator
+g_model = build_generator(img_shape_8)
 
 
 
 dataset = data_array
 
-X_real, ix, iy, iz = generate_real_samples(dataset, 128)
-print("X_real[0].shape")
-print(X_real[0].shape)
-print("X_real[:,:,:,:,0].shape: ")
-print(X_real[:,:,:,:,0].shape)
+X_real, ix, iy, iz = generate_real_samples(data_orig, 128)
+print("X_real[:,:,:,:].shape: "); print(X_real[1:3,:,:,:].shape)
+y_real = ones(((X_real[1:3,:,:,:]).shape[0], 1))
 
-# update discriminator model weights
-y_real = ones((X_real.shape[0], 1))
-print("y_real shape: ")
-print(y_real.shape)
 
-d_model = build_discriminator(img_shape)
+#print("Train: ")
+# d_model.train_on_batch(X_real[1:3,:,:,:], y_real)
 
-# d_model.fit(x=X_real[:,:,:,:,0], y=y_real, batch_size=4, epochs=2)
-# Incompatible shapes: [2,1] vs. [2,16,16,16,1]
-
-print("Train: ")
-
-# d_model.train_on_batch(X_real[:,:,:,:,0], y_real)
+z_input = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128),:]
+print(z_input[1,1,1,:].shape)
+images = g_model.predict([z_input[1,1,1], TE_seq, TR_seq])						# predict outputs
 
 
 
-print("Check 2")
 
-# generate 'fake' examples
-[X_fake, labels], y_fake = generate_fake_samples(g_model, dataset, ix, iy, iz, half_batch)
-print("Check 3")
+#print("See\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
-# update discriminator model weights
-d_loss2, _ = d_model.train_on_batch([X_fake, labels], y_fake)
-print("Check 4")
 
-# prepare points in latent space as input for the generator
-[z_input, labels_input] = generate_latent_points(latent_dim, n_batch)
-print("Check 5")
+#def define_gan(g_model, d_model):
+#    d_model.trainable = False
+#    gen_raw, gen_TE, gen_TR = g_model.input			    # get noise and label inputs from generator model
+#    gen_output = g_model.output							# get image output from the generator model
+#    print("gen_output.shape:"); print(gen_output.shape)  
+#    ## (None, 1, 1, 1) -- not matching with input of d_model in the next line wants img_shape (128, 128, 1)
+#    
+#    gan_output = d_model(gen_output)					# connect image output and label input from generator as inputs to discriminator
+#    model = Model([gen_raw, gen_TE, gen_TR], gan_output)# define gan model as taking noise and label and outputting a classification
+#    model.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.0002, beta_1=0.5))  	# compile model
+#    return model
 
-# create inverted labels for the fake samples
-y_gan = ones((n_batch, 1))
-print("Check 6")
 
-# update the generator via the discriminator's error
-g_loss = gan_model.train_on_batch([z_input, labels_input], y_gan)
+
+#def generate_fake_samples(generator, dataset, ix, iy, iz):
+#	# z_input, labels_input = generate_latent_points(latent_dim, n_samples)		# generate points in latent space
+#	z_input = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128),:]
+#	images = generator.predict([z_input, TE_seq, TR_seq])						# predict outputs
+#	y = zeros((n_samples, 1))													# create class labels
+#	return images, y
 
 
 
 
 
 
+#dataset = data_array
 
-def train1(g_model, d_model, gan_model, dataset, n_batch=128, n_iter=10):
-    # manually enumerate epochs
-    for i in range(n_iter):
-        # enumerate batches over the training set
-        for j in range(n_batch):
-            # get a 128x128x128 patch from the main data
-            # No, only take the flair image from the data. 
-            X_real = generate_real_samples(dataset, n_batch)
-            print("X_real[:,:,:,:,0].shape: ")
-            print(X_real[:,:,:,:,0].shape)
-            
-            # update discriminator model weights
-            y_real = ones((X_real.shape[0], 1))
-            print("y_real shape: ")
-            print(y_real.shape)
-            
-            
-            ## Problem here: Changed the format of output. 
-            ## See this also: https://github.com/fengwang/MCNN/blob/master/tutorial/tutorial.ipynb            
-            d_loss1, _ = d_model.train_on_batch(X_real[:,:,:,:,0], y_real)
-            # discriminator model should get the pd image - check which one is the rho density
-            print("Check 2")
-            
-            # generate 'fake' examples
-            [X_fake, labels], y_fake = generate_fake_samples(g_model, latent_dim, half_batch)
-            print("Check 3")
-            
-            # update discriminator model weights
-            d_loss2, _ = d_model.train_on_batch([X_fake, labels], y_fake)
-            print("Check 4")
-            
-            # prepare points in latent space as input for the generator
-            [z_input, labels_input] = generate_latent_points(latent_dim, n_batch)
-            print("Check 5")
-            
-            # create inverted labels for the fake samples
-            y_gan = ones((n_batch, 1))
-            print("Check 6")
-            
-            # update the generator via the discriminator's error
-            g_loss = gan_model.train_on_batch([z_input, labels_input], y_gan)
+#X_real, ix, iy, iz = generate_real_samples(dataset, 128)
+#print("X_real[:,:,:,:,0].shape: "); print(X_real[1:3,:,:,:,0].shape)
+#y_real = ones(((X_real[1:3,:,:,:,0]).shape[0], 1))
+
+
+##print("Train: ")
+##d_model.train_on_batch(X_real[1:3,:,:,:,0], y_real)
+
+## generate 'fake' examples
+#[X_fake, labels], y_fake = generate_fake_samples(g_model, dataset, ix, iy, iz)
+#print("Check 3")
+
+## update discriminator model weights
+#d_loss2, _ = d_model.train_on_batch([X_fake, labels], y_fake)
+#print("Check 4")
+
+## prepare points in latent space as input for the generator
+#[z_input, labels_input] = generate_latent_points(latent_dim, n_batch)
+#print("Check 5")
+
+## create inverted labels for the fake samples
+#y_gan = ones((n_batch, 1))
+#print("Check 6")
+
+## update the generator via the discriminator's error
+#g_loss = gan_model.train_on_batch([z_input, labels_input], y_gan)
 
 
 
 
 
-## size of the latent space
-# latent_dim = 100
-## create the discriminator
-#d_model = build_discriminator(img_shape)
-## create the generator
-#g_model = build_generator(pix_shape)
-## create the gan
-#gan_model = define_gan(g_model, d_model)
-## load image data
-# dataset = load_real_samples()
-## train model
-# train1(g_model, d_model, gan_model, data_array, 128, 10)
+
+
+#def train1(g_model, d_model, gan_model, dataset, n_batch=128, n_iter=10):
+#    # manually enumerate epochs
+#    for i in range(n_iter):
+#        # enumerate batches over the training set
+#        for j in range(n_batch):
+#            # get a 128x128x128 patch from the main data
+#            # No, only take the flair image from the data. 
+#            X_real = generate_real_samples(dataset, n_batch)
+#            print("X_real[:,:,:,:,0].shape: ")
+#            print(X_real[:,:,:,:,0].shape)
+#            
+#            # update discriminator model weights
+#            y_real = ones((X_real.shape[0], 1))
+#            print("y_real shape: ")
+#            print(y_real.shape)
+#            
+#            
+#            ## Problem here: Changed the format of output. 
+#            ## See this also: https://github.com/fengwang/MCNN/blob/master/tutorial/tutorial.ipynb            
+#            d_loss1, _ = d_model.train_on_batch(X_real[:,:,:,:,0], y_real)
+#            # discriminator model should get the pd image - check which one is the rho density
+#            print("Check 2")
+#            
+#            # generate 'fake' examples
+#            [X_fake, labels], y_fake = generate_fake_samples(g_model, latent_dim, half_batch)
+#            print("Check 3")
+#            
+#            # update discriminator model weights
+#            d_loss2, _ = d_model.train_on_batch([X_fake, labels], y_fake)
+#            print("Check 4")
+#            
+#            # prepare points in latent space as input for the generator
+#            [z_input, labels_input] = generate_latent_points(latent_dim, n_batch)
+#            print("Check 5")
+#            
+#            # create inverted labels for the fake samples
+#            y_gan = ones((n_batch, 1))
+#            print("Check 6")
+#            
+#            # update the generator via the discriminator's error
+#            g_loss = gan_model.train_on_batch([z_input, labels_input], y_gan)
+
+
+
+
+
+### size of the latent space
+## latent_dim = 100
+### create the discriminator
+##d_model = build_discriminator(img_shape)
+### create the generator
+##g_model = build_generator(pix_shape)
+### create the gan
+##gan_model = define_gan(g_model, d_model)
+### load image data
+## dataset = load_real_samples()
+### train model
+## train1(g_model, d_model, gan_model, data_array, 128, 10)
 
 
 
