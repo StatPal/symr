@@ -52,7 +52,7 @@ data_array = np.asarray(data)
 # print(data_array)
 
 data_orig = data_array[:,:,:,:,7]
-data_array = data_array[:,:,:,:,0:5]
+data_array = data_array[:,:,:,:,0:6]
 print(data_array.shape)
 
 ## data contains data with 2 people, 181 n_x, 217 n_y, 181 n_z, 6 TE/TR settings
@@ -71,9 +71,6 @@ img_shape = (img_rows, img_cols, img_depth, channels)
 img_shape_8 = (img_rows, img_cols, img_depth, settings_no)
 pix_shape = (1, 1, 1, settings_no)
 
-z_dim = 100				## Size of noise vector z, used as input to the generator
-
-
 TE_seq = (0.1, 0.2, 0.6, 0.7, 0.1, 0.2)
 TR_seq = (0.2, .2, 0.2, 0.2, 0.03, .03)
 
@@ -87,35 +84,23 @@ def build_discriminator(img_shape):
     print("\nImage shape is:")
     print(visible.shape)
     
-    x1_n = Conv3D(filters=1, kernel_size=64, strides=32, activation="elu",padding='same',name="x1_n")(visible)    
-    x2_n = Conv3D(filters=1, kernel_size=64, strides=1, activation="elu",padding='same',name="x2_n")(visible)
-    x3_n = Conv3D(filters=1, kernel_size=64, strides=2, activation="elu",padding='same',name="x3_n")(visible)
-    x4_n = Conv3D(filters=1, kernel_size=64, strides=4, activation="elu",padding='same',name="x4_n")(visible)
-    x5_n = Conv3D(filters=1, kernel_size=64, strides=8, activation="elu",padding='same',name="x5_n")(visible)
-    x6_n = Conv3D(filters=1, kernel_size=64, strides=16, activation="elu",padding='same',name="x6_n")(visible)
+    x1_n = Conv3D(filters=1, kernel_size=4, strides=2, activation="elu",padding='same',name="x1_n")(visible)    
+    x2_n = Conv3D(filters=1, kernel_size=4, strides=1, activation="elu",padding='same',name="x2_n")(visible)
     
     ## My fix: faltten and then connect using - https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8662660
     x1_flat = Flatten()(x1_n)
     x2_flat = Flatten()(x2_n)
-    x3_flat = Flatten()(x3_n)
-    x4_flat = Flatten()(x4_n)
-    x5_flat = Flatten()(x5_n)
-    x6_flat = Flatten()(x6_n)
-
+    
     x1_flat = Dense(units=1, activation="sigmoid")(x1_flat)
     x2_flat = Dense(units=1, activation="sigmoid")(x2_flat)
-    x3_flat = Dense(units=1, activation="sigmoid")(x3_flat)
-    x4_flat = Dense(units=1, activation="sigmoid")(x4_flat)
-    x5_flat = Dense(units=1, activation="sigmoid")(x5_flat)
-    x6_flat = Dense(units=1, activation="sigmoid")(x6_flat)
     
-    final_1 = concatenate([x1_flat, x2_flat, x3_flat, x4_flat, x5_flat, x6_flat])
+    final_1 = concatenate([x1_flat, x2_flat])
     final_2 = Dense(units=1, activation="sigmoid")(final_1)
     
     model = Model(inputs=visible, outputs=final_2)
     
     # compile model
-    opt = Adam(lr=0.0002, beta_1=0.5)
+    opt = Adam(lr=0.02, beta_1=0.5)
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     plot_model(model, to_file='gan_dis_test.pdf', show_shapes=True, show_layer_names=True) # , expand_nested=True
     #print(model.summary())
@@ -125,11 +110,11 @@ def build_discriminator(img_shape):
 #build_discriminator(img_shape)
 
 # select real samples
-def generate_real_samples(dataset, n_batch):
+def generate_real_samples(dataset, i, n_batch):
     # choose random instances
     ix = randint(0, dataset.shape[1]-128); iy = randint(0, dataset.shape[2]-128); iz = randint(0, dataset.shape[3]-128)
     # select images and labels
-    X = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128)]	## (no_sample, X, Y, Z, settings_no)
+    X = dataset[i,ix:(ix+128), iy:(iy+128), iz:(iz+128)]	## (no_sample, X, Y, Z, settings_no)
     return X, ix, iy, iz
 
 
@@ -149,16 +134,17 @@ def build_generator(img_shape_gen):
     TE_seq_1 = Input(img_shape_gen, name="TE")
     TR_seq_1 = Input(img_shape_gen, name="TR")
     
+    print(visible.shape)
+    
     vis_final = concatenate([visible, TE_seq_1, TR_seq_1])
     print(vis_final.shape)
     print("Check 1")
     
-    vis_final = Reshape((128,128,128,settings_no*3))(vis_final)								## Check the formation
+    # vis_final = Reshape((128,128,128,settings_no*3))(vis_final)								## Check the formation
     
     print(vis_final.shape)
     print("\n\n\n\n\n")
-    print(vis_final)
-
+    
     x1 = Dense(units=128, activation="sigmoid")(vis_final)
     x1 = Dense(units=1, activation="sigmoid")(x1)
     final = Dense(units=1, activation="elu")(x1)
@@ -173,23 +159,46 @@ def build_generator(img_shape_gen):
 # create the discriminator
 d_model = build_discriminator(img_shape)
 # create the generator
-g_model = build_generator(img_shape_8)
+g_model = build_generator(settings_no)
+
 
 
 
 dataset = data_array
 
-X_real, ix, iy, iz = generate_real_samples(data_orig, 128)
-print("X_real[:,:,:,:].shape: "); print(X_real[1:3,:,:,:].shape)
-y_real = ones(((X_real[1:3,:,:,:]).shape[0], 1))
+
+i = 0
+X_real, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
+# X_real = [X_real, np.newaxis]
+X_real = np.expand_dims(X_real, axis=0)
+print("X_real.shape: "); print(X_real.shape)
+
+for i in range(3):			## should be range(15-1)
+	X_real_tmp, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
+	X_real_tmp = np.expand_dims(X_real_tmp, axis=0)
+	print("X_real_tmp.shape"); print(X_real_tmp.shape)
+	X_real = np.concatenate([X_real, X_real_tmp], axis=0)
+	# X_real.append(X_real_tmp)
+	
+
+print("X_real.shape: "); print(X_real.shape)
+
+y_real = ones(X_real.shape[0], dtype=int)
 
 
-#print("Train: ")
-# d_model.train_on_batch(X_real[1:3,:,:,:], y_real)
+print("Train: ")
+d_model.train_on_batch(X_real, y_real)
 
-z_input = dataset[:,ix:(ix+128), iy:(iy+128), iz:(iz+128),:]
-print(z_input[1,1,1,:].shape)
-images = g_model.predict([z_input[1,1,1], TE_seq, TR_seq])						# predict outputs
+
+
+
+
+
+
+#z_input = X_real[i,:,:,:]
+#print("z_input.shape")
+#print(z_input.shape)
+#images = g_model.predict([z_input[1,1,1], TE_seq, TR_seq])						# predict outputs
 
 
 
