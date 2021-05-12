@@ -134,8 +134,7 @@ def build_generator(img_shape_gen):
     
     # vis_final = Reshape((128,128,128,settings_no*3))(vis_final)								## Check the formation
     
-    x1 = Dense(units=128, activation="sigmoid")(vis_final)
-    x1 = Dense(units=1, activation="sigmoid")(x1)
+    x1 = Dense(units=1, activation="sigmoid")(vis_final)
     final = Dense(units=1, activation="elu")(x1)
 
     model = Model(inputs=[visible, TE_seq_1, TR_seq_1], outputs=final, name="try_gen")  ## No, this would have same dim as ??
