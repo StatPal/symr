@@ -116,7 +116,7 @@ def generate_real_samples(dataset, subject_no, n_batch):
     ix = np.array(ix); iy = np.array(iy); iz = np.array(iz)
     
     
-    for i in range(1,no_of_patch-1):
+    for i in range(1,no_of_patch):
         ix_tmp = randint(0, dataset.shape[1]-128); iy_tmp = randint(0, dataset.shape[2]-128); iz_tmp = randint(0, dataset.shape[3]-128)
         X_real_tmp = dataset[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128)]	## (no_sample, X, Y, Z)
         X_real_tmp = np.expand_dims(X_real_tmp, axis=0)
@@ -128,6 +128,7 @@ def generate_real_samples(dataset, subject_no, n_batch):
 
 
 X_real, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
+
 
 
 print("X_real.shape: "); print(X_real.shape)
@@ -175,42 +176,6 @@ print("Check 1")
 
 
 
-TE_seq_expand = np.expand_dims(TE_seq, axis=0)
-TR_seq_expand = np.expand_dims(TR_seq, axis=0)
-
-print("TE_seq_expand"); print(TE_seq_expand.shape)
-
-
-
-i = 0
-ix_tmp = ix[i]; iy_tmp = iy[i]; iz_tmp = iz[i];
-X_fake_tmp = data_array[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128),:]  
-## (no_sample, X, Y, Z, (settings_no))
-shape_x = X_fake_tmp.shape
-tmp_X_all = X_fake_tmp
-print("Check 2")
-
-
-print("tmp_X_all.shape"); print(tmp_X_all.shape)
-TE_seq_all = np.tile(TE_seq_expand, (128, 128, 128, 1))
-print("TE_seq_all"); print(TE_seq_all.shape)
-TR_seq_all = np.tile(TR_seq_expand, (128, 128, 128, 1))
-
-
-tmp_X_all = np.expand_dims(tmp_X_all, axis=0)
-TE_seq_all = np.expand_dims(TE_seq_all, axis=0)
-TR_seq_all = np.expand_dims(TR_seq_all, axis=0)
-print("tmp_X_all.shape"); print(tmp_X_all.shape)
-print("TE_seq_all"); print(TE_seq_all.shape)
-
-
-fake_data_tmp = g_model.predict([tmp_X_all, TE_seq_all, TR_seq_all])
-### # fake_data_tmp = tmp_X_all[:,0]												# test
-##fake_data_tmp = np.reshape(fake_data_tmp, shape_x[:-1])
-## fake_data_tmp = np.expand_dims(fake_data_tmp, axis=0)
-print("\n\n\nfake_data_tmp.shape"); print(fake_data_tmp.shape)
-
-
 
 
 """
@@ -224,40 +189,63 @@ inter:	tmp_X_all: (128x128x128) x settings_no
 output: fake_data:  128 x 128 x 128 
 """
 
+TE_seq_expand = np.expand_dims(TE_seq, axis=0)
+TR_seq_expand = np.expand_dims(TR_seq, axis=0)
+TE_seq_all = np.tile(TE_seq_expand, (no_of_patch, 128, 128, 128, 1))
+TR_seq_all = np.tile(TR_seq_expand, (no_of_patch, 128, 128, 128, 1))
+#TE_seq_all = np.expand_dims(TE_seq_all, axis=0)
+#TR_seq_all = np.expand_dims(TR_seq_all, axis=0)
 
-def generate_fake_samples_2(generator, dataset, subject_no, ix, iy, iz, n_batch):
+
+
+
+
+
+#def generate_fake_samples_2(generator, dataset, subject_no, ix, iy, iz, n_batch):
+#    for i in range(len(ix)):
+#        ix_tmp = ix[i]; iy_tmp = iy[i]; iz_tmp = iz[i];
+#        X_fake_tmp = dataset[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128),:]  
+#        ## (no_sample, X, Y, Z, (settings_no))
+#        tmp_X_all = np.expand_dims(X_fake_tmp, axis=0)
+#        # TE_seq_all = np.repeat(TE_seq_expand, 128*128*128, axis=0)
+#        # TR_seq_all = np.repeat(TR_seq_expand, 128*128*128, axis=0)
+
+#        fake_data_tmp = generator.predict([tmp_X_all, TE_seq_all, TR_seq_all])
+#        
+#        if i==0:
+#            fake_data = fake_data_tmp
+#        else:
+#            fake_data = np.concatenate([fake_data, fake_data_tmp], axis=0)
+#    
+#    return fake_data
+
+
+
+def generate_fake_samples_2_new(generator, dataset, subject_no, ix, iy, iz, n_batch):
+    print("Inside generate_fake_samples_2_new")
+    print(len(ix))
+    print(no_of_patch)
     for i in range(len(ix)):
         ix_tmp = ix[i]; iy_tmp = iy[i]; iz_tmp = iz[i];
         X_fake_tmp = dataset[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128),:]  
-        ## (no_sample, X, Y, Z, (settings_no))
-        shape_x = X_fake_tmp.shape
-        tmp_X_all = X_fake_tmp
-        tmp_X_all = np.expand_dims(tmp_X_all, axis=0)
-        # TE_seq_all = np.repeat(TE_seq_expand, 128*128*128, axis=0)
-        # TR_seq_all = np.repeat(TR_seq_expand, 128*128*128, axis=0)
-        print("Check in loop")
-        print("tmp_X_all.shape"); print(tmp_X_all.shape)
-        print("TE_seq_all.shape"); print(TE_seq_all.shape)
-        print("shape_x"); print(shape_x)
-
-        fake_data_tmp = generator.predict([tmp_X_all, TE_seq_all, TR_seq_all])
-        ## # fake_data_tmp = tmp_X_all[:,0]												# test
-        #fake_data_tmp = np.reshape(fake_data_tmp, shape_x[:-1])
-        # fake_data_tmp = np.expand_dims(fake_data_tmp, axis=0)
+        X_fake_tmp = np.expand_dims(X_fake_tmp, axis=0)
         
         if i==0:
-            #fake_data_tmp = np.zeros((128,128,128))										# test
-            #fake_data_tmp = np.expand_dims(fake_data_tmp, axis=0)						# test
-            fake_data = fake_data_tmp
+            tmp_X_all = X_fake_tmp
         else:
-            fake_data = np.concatenate([fake_data, fake_data_tmp], axis=0)
+            tmp_X_all = np.concatenate([tmp_X_all, X_fake_tmp], axis=0)
     
+    print("tmp_X_all"); print(tmp_X_all.shape)
+    print("TE_seq_all"); print(TE_seq_all.shape)
+    fake_data = generator.predict([tmp_X_all, TE_seq_all, TR_seq_all])
     return fake_data
 
 
 
 
-abc = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
+
+
+abc = generate_fake_samples_2_new(g_model, data_array, 0, ix, iy, iz, 128)
 print("abc.shape"); print(abc.shape)
 
 y_fake = ones(abc.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
@@ -285,6 +273,7 @@ def define_gan_2(g_model, d_model):
     gan_output = d_model(gen_output)					# connect image output and label input from generator as inputs to discriminator
     model = Model([gen_raw, gen_TE, gen_TR], gan_output)# define gan model as taking noise and label and outputting a classification
     model.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.0002, beta_1=0.5))  	# compile model
+    plot_model(model, to_file='gan_whole_test.pdf', show_shapes=True, show_layer_names=True)
     return model
 
 
@@ -292,6 +281,35 @@ def define_gan_2(g_model, d_model):
 gan_model = define_gan_2(g_model, d_model)		# create the gan
 
 
+
+
+
+
+
+X_real, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
+y_real = ones(X_real.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
+
+# update discriminator model weights
+d_loss1, _ = d_model.train_on_batch(X_real, y_real)					## no_of_patch is the sample size
+
+# generate 'fake' examples
+X_fake = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
+y_fake = ones(X_fake.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
+
+# update discriminator model weights
+d_loss2, _ = d_model.train_on_batch(X_fake, y_fake)					## no_of_patch is the sample size
+
+
+# create inverted labels for the fake samples
+y_gan = ones((X_fake.shape[0], 1))
+
+
+print("X_fake"); print(X_fake.shape)
+print("TE_seq_all"); print(TE_seq_all.shape)
+print("y_gan"); print(y_gan.shape)
+
+# update the generator via the discriminator's error
+g_loss = gan_model.train_on_batch([X_fake, TE_seq_all, TR_seq_all], y_gan)
 
 
 
