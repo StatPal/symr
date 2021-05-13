@@ -46,7 +46,7 @@ data_array = np.asarray(data)
 
 data_orig = data_array[:,:,:,:,7]			## Suppose this is rho-weighted settings image
 data_array = data_array[:,:,:,:,0:6]		## Suppose these are all other train settings image
-print(data_array.shape)
+print("data_array.shape"); print(data_array.shape)
 
 ## data contains data with 2 people, 181 n_x, 217 n_y, 181 n_z, 6 TE/TR settings
 
@@ -128,15 +128,7 @@ def generate_real_samples(dataset, subject_no, n_batch):
 
 
 X_real, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
-
-
-
-print("X_real.shape: "); print(X_real.shape)
-
 y_real = ones(X_real.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
-print("y_real.shape: "); print(y_real.shape)
-
-print("Train: ")
 d_model.train_on_batch(X_real, y_real)					## no_of_patch is the sample size
 print("Real Train ended\n\n\n\n\n")
 
@@ -171,8 +163,6 @@ def build_generator(img_shape_gen):
 
 g_model = build_generator(img_shape_8)
 
-print("Check 1")
-
 
 
 
@@ -193,8 +183,6 @@ TE_seq_expand = np.expand_dims(TE_seq, axis=0)
 TR_seq_expand = np.expand_dims(TR_seq, axis=0)
 TE_seq_all = np.tile(TE_seq_expand, (no_of_patch, 128, 128, 128, 1))
 TR_seq_all = np.tile(TR_seq_expand, (no_of_patch, 128, 128, 128, 1))
-#TE_seq_all = np.expand_dims(TE_seq_all, axis=0)
-#TR_seq_all = np.expand_dims(TR_seq_all, axis=0)
 
 
 
@@ -209,7 +197,6 @@ def generate_inputs(generator, dataset, subject_no, ix, iy, iz, n_batch):
         else:
             tmp_X_all = np.concatenate([tmp_X_all, X_fake_tmp], axis=0)
     
-    print("tmp_X_all"); print(tmp_X_all.shape)
     return tmp_X_all
 
 
@@ -224,13 +211,9 @@ def generate_fake_samples_2(generator, dataset, subject_no, ix, iy, iz, n_batch)
 
 
 
-abc = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
-print("abc.shape"); print(abc.shape)
-
-y_fake = ones(abc.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
-
-print("Train: ")
-d_model.train_on_batch(abc, y_fake)					## no_of_patch is the sample size
+X_fake = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
+y_fake = ones(X_fake.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
+d_model.train_on_batch(X_fake, y_fake)					## no_of_patch is the sample size
 print("Fake Train ended\n\n\n\n\n")
 
 
@@ -245,9 +228,7 @@ print("Fake Train ended\n\n\n\n\n")
 def define_gan_2(g_model, d_model):
     d_model.trainable = False
     gen_raw, gen_TE, gen_TR = g_model.input				# get noise and label inputs from generator model
-    print("gen_raw.shape:"); print(gen_raw.shape)
     gen_output = g_model.output							# get image output from the generator model
-    print("gen_output.shape:"); print(gen_output.shape)
     
     gan_output = d_model(gen_output)					# connect image output and label input from generator as inputs to discriminator
     model = Model([gen_raw, gen_TE, gen_TR], gan_output)# define gan model as taking noise and label and outputting a classification
@@ -265,35 +246,50 @@ gan_model = define_gan_2(g_model, d_model)		# create the gan
 
 
 
-X_real, ix, iy, iz = generate_real_samples(data_orig, 0, 128)
-y_real = ones(X_real.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
-
-# update discriminator model weights
-d_loss1, _ = d_model.train_on_batch(X_real, y_real)					## no_of_patch is the sample size
-
-# generate 'fake' examples
-X_fake = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
-y_fake = ones(X_fake.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
-
-# update discriminator model weights
-d_loss2, _ = d_model.train_on_batch(X_fake, y_fake)					## no_of_patch is the sample size
 
 
-# create inverted labels for the fake samples
-y_gan = ones(X_fake.shape[0], dtype=int)
 
 
-# generate 'fake' examples
-X_inputs = generate_inputs(g_model, data_array, 0, ix, iy, iz, 128)
-
-print("X_inputs"); print(X_inputs.shape)
-print("TE_seq_all"); print(TE_seq_all.shape)
-print("y_gan"); print(y_gan.shape)
-
-# update the generator via the discriminator's error
-g_loss, _ = gan_model.train_on_batch([X_inputs, TE_seq_all, TR_seq_all], y_gan)
 
 
+
+
+
+
+# train the generator and discriminator
+def train(g_model, d_model, gan_model, dataset_total, dataset_orig, n_epochs=100, n_batch=128):
+	for i in range(n_epochs):
+		# enumerate batches over the training set
+		for j in range(no_of_sample):
+			X_real, ix, iy, iz = generate_real_samples(dataset_orig, j, 128)
+			y_real = ones(X_real.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
+			# update discriminator model weights
+			d_loss1, _ = d_model.train_on_batch(X_real, y_real)					## no_of_patch is the sample size
+			# generate 'fake' examples
+			X_fake = generate_fake_samples_2(g_model, dataset_total, j, ix, iy, iz, 128)
+			y_fake = ones(X_fake.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
+			# update discriminator model weights
+			d_loss2, _ = d_model.train_on_batch(X_fake, y_fake)					## no_of_patch is the sample size
+
+			# create inverted labels for the fake samples
+			y_gan = ones(X_fake.shape[0], dtype=int)
+
+			# generate 'fake' examples
+			X_inputs = generate_inputs(g_model, dataset_total, j, ix, iy, iz, 128)
+
+			# update the generator via the discriminator's error
+			g_loss = gan_model.train_on_batch([X_inputs, TE_seq_all, TR_seq_all], y_gan)
+
+			# summarize loss on this batch
+			print('>%d, %d, d1=%.3f, d2=%.3f g=%.3f' %
+				(i+1, j+1, d_loss1, d_loss2, g_loss))
+	# save the generator model
+	g_model.save('cgan_generator.h5')
+
+
+
+# train model
+train(g_model, d_model, gan_model, data_array, data_orig, 2, 5)
 
 
 
