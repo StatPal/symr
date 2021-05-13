@@ -198,33 +198,7 @@ TR_seq_all = np.tile(TR_seq_expand, (no_of_patch, 128, 128, 128, 1))
 
 
 
-
-
-
-#def generate_fake_samples_2(generator, dataset, subject_no, ix, iy, iz, n_batch):
-#    for i in range(len(ix)):
-#        ix_tmp = ix[i]; iy_tmp = iy[i]; iz_tmp = iz[i];
-#        X_fake_tmp = dataset[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128),:]  
-#        ## (no_sample, X, Y, Z, (settings_no))
-#        tmp_X_all = np.expand_dims(X_fake_tmp, axis=0)
-#        # TE_seq_all = np.repeat(TE_seq_expand, 128*128*128, axis=0)
-#        # TR_seq_all = np.repeat(TR_seq_expand, 128*128*128, axis=0)
-
-#        fake_data_tmp = generator.predict([tmp_X_all, TE_seq_all, TR_seq_all])
-#        
-#        if i==0:
-#            fake_data = fake_data_tmp
-#        else:
-#            fake_data = np.concatenate([fake_data, fake_data_tmp], axis=0)
-#    
-#    return fake_data
-
-
-
-def generate_fake_samples_2_new(generator, dataset, subject_no, ix, iy, iz, n_batch):
-    print("Inside generate_fake_samples_2_new")
-    print(len(ix))
-    print(no_of_patch)
+def generate_inputs(generator, dataset, subject_no, ix, iy, iz, n_batch):
     for i in range(len(ix)):
         ix_tmp = ix[i]; iy_tmp = iy[i]; iz_tmp = iz[i];
         X_fake_tmp = dataset[subject_no, ix_tmp:(ix_tmp+128), iy_tmp:(iy_tmp+128), iz_tmp:(iz_tmp+128),:]  
@@ -236,7 +210,12 @@ def generate_fake_samples_2_new(generator, dataset, subject_no, ix, iy, iz, n_ba
             tmp_X_all = np.concatenate([tmp_X_all, X_fake_tmp], axis=0)
     
     print("tmp_X_all"); print(tmp_X_all.shape)
-    print("TE_seq_all"); print(TE_seq_all.shape)
+    return tmp_X_all
+
+
+
+def generate_fake_samples_2(generator, dataset, subject_no, ix, iy, iz, n_batch):
+    tmp_X_all = generate_inputs(generator, dataset, subject_no, ix, iy, iz, n_batch)
     fake_data = generator.predict([tmp_X_all, TE_seq_all, TR_seq_all])
     return fake_data
 
@@ -245,7 +224,7 @@ def generate_fake_samples_2_new(generator, dataset, subject_no, ix, iy, iz, n_ba
 
 
 
-abc = generate_fake_samples_2_new(g_model, data_array, 0, ix, iy, iz, 128)
+abc = generate_fake_samples_2(g_model, data_array, 0, ix, iy, iz, 128)
 print("abc.shape"); print(abc.shape)
 
 y_fake = ones(abc.shape[0], dtype=int)   ### original images - 15x128x128x128 sample
@@ -301,15 +280,18 @@ d_loss2, _ = d_model.train_on_batch(X_fake, y_fake)					## no_of_patch is the sa
 
 
 # create inverted labels for the fake samples
-y_gan = ones((X_fake.shape[0], 1))
+y_gan = ones(X_fake.shape[0], dtype=int)
 
 
-print("X_fake"); print(X_fake.shape)
+# generate 'fake' examples
+X_inputs = generate_inputs(g_model, data_array, 0, ix, iy, iz, 128)
+
+print("X_inputs"); print(X_inputs.shape)
 print("TE_seq_all"); print(TE_seq_all.shape)
 print("y_gan"); print(y_gan.shape)
 
 # update the generator via the discriminator's error
-g_loss = gan_model.train_on_batch([X_fake, TE_seq_all, TR_seq_all], y_gan)
+g_loss, _ = gan_model.train_on_batch([X_inputs, TE_seq_all, TR_seq_all], y_gan)
 
 
 
