@@ -373,12 +373,14 @@ def train(g_model, d_model, gan_model, dataset_total, dataset_orig, n_epochs=100
 			print('>%d, %d, d1=%.3f, d2=%.3f g=%.3f' %
 				(i+1, j+1, d_loss1, d_loss2, g_loss))
 	# save the generator model
-	g_model.save('cgan_generator_1.h5')
+	g_model.save('cgan_generator_5_1.h5')
 
 
 
 # train model
-train(g_model, d_model, gan_model, data_array, data_orig, 10, 5)
+iter=100000
+epoch_no=int(iter/no_of_sample)
+train(g_model, d_model, gan_model, data_array, data_orig, epoch_no, 5)
 
 
 
