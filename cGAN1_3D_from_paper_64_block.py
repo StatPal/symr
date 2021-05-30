@@ -27,6 +27,7 @@ run_opts = tf.compat.v1.RunOptions(report_tensor_allocations_upon_oom = True)
 from keras.utils.vis_utils import plot_model
 from random import randint
 from numpy import (zeros, ones)
+from datetime import datetime
 
 
 
@@ -371,14 +372,14 @@ def train(g_model, d_model, gan_model, dataset_total, dataset_orig, n_epochs=100
 
 			# summarize loss on this batch
 			print('>%d, %d, d1=%.3f, d2=%.3f g=%.3f' %
-				(i+1, j+1, d_loss1, d_loss2, g_loss))
+				(i+1, j+1, d_loss1, d_loss2, g_loss)); print("now=", datetime.now())
 	# save the generator model
 	g_model.save('cgan_generator_5_1.h5')
 
 
 
 # train model
-iter=100000
+iter=100000/8
 epoch_no=int(iter/no_of_sample)
 train(g_model, d_model, gan_model, data_array, data_orig, epoch_no, 5)
 
