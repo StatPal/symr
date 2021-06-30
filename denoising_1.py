@@ -40,7 +40,7 @@ dat_2 = dat_2*255/scaling_factor   ## Check this
 print("Scaling max value:", np.amax(dat_2), "\n\n\n")
 
 
-
+import PIL
 from PIL import Image
 from matplotlib import cm
 
@@ -71,7 +71,29 @@ print("act_image.size:", act_image.size)
 
 
 
-img_noisy_pil = crop_image(act_image, d=32)
+new_size = (act_image.size[0] - act_image.size[0] % 32, 
+            act_image.size[1] - act_image.size[1] % 32)
+
+if act_image.size[0] % 32 != 0:
+	tmp_1 = new_size[0]+32
+if act_image.size[1] % 32 != 0:
+	tmp_2 = new_size[1]+32
+
+new_size = (tmp_1, tmp_2)
+print("new_size:", new_size)
+
+## PAD THE IMAGE
+img_noisy_pil = PIL.Image.new(mode='L', size=new_size, color=(0))  # White
+img_noisy_pil.paste(act_image, (0,0))  # Not centered, top-left corner
+
+
+
+
+
+
+
+
+#img_noisy_pil = crop_image(act_image, d=32)			## This changes the dimension
 img_noisy_np = pil_to_np(img_noisy_pil)
 
 print("img_noisy_pil.size:", img_noisy_pil.size)
@@ -89,7 +111,7 @@ print("Channel:", max(x.shape[0] for x in [img_np]))
 
 
 if PLOT:
-    plot_image_grid([img_np], 4, 5, name="gen/init_img.pdf");
+    plot_image_grid([img_np], 4, 5, name="noise_1/init_img.pdf");
 
 
 #import sys
@@ -109,6 +131,8 @@ OPT_OVER = 'net' # 'net,input'
 
 reg_noise_std = 1./30. # set to 1./20. for sigma=50
 reg_noise_std = 1./20. # set to 1./20. for sigma=50
+
+reg_noise_std = 0. 	   #  Subrata try
 LR = 0.01
 
 OPTIMIZER='adam' # 'LBFGS'
@@ -117,7 +141,7 @@ exp_weight=0.99
 
 num_iter = 2400
 
-num_iter = 1500
+num_iter = 5000
 input_depth = 3
 figsize = 5 
 
@@ -191,7 +215,7 @@ def closure():
     if  PLOT and i % show_every == 0:
         out_np = torch_to_np(out)
         plot_image_grid([np.clip(out_np, 0, 1), 
-                         np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="gen/steps"+str(i)+".pdf")
+                         np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="noise_1/steps"+str(i)+".pdf")
         
         
     
@@ -225,7 +249,7 @@ optimize(OPTIMIZER, p, closure, LR, num_iter)
 
 
 out_np = torch_to_np(net(net_input))
-q = plot_image_grid([np.clip(out_np, 0, 1), img_np], factor=13, name="gen/last.pdf");
+q = plot_image_grid([np.clip(out_np, 0, 1), img_np], factor=13, name="noise_1/last.pdf");
 
 
 print("out_np.shape:", out_np.shape)
