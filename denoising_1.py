@@ -29,24 +29,15 @@ sigma_ = sigma/255.
 
 
 ############## LOAD IMAGE: ############################
-
-
 import pandas as pd
 f = 'result/r_LS_brainweb_next_stage_1_pred.csv'
 dat_iter = np.asarray(pd.read_csv(f, header=None))  ## np.asarray gives different format
 dat_2 = dat_iter.reshape(181, 217, 181, 9)
 
-
-
 scaling_factor = np.amax(dat_2)
 print("Scaling factor:", scaling_factor)
-
-
-dat_2 = dat_2/scaling_factor   ## Check this
-dat_2 = dat_2*255   ## Check this
-
+dat_2 = dat_2*255/scaling_factor   ## Check this
 print("Scaling max value:", np.amax(dat_2), "\n\n\n")
-
 
 
 
@@ -56,58 +47,26 @@ from matplotlib import cm
 target = 0
 dat_target = dat_2[:,:,:,target]
 
+
+
+
+
 slice_no = 91
 
 slice_2D = dat_target[:,:,91]
-print(slice_2D.shape)
-
-## Check images: 
-plt.figure()
-plt.imshow(slice_2D)
-plt.savefig('slice_2D.pdf', bbox_inches='tight'); plt.close()
 
 
-
-#act_image = Image.fromarray(slice_2D, 'RGB')
-
-from matplotlib import cm
-
-
-
-#act_image = Image.fromarray(np.uint8(cm.gist_earth(slice_2D)*255)).convert('RGB')
-#act_image = Image.fromarray(slice_2D.astype('uint8'), 'RGB')
-
-
-
-#act_image = np_to_pil([slice_2D])
-
-
-print("np.amax(slice_2D)", np.amax(slice_2D))
 ar = np.clip(slice_2D,0,255).astype(np.uint8)
-## Check images: 
-plt.figure()
-plt.imshow(ar)
-plt.savefig('ar_2.pdf', bbox_inches='tight'); plt.close()
-print("np.amax(ar)", np.amax(ar))
-print("ar.shape:", ar.shape)
+print("np.amax(slice_2D)", np.amax(slice_2D), "\t np.amax(ar)", np.amax(ar))
+print("slice_2D.shape", slice_2D.shape, "\t ar.shape", ar.shape)
 if slice_2D.shape[0] == 1:
     ar = ar[0]
 else:
     #ar = ar.transpose(1, 2, 0)
-    ar = ar.transpose(0, 1)
+    ar = ar.transpose(1, 0)
 act_image = Image.fromarray(ar)
 
-print("act_image:", act_image)
 print("act_image.size:", act_image.size)
-
-
-
-## Check images: 
-plt.figure()
-plt.imshow(act_image)
-plt.savefig('act_image_2.pdf', bbox_inches='tight'); plt.close()
-
-
 
 
 
@@ -115,11 +74,8 @@ plt.savefig('act_image_2.pdf', bbox_inches='tight'); plt.close()
 img_noisy_pil = crop_image(act_image, d=32)
 img_noisy_np = pil_to_np(img_noisy_pil)
 
-plt.figure()
-plt.imshow(img_noisy_pil)
-plt.savefig('img_noisy_pil_2.pdf', bbox_inches='tight'); plt.close()
-
-
+print("img_noisy_pil.size:", img_noisy_pil.size)
+print("act_image.size:", act_image.size)
 
 # As we don't have ground truth
 img_pil = img_noisy_pil
@@ -127,7 +83,7 @@ img_np = img_noisy_np
 
 print("img_np.size:", img_np.size)
 for x in [img_np]:
-    print(x.shape[0])
+    print("LOL:", x.shape[0])
 
 print("Channel:", max(x.shape[0] for x in [img_np]))
 
