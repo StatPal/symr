@@ -87,10 +87,9 @@ for x in [img_np]:
 
 print("Channel:", max(x.shape[0] for x in [img_np]))
 
-plot_image_grid([img_np], 4, 5, name="check_img.pdf");
 
-#if PLOT:
-#    plot_image_grid([img_np], 4, 5, name="gen/init_img.pdf");
+if PLOT:
+    plot_image_grid([img_np], 4, 5, name="gen/init_img.pdf");
 
 
 #import sys
@@ -113,17 +112,18 @@ reg_noise_std = 1./20. # set to 1./20. for sigma=50
 LR = 0.01
 
 OPTIMIZER='adam' # 'LBFGS'
-show_every = 250  ## Subrata
+show_every = 500  ## Subrata
 exp_weight=0.99
 
 num_iter = 2400
 
-num_iter = 240
+num_iter = 1500
 input_depth = 3
 figsize = 5 
 
 net = skip(
-            input_depth, 3, 
+#            input_depth, 3, 
+            input_depth, 1, 	## Subrata
             num_channels_down = [8, 16, 32, 64, 128], 
             num_channels_up   = [8, 16, 32, 64, 128],
             num_channels_skip = [0, 0, 0, 4, 4], 
