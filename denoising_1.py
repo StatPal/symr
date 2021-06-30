@@ -1,29 +1,19 @@
-
 ############################ Import libs: ##########################
-
 from __future__ import print_function
-
 import warnings
 #warnings.filterwarnings("ignore", message=r"Passing", category=FutureWarning)
 #warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
 
 
-
-
-
 import matplotlib.pyplot as plt
 #%matplotlib inline
-
 import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '3'
-
 import numpy as np
 from models import *
-
 import torch
 import torch.optim
-
 #from skimage.measure import compare_psnr		## changed to
 from skimage.metrics import peak_signal_noise_ratio
 from utils.denoising_utils import *
@@ -147,8 +137,8 @@ plot_image_grid([img_np], 4, 5, name="check_img.pdf");
 #    plot_image_grid([img_np], 4, 5, name="gen/init_img.pdf");
 
 
-import sys
-sys.exit()
+#import sys
+#sys.exit()
 
 
 
