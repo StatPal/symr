@@ -1,17 +1,14 @@
 ############################ Import libs: ##########################
 from __future__ import print_function
 import warnings
-#warnings.filterwarnings("ignore", message=r"Passing", category=FutureWarning)
-#warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings('ignore')
 
 
 import matplotlib.pyplot as plt
-#%matplotlib inline
 import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import numpy as np
 from models import *
+
 import torch
 import torch.optim
 #from skimage.measure import compare_psnr		## changed to
@@ -51,9 +48,12 @@ dat_target = dat_2[:,:,:,target]
 
 
 
+
+
+
 slice_no = 91
 
-slice_2D = dat_target[:,:,91]
+slice_2D = dat_target[:,:,slice_no]
 
 
 ar = np.clip(slice_2D,0,255).astype(np.uint8)
@@ -66,38 +66,25 @@ else:
     ar = ar.transpose(1, 0)
 act_image = Image.fromarray(ar)
 
-print("act_image.size:", act_image.size)
 
-
-
-
-new_size = (act_image.size[0] - act_image.size[0] % 32, 
-            act_image.size[1] - act_image.size[1] % 32)
-
+## Pad images:
+new_size = (act_image.size[0] - act_image.size[0] % 32, act_image.size[1] - act_image.size[1] % 32)
 if act_image.size[0] % 32 != 0:
 	tmp_1 = new_size[0]+32
 if act_image.size[1] % 32 != 0:
 	tmp_2 = new_size[1]+32
 
 new_size = (tmp_1, tmp_2)
-print("new_size:", new_size)
-
-## PAD THE IMAGE
 img_noisy_pil = PIL.Image.new(mode='L', size=new_size, color=(0))  # White
 img_noisy_pil.paste(act_image, (0,0))  # Not centered, top-left corner
 
 
 
-
-
-
-
-
-#img_noisy_pil = crop_image(act_image, d=32)			## This changes the dimension
+#img_noisy_pil = crop_image(act_image, d=32)			## This changes the dimension - don't crop - pad
 img_noisy_np = pil_to_np(img_noisy_pil)
 
-print("img_noisy_pil.size:", img_noisy_pil.size)
-print("act_image.size:", act_image.size)
+#print("img_noisy_pil.size:", img_noisy_pil.size)
+#print("act_image.size:", act_image.size)
 
 # As we don't have ground truth
 img_pil = img_noisy_pil
@@ -141,18 +128,31 @@ exp_weight=0.99
 
 num_iter = 2400
 
-num_iter = 5000
+num_iter = 10000
 input_depth = 3
+#input_depth = 10
 figsize = 5 
 
+#net = skip(
+##            input_depth, 3, 
+#            input_depth, 1, 	## Subrata
+#            num_channels_down = [8, 16, 32, 64, 128], 
+#            num_channels_up   = [8, 16, 32, 64, 128],
+#            num_channels_skip = [0, 0, 0, 4, 4], 
+#            upsample_mode='bilinear',
+#            need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
+
+
 net = skip(
-#            input_depth, 3, 
             input_depth, 1, 	## Subrata
-            num_channels_down = [8, 16, 32, 64, 128], 
-            num_channels_up   = [8, 16, 32, 64, 128],
-            num_channels_skip = [0, 0, 0, 4, 4], 
+            num_channels_down = [8, 16, 32, 64, 128, 256], 
+            num_channels_up   = [8, 16, 32, 64, 128, 256],
+            num_channels_skip = [0, 0, 0, 4, 4, 8], 
             upsample_mode='bilinear',
             need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
+
+
+
 
 net = net.type(dtype)
 
@@ -250,6 +250,11 @@ optimize(OPTIMIZER, p, closure, LR, num_iter)
 
 out_np = torch_to_np(net(net_input))
 q = plot_image_grid([np.clip(out_np, 0, 1), img_np], factor=13, name="noise_1/last.pdf");
+df = pd.DataFrame(out_np)
+df.write_csv('final_'+str(slice_no)+'csv', header=None, index=None)
 
 
-print("out_np.shape:", out_np.shape)
+#print("out_np.shape:", out_np.shape)
+
+
+
