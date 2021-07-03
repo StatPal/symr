@@ -13,7 +13,6 @@ from models import *
 
 import torch
 import torch.optim
-#from skimage.measure import compare_psnr		## changed to
 from skimage.metrics import peak_signal_noise_ratio
 from utils.denoising_utils import *
 
@@ -36,10 +35,6 @@ dat_iter = np.asarray(pd.read_csv(f, header=None))  ## np.asarray gives differen
 dat_2 = dat_iter.reshape(181, 217, 181, 9)
 
 
-import PIL
-from PIL import Image
-from matplotlib import cm
-
 
 target = 0
 
@@ -52,7 +47,7 @@ slice_no = 91
 
 print("slice_no:", slice_no)
 slice_2D = dat_target[:,:,slice_no]
-
+print("slice_2D.shape", slice_2D.shape)
 scaling_factor = np.amax(slice_2D)
 
 
@@ -65,17 +60,19 @@ if slice_2D.shape[0] == 1:
 else:
 	#ar = ar.transpose(1, 2, 0)
 	ar = ar.transpose(0, 1)
-act_image = Image.fromarray(ar)
+act_image = ar
+#act_image = Image.fromarray(ar)
 
 ## Pad images:
-new_size = (act_image.size[0] - act_image.size[0] % 32, act_image.size[1] - act_image.size[1] % 32)
-if act_image.size[0] % 32 != 0:
-	tmp_1 = new_size[0]+32
-if act_image.size[1] % 32 != 0:
-	tmp_2 = new_size[1]+32
-new_size = (tmp_1, tmp_2)
-img_noisy_pil = PIL.Image.new(mode='L', size=new_size, color=(0))  # White
-img_noisy_pil.paste(act_image, (0,0))  # Not centered, top-left corner
+new_shape = (act_image.shape[0] - act_image.shape[0] % 32, act_image.shape[1] - act_image.shape[1] % 32)
+if act_image.shape[0] % 32 != 0:
+	tmp_1 = new_shape[0]+32
+if act_image.shape[1] % 32 != 0:
+	tmp_2 = new_shape[1]+32
+new_shape = (tmp_1, tmp_2)
+
+img_noisy_pil = np.zeros(new_shape)
+img_noisy_pil[0:181,0:217] = act_image
 
 #img_noisy_pil = crop_image(act_image, d=32)			## This changes the dimension - don't crop - pad
 img_noisy_np = pil_to_np(img_noisy_pil)
@@ -103,7 +100,7 @@ OPTIMIZER='adam' # 'LBFGS' -original 'adam'
 show_every = 100  ## - original? 
 exp_weight=0.99
 
-num_iter = 2400		# 2400
+num_iter = 240		# 2400
 input_depth = 32
 figsize = 4 
 
@@ -123,7 +120,7 @@ net = skip(input_depth, 1,
 
 
 net = net.type(dtype)
-net_input = get_noise(input_depth, INPUT, (img_pil.size[1], img_pil.size[0])).type(dtype).detach()
+net_input = get_noise(input_depth, INPUT, (img_pil.shape[0], img_pil.shape[1])).type(dtype).detach()
 
 # Compute number of parameters
 s  = sum([np.prod(list(p.size())) for p in net.parameters()]);
