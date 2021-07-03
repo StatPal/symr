@@ -17,7 +17,7 @@ from utils.denoising_utils import *
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
-dtype = torch.FloatTensor		## Somehow GPU version is not working
+dtype = torch.FloatTensor
 
 imsize =-1
 PLOT = True
@@ -40,9 +40,7 @@ target = 0
 dat_target = dat_2[:,:,:,target]
 
 scaling_factor = np.amax(dat_target)
-print("Scaling factor:", scaling_factor)
 dat_target = dat_target*255/scaling_factor   ## Check this
-print("Scaling max value:", np.amax(dat_target), "\n\n\n")
 
 
 
@@ -53,8 +51,6 @@ if dat_target.shape[0] == 1:
 else:
 	#ar = ar.transpose(1, 2, 0)
 	ar = ar.transpose(0, 1, 2)
-#act_image = Image.fromarray(ar)
-print('ar.shape: ', ar.shape)
 act_image = ar
 
 
@@ -72,30 +68,20 @@ new_shape = (tmp_1, tmp_2, tmp_3)
 img_noisy_pil = np.zeros(new_shape)
 img_noisy_pil[0:181,0:217,0:181] = act_image
 
-print("img_noisy_pil.shape", img_noisy_pil.shape)
-
-#img_noisy_pil = img_noisy_pil[None,:]
 
 img_noisy_np = pil_to_np(img_noisy_pil)
 
-img_noisy_np = img_noisy_np[None, :]
+img_noisy_np = img_noisy_np[None, :]	## Added
 
-print("img_noisy_np.shape", img_noisy_np.shape)
 
 # As we don't have ground truth
 img_pil = img_noisy_pil
 img_np = img_noisy_np
 
-
-
-print("img_pil.shape: ", img_pil.shape)
-print("img_np.shape: ", img_np.shape)
-
 #plt.imshow(img_np[:,:,91])
 #plt.savefig("original_paper_images/first_snail.pdf")
 
 
-print("Check, before setup")
 
 
 
@@ -133,15 +119,11 @@ net = skip(
         num_channels_up   = [8, 16, 32, 64, 128],
         num_channels_skip = [0, 0, 0, 4, 4], 
 #        upsample_mode='bilinear',
-#        upsample_mode='trilinear',
-        upsample_mode='nearest',
+        upsample_mode='trilinear',
+#        upsample_mode='nearest',
         need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
 
 net = net.type(dtype)
-
-
-print("net_input size: ", (img_pil.shape[0], img_pil.shape[2], img_pil.shape[1]))
-
 net_input = get_noise(input_depth, INPUT, (img_pil.shape[0], img_pil.shape[2], img_pil.shape[1])).type(dtype).detach()
 
 # Compute number of parameters
@@ -152,10 +134,6 @@ print ('Number of params: %d' % s)
 mse = torch.nn.MSELoss().type(dtype)
 img_noisy_torch = np_to_torch(img_noisy_np).type(dtype)
 
-img_noisy_torch = (torch.from_numpy(img_np)[None, None, :]).type(dtype)
-
-img_noisy_torch = (torch.from_numpy(img_np)[None, :]).type(dtype)
-print("img_noisy_torch.shape", img_noisy_torch.shape)
 
 
 
@@ -178,28 +156,19 @@ def closure():
         net_input = net_input_saved + (noise.normal_() * reg_noise_std)
     
     out = net(net_input)
-    print("Debug2")
     # Smoothing
     if out_avg is None:
         out_avg = out.detach()
     else:
         out_avg = out_avg * exp_weight + out.detach() * (1 - exp_weight)
     
-    print("Debug2.5")
-    print("out.shape", out.shape)
-    print("img_noisy_torch.shape", img_noisy_torch.shape)		## One axis should be added
     total_loss = mse(out, img_noisy_torch)
-    print("Debug2.75\n\n")
-    total_loss.backward()    ## Not happening
+    # torch.cuda.empty_cache()
+    total_loss.backward()    ## Not happening with CUDA
     
-    print("Debug3")
-    print("out.detach().cpu().numpy()[0].shape", out.detach().cpu().numpy()[0].shape)
-    print("img_noisy_np.shape", img_noisy_np.shape)
     psrn_noisy = peak_signal_noise_ratio(img_noisy_np, out.detach().cpu().numpy()[0]) 
     psrn_gt    = peak_signal_noise_ratio(img_np, out.detach().cpu().numpy()[0]) 
     psrn_gt_sm = peak_signal_noise_ratio(img_np, out_avg.detach().cpu().numpy()[0]) 
-    
-    print("Debug3.5")
     
     # Note that we do not have GT for the "snail" example
     # So 'PSRN_gt', 'PSNR_gt_sm' make no sense
@@ -210,7 +179,6 @@ def closure():
                          np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="original_paper_images/steps"+str(i)+".pdf")
         
         
-    print("Debug4")
     # Backtracking
     if i % show_every:
         if psrn_noisy - psrn_noisy_last < -5: 
