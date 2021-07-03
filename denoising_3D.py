@@ -24,10 +24,11 @@ torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
 dtype = torch.cuda.FloatTensor
 
-dtype = torch.cuda.FloatTensor
+dtype = torch.FloatTensor
 
 imsize =-1
 PLOT = True
+PLOT = False
 sigma = 25
 sigma_ = sigma/255.
 
@@ -54,12 +55,9 @@ print("Scaling factor:", scaling_factor)
 dat_target = dat_target*255/scaling_factor   ## Check this
 print("Scaling max value:", np.amax(dat_target), "\n\n\n")
 
-print("Check, before np. cip. dat_target.shape", dat_target.shape)
 
 
 ar = np.clip(dat_target,0,255).astype(np.uint8)
-
-print("ar done")
 
 if dat_target.shape[0] == 1:
 	ar = ar[0]
@@ -67,10 +65,10 @@ else:
 	#ar = ar.transpose(1, 2, 0)
 	ar = ar.transpose(0, 1, 2)
 #act_image = Image.fromarray(ar)
+print('ar.shape: ', ar.shape)
 
 act_image = ar
 
-print("Check, before img_noisy_pil .cip")
 ## img_noisy_pil = crop_image(act_image, d=32)   # Don't crop, pad
 
 
@@ -96,8 +94,11 @@ img_noisy_np = pil_to_np(img_noisy_pil)
 img_pil = img_noisy_pil
 img_np = img_noisy_np
 
-plot_image_grid([img_np], 4, 5, name="original_paper_images/first_snail.pdf");
-        
+print("img_pil.shape: ", img_pil.shape)
+print("img_np.shape: ", img_np.shape)
+
+plt.imshow(img_np[:,:,91])
+plt.savefig("original_paper_images/first_snail.pdf")
 
 
 print("Check, before setup")
@@ -129,22 +130,25 @@ exp_weight=0.99
 
 num_iter = 2400
 num_iter = 150  # Subrata
-input_depth = 3
+input_depth = 6
 figsize = 5 
 
 net = skip(
-        input_depth, 3, 
+        input_depth, 1, 
         num_channels_down = [8, 16, 32, 64, 128], 
         num_channels_up   = [8, 16, 32, 64, 128],
         num_channels_skip = [0, 0, 0, 4, 4], 
-        upsample_mode='bilinear',
+#        upsample_mode='bilinear',
+#        upsample_mode='trilinear',
+        upsample_mode='nearest',
         need_sigmoid=True, need_bias=True, pad=pad, act_fun='LeakyReLU')
 
 net = net.type(dtype)
 
 
+print("net_input size: ", (img_pil.shape[0], img_pil.shape[2], img_pil.shape[1]))
 
-net_input = get_noise(input_depth, INPUT, (img_pil.size[1], img_pil.size[0])).type(dtype).detach()
+net_input = get_noise(input_depth, INPUT, (img_pil.shape[0], img_pil.shape[2], img_pil.shape[1])).type(dtype).detach()
 
 # Compute number of parameters
 s  = sum([np.prod(list(p.size())) for p in net.parameters()]);
@@ -157,7 +161,7 @@ img_noisy_torch = np_to_torch(img_noisy_np).type(dtype)
 
 
 
-
+print("Debug0")
 
 
 ################# OPTIMIZE ######################
