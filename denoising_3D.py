@@ -5,26 +5,18 @@ warnings.filterwarnings('ignore')
 
 
 
-
-
-
 import matplotlib.pyplot as plt
 import os
-
 import numpy as np
 from models import *
 
 import torch
 import torch.optim
-
-#from skimage.measure import compare_psnr		## changed to
 from skimage.metrics import peak_signal_noise_ratio
 from utils.denoising_utils import *
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
-dtype = torch.cuda.FloatTensor
-
 dtype = torch.FloatTensor
 
 imsize =-1
@@ -42,10 +34,6 @@ f = '../LS_with_deep/result/r_LS_brainweb_next_stage_1_pred.csv'
 dat_iter = np.asarray(pd.read_csv(f, header=None))  ## np.asarray gives different format
 dat_2 = dat_iter.reshape(181, 217, 181, 9)
 
-
-import PIL
-from PIL import Image
-from matplotlib import cm
 
 
 target = 0
@@ -67,11 +55,7 @@ else:
 	ar = ar.transpose(0, 1, 2)
 #act_image = Image.fromarray(ar)
 print('ar.shape: ', ar.shape)
-
 act_image = ar
-
-## img_noisy_pil = crop_image(act_image, d=32)   # Don't crop, pad
-
 
 
 ## Pad images:
@@ -88,19 +72,27 @@ new_shape = (tmp_1, tmp_2, tmp_3)
 img_noisy_pil = np.zeros(new_shape)
 img_noisy_pil[0:181,0:217,0:181] = act_image
 
-img_noisy_pil = img_noisy_pil[None,:]		## This is needed
+print("img_noisy_pil.shape", img_noisy_pil.shape)
+
+#img_noisy_pil = img_noisy_pil[None,:]
 
 img_noisy_np = pil_to_np(img_noisy_pil)
+
+img_noisy_np = img_noisy_np[None, :]
+
+print("img_noisy_np.shape", img_noisy_np.shape)
 
 # As we don't have ground truth
 img_pil = img_noisy_pil
 img_np = img_noisy_np
 
+
+
 print("img_pil.shape: ", img_pil.shape)
 print("img_np.shape: ", img_np.shape)
 
-plt.imshow(img_np[:,:,91])
-plt.savefig("original_paper_images/first_snail.pdf")
+#plt.imshow(img_np[:,:,91])
+#plt.savefig("original_paper_images/first_snail.pdf")
 
 
 print("Check, before setup")
@@ -160,6 +152,11 @@ print ('Number of params: %d' % s)
 mse = torch.nn.MSELoss().type(dtype)
 img_noisy_torch = np_to_torch(img_noisy_np).type(dtype)
 
+img_noisy_torch = (torch.from_numpy(img_np)[None, None, :]).type(dtype)
+
+img_noisy_torch = (torch.from_numpy(img_np)[None, :]).type(dtype)
+print("img_noisy_torch.shape", img_noisy_torch.shape)
+
 
 
 
@@ -193,7 +190,7 @@ def closure():
     print("img_noisy_torch.shape", img_noisy_torch.shape)		## One axis should be added
     total_loss = mse(out, img_noisy_torch)
     print("Debug2.75\n\n")
-    total_loss.backward()
+    total_loss.backward()    ## Not happening
     
     print("Debug3")
     print("out.detach().cpu().numpy()[0].shape", out.detach().cpu().numpy()[0].shape)
