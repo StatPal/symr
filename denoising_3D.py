@@ -17,7 +17,7 @@ from utils.denoising_utils import *
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark =True
-dtype = torch.FloatTensor
+dtype = torch.FloatTensor		## Somehow GPU version is not working
 
 imsize =-1
 PLOT = True
