@@ -87,6 +87,7 @@ new_shape = (tmp_1, tmp_2, tmp_3)
 img_noisy_pil = np.zeros(new_shape)
 img_noisy_pil[0:181,0:217,0:181] = act_image
 
+img_noisy_pil = img_noisy_pil[None,:]		## This is needed
 
 img_noisy_np = pil_to_np(img_noisy_pil)
 
@@ -161,9 +162,6 @@ img_noisy_torch = np_to_torch(img_noisy_np).type(dtype)
 
 
 
-print("Debug0")
-
-
 ################# OPTIMIZE ######################
 
 
@@ -182,20 +180,28 @@ def closure():
         net_input = net_input_saved + (noise.normal_() * reg_noise_std)
     
     out = net(net_input)
-    
+    print("Debug2")
     # Smoothing
     if out_avg is None:
         out_avg = out.detach()
     else:
         out_avg = out_avg * exp_weight + out.detach() * (1 - exp_weight)
-            
-    total_loss = mse(out, img_noisy_torch)
-    total_loss.backward()
-        
     
+    print("Debug2.5")
+    print("out.shape", out.shape)
+    print("img_noisy_torch.shape", img_noisy_torch.shape)		## One axis should be added
+    total_loss = mse(out, img_noisy_torch)
+    print("Debug2.75\n\n")
+    total_loss.backward()
+    
+    print("Debug3")
+    print("out.detach().cpu().numpy()[0].shape", out.detach().cpu().numpy()[0].shape)
+    print("img_noisy_np.shape", img_noisy_np.shape)
     psrn_noisy = peak_signal_noise_ratio(img_noisy_np, out.detach().cpu().numpy()[0]) 
     psrn_gt    = peak_signal_noise_ratio(img_np, out.detach().cpu().numpy()[0]) 
     psrn_gt_sm = peak_signal_noise_ratio(img_np, out_avg.detach().cpu().numpy()[0]) 
+    
+    print("Debug3.5")
     
     # Note that we do not have GT for the "snail" example
     # So 'PSRN_gt', 'PSNR_gt_sm' make no sense
@@ -206,7 +212,7 @@ def closure():
                          np.clip(torch_to_np(out_avg), 0, 1)], factor=figsize, nrow=1, name="original_paper_images/steps"+str(i)+".pdf")
         
         
-    
+    print("Debug4")
     # Backtracking
     if i % show_every:
         if psrn_noisy - psrn_noisy_last < -5: 
