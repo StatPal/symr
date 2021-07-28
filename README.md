@@ -11,9 +11,9 @@
 ### Dependencies:
 
 Make sure your system have the following softwares installed
-* C++ compiler
+* C++ compiler (tested with [GCC, the GNU Compiler Collection](https://gcc.gnu.org))
 * [Eigen](http://eigen.tuxfamily.org/) - a header only C++ library
-* [gsl library](https://www.gnu.org/software/gsl/) for bessel functions 
+* [gsl library](https://www.gnu.org/software/gsl/) for bessel functions
 * [openmp](https://www.openmp.org/) for parallel processing.
 
 We have used an **optimizer** in C++, which also uses Eigen, and recent versions can be found [here](https://github.com/PatWie/CppNumericalSolvers)
@@ -32,9 +32,9 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
 
 ### Usage and Instructions:
 
-* The data files (and the mask files) should be in Nifti format, unzipped. 
-	If gziped, unzip the files: 
-	```console 
+* The data files (and the mask files) should be in Nifti format, unzipped.
+	If gziped, unzip the files:
+	```console
 	cd ./data
 	gunzip new_phantom.nii.gz
 	cd ..
@@ -45,7 +45,7 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
 	First go to examples/2D
 	```console
 	cd ./examples/2D/
-	``` 
+	```
 	Then compile:
 	```console
 	g++ example_AECM.cpp -o example_AECM -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm -fopenmp
@@ -129,20 +129,20 @@ The current tree structure is as follows:
 ```
 
 
-`*' 
+`*'
 To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present,
 
 First go to examples/2D
 ```console
 cd ./examples/2D/
-``` 
+```
 Then compile:
 ```console
 g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 ```
 Then run:
 ```console
-./sigma ../Read_Data/new_phantom.nii Dummy_sd.txt 0
+./sigma ../../data/new_phantom.nii Dummy_sd.txt 0
 ```
 where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
 

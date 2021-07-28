@@ -404,7 +404,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	//#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < W.rows(); ++i) {
-		if(black_list == 0){
+		if(black_list(i) == 0){
 			fg_num++;
 			Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
 		

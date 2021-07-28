@@ -1,3 +1,23 @@
+/*
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) 2021  Subrata Pal, Somak Dutta, Ranjan Maitra
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*/
+
+
 /**
 * Calculating estimates of \sigma_j's for each image(j).
 * Compile this first before running the main program. 
@@ -429,7 +449,7 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15,
 	
 	
 	//get location of minimum
-	MatrixXd::Index maxRow, maxCol;
+	Eigen::MatrixXd::Index maxRow, maxCol;
 	double max = BIC_vec.maxCoeff(&maxRow, &maxCol);
 	Debug1("BIC_vec: " << BIC_vec.transpose());
 	Debug1("Sig_vec: " << Sig_vec.transpose());
