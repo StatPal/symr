@@ -26,7 +26,7 @@ If you have git in your system, go to a working folder and run:
 git clone --depth=1 https://github.com/StatPal/symr.git
 cd symr
 ```
-If you don't have git, you can go click to the [link](https://github.com/StatPal/symr.git) and unzip it and then go to the `symr` directory/folder. 
+Without using git, you can go to the [link](https://github.com/StatPal/symr), download it and unzip it and then go to the `symr` directory/folder. 
 
 
 
@@ -54,7 +54,7 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
 	```console
 	./example_AECM ../../data/new_phantom.nii Dummy_sd.txt 0
 	```
-	where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See `*' for details).
+	where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See this [subsection](#generation-of-sigmas) for details).
 
 
 * For `OSL`, everything would be similar, just the cpp file would be changed to `example_OSL.cpp` 
@@ -129,8 +129,8 @@ The current tree structure is as follows:
 ```
 
 
-`*'
-To create the file corresponding to the $sigma_j$(rice noise parameter) for each image if they are not present,
+#### Generation of sigmas
+To create the file corresponding to the &sigma;<sub>j</sub>(rice noise parameter) for each image if they are not present,
 
 First go to examples/2D
 ```console
@@ -144,7 +144,7 @@ Then run:
 ```console
 ./sigma ../../data/new_phantom.nii Dummy_sd.txt 0
 ```
-where `Dummy_sd.txt` is the output file containing estimated $\sigma_j$'s, i.e., the rice noise parameters. 
+where `Dummy_sd.txt` is the output file containing estimated &sigma;<sub>j</sub>'s, i.e., the rice noise parameters. 
 
 
 
