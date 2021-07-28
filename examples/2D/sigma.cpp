@@ -49,9 +49,9 @@ g++ sigma.cpp -o sigma -I /usr/include/eigen3 -O3 -lgsl -lgslcblas -lm
 
 
 
-#include "../../include/3D/functions_gen.hpp"
-#include "../../include/3D/read_files.hpp"
-#include "../../include/3D/functions_LS_and_init_value.hpp"
+#include "../../include/2D/functions_gen.hpp"
+#include "../../include/2D/read_files.hpp"
+#include "../../include/2D/functions_LS_and_init_value.hpp"
 
 #include <fstream>
 #include <random>
@@ -448,7 +448,7 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15,
 	
 	
 	//get location of minimum
-	MatrixXd::Index maxRow, maxCol;
+	Eigen::MatrixXd::Index maxRow, maxCol;
 	double max = BIC_vec.maxCoeff(&maxRow, &maxCol);
 	Debug1("BIC_vec: " << BIC_vec.transpose());
 	Debug1("Sig_vec: " << Sig_vec.transpose());

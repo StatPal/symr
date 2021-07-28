@@ -449,7 +449,7 @@ double Est_var(Vector_eig r_col, int min_grp = 5, int max_grp = 15,
 	
 	
 	//get location of minimum
-	MatrixXd::Index maxRow, maxCol;
+	Eigen::MatrixXd::Index maxRow, maxCol;
 	double max = BIC_vec.maxCoeff(&maxRow, &maxCol);
 	Debug1("BIC_vec: " << BIC_vec.transpose());
 	Debug1("Sig_vec: " << Sig_vec.transpose());
