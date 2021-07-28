@@ -161,12 +161,11 @@ int main(int argc, char * argv[]) {
 	std::vector<int> train_ind{0, 6, 13};
 	std::vector<int> test_ind{};
 	
-	test_ind = whole_ind;
-	/*
+	//test_ind = whole_ind;
 	std::set_difference(whole_ind.begin(), whole_ind.end(), 
 						train_ind.begin(), train_ind.end(),
                         std::inserter(test_ind, test_ind.begin()));
-	*/
+	
 	
 	std::cout << "\ntrain: \t";
 	for(int n1 : train_ind) {
@@ -242,10 +241,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2, 1);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2, 1);
 	Debug0("Avg perfs LS: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images LS: " << perf_1.transpose() << "\n";
@@ -311,10 +310,10 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	perf_1 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
-	perf_2 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
-	perf_3 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
-	perf_4 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
+	perf_1 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 1, 1);
+	perf_2 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 1, 1);
+	perf_3 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 1, 2, 1);
+	perf_4 = Performance_test(W_likeli, test, TE_test, TR_test, sigma_test, black_list, 3, 2, 1);
 	Debug0("Avg perfs MLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images Likelihood: " << perf_1.transpose() << "\n";
@@ -369,10 +368,10 @@ int main(int argc, char * argv[]) {
 	Debug1("abs diff between W's: " << abs_sum(to_vector(W_LS) - to_vector(W_init)));
 	
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2, 1);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2, 1);
 	Debug0("Avg perfs MPLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	std::cout << "Performances over images Penalized: " << perf_1.transpose() << "\n";

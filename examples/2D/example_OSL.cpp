@@ -164,12 +164,11 @@ int main(int argc, char * argv[]) {
 	std::vector<int> train_ind{0, 6, 13};
 	std::vector<int> test_ind{};
 	
-	test_ind = whole_ind;
-	/*
+	//test_ind = whole_ind;
 	std::set_difference(whole_ind.begin(), whole_ind.end(), 
 						train_ind.begin(), train_ind.end(),
                         std::inserter(test_ind, test_ind.begin()));
-	*/
+	
 	
 	
 	
@@ -199,7 +198,7 @@ int main(int argc, char * argv[]) {
 	Matrix_eig perf_1, perf_2, perf_3, perf_4;
 	
 	std::ofstream file_performance;
-	file_performance.open ("result/Performances_26.txt");
+	file_performance.open ("result/Performances_OSL.txt");
 
 
 	
