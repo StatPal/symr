@@ -20,12 +20,13 @@ We have used an **optimizer** in C++, which also uses Eigen, and recent versions
 
 ### Download:
 
-As this library is header only, you have to first clone/download the repository, then compile and run the files.
+As this library is header only, you have to first clone/download the repository, go to the directory and then compile and run the corresponding files.
 If you have git in your system, go to a working folder and run:
 ```console
 git clone --depth=1 https://github.com/StatPal/symr.git
+cd symr
 ```
-If you don't have git, you can go click to the [link](https://github.com/StatPal/symr.git) and unzip it. 
+If you don't have git, you can go click to the [link](https://github.com/StatPal/symr.git) and unzip it and then go to the `symr` directory/folder. 
 
 
 
