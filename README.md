@@ -52,7 +52,7 @@ If you don't have git, you can go click to the [link](https://github.com/StatPal
 	```
 	Then run:
 	```console
-	./example_AECM ../data/new_phantom.nii Dummy_sd.txt 0
+	./example_AECM ../../data/new_phantom.nii Dummy_sd.txt 0
 	```
 	where `../data/new_phantom.nii` is the **2D data** and `Dummy_sd.txt` is the file for $\sigma_j$'s (rice noise parameter) for each image generated using sigma.cpp. (See `*' for details).
 
