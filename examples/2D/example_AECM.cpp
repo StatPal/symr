@@ -229,13 +229,17 @@ int main(int argc, char * argv[]) {
 	}
 	file_LS.close();
 	
-	// Save the estimated values: 
+	// Save the estimated values in a csv file:
 	Vector_eig v_new = Vector_eig::Zero(TE_test.size());
 	std::ofstream file_predicted;
-	file_predicted.open ("result/v_predicted_LS.txt");
+	file_predicted.open ("result/v_predicted_LS.csv");
+	int j = 0;
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
-		file_predicted << v_new.transpose() << "\n";
+		for(j = 0; j < 14; ++j){
+			file_predicted << v_new(j) << ", ";
+		}
+		file_predicted << v_new(14) << "\n";
 	}
 	file_predicted.close();
 	
@@ -293,12 +297,15 @@ int main(int argc, char * argv[]) {
 	}
 	file_Likeli.close();
 	
-	// Save the estimated values: 
+	// Save the estimated values in a csv file: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_Likeli.txt");
+	file_predicted.open ("result/v_predicted_Likeli.csv");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
-		file_predicted << v_new.transpose() << "\n";
+		for(j = 0; j < 14; ++j){
+			file_predicted << v_new(j) << ", ";
+		}
+		file_predicted << v_new(14) << "\n";
 	}
 	file_predicted.close();
 	
@@ -352,12 +359,15 @@ int main(int argc, char * argv[]) {
 	}
 	file_final.close();
 	
-	// Save the estimated values: 
+	// Save the estimated values as csv file: 
 	v_new = Vector_eig::Zero(TE_test.size());
-	file_predicted.open ("result/v_predicted_MPLE.txt");
+	file_predicted.open ("result/v_predicted_MPLE.csv");
 	for(int i = 0; i < W_init.rows(); ++i){
 		Bloch_vec(W_init.row(i), TE_test, TR_test, v_new);
-		file_predicted << v_new.transpose() << "\n";
+		for(j = 0; j < 14; ++j){
+			file_predicted << v_new(j) << ", ";
+		}
+		file_predicted << v_new(14) << "\n";
 	}
 	file_predicted.close();
 	
