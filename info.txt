@@ -1,0 +1,86 @@
+exportPattern("^[[:alpha:]]+") is written which means all the functions are visible for now. 
+Previously, it was export("Rcpp.fake.fun")
+
+
+
+
+* checking package dependencies ... ERROR
+Namespace dependency not required: ‘RcppEigen’
+See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+manual.
+
+So RcppEigen is added in the description. 
+
+
+
+removed all ~~ signs from symR-package.Rd 
+
+Change the example part to something real
+
+
+
+I can't make it simple enough. 
+
+
+
+
+I will try Rcpp::compileAttributes now. 
+
+
+See this for GSL functions
+https://stackoverflow.com/questions/27104508/portable-makevars-for-r-package-using-c-gsl-and-openmp-with-help-of-rcpp
+
+
+
+
+
+
+Thu Aug 12 04:09:11 PM CDT 2021
+Trying put the data with 2D case. 
+Then trying 3D. 
+
+
+
+If anything goes wrong, try to remove all RcppExport type files (not makevars) in R/ and src/
+Run  
+
+cd symR; Rscript -e "Rcpp::compileAttributes()"; cd ..
+
+R CMD build symR
+R CMD check symR
+
+
+
+
+
+Sat Aug 14 10:04:33 PM CDT 2021
+
+2D is complete - but I don't know why the 3D LS is creating problem in devtools::check()
+
+So I am trying to copy the 2D R function to 3D include file. 
+
+
+I just copied and pasted the complete 2D case files and not the OSL/AECM. 
+The result is the SAME -- I think they are creating problem as the 2D and 3Ds have the same name. 
+
+I guess yes - even though everything 3D in included in 3D, still the errors now says that  
+
+E> g++ -m64 -std=gnu++11 -shared -L/usr/lib64/R/lib -Wl,-z,relro -Wl,--as-needed -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -o symR.so AECM_wrapper_2D.o AECM_wrapper_3D.o RcppExports.o -lgsl -lgslcblas -lm -L/usr/lib64/R/lib -lR
+E> /usr/bin/ld: AECM_wrapper_3D.o (symbol from plugin): in function `our_bessel_I(double, double)':
+E> (.text+0x0): multiple definition of `our_bessel_I(double, double)'; AECM_wrapper_2D.o (symbol from plugin):(.text+0x0): first defined here
+E> /usr/bin/ld: AECM_wrapper_3D.o (symbol from plugin): in function `our_bessel_I(double, double)':
+E> (.text+0x0): multiple definition of `ratio_bessel_10(double)'; AECM_wrapper_2D.o (symbol from plugin):(.text+0x0): first defined here
+
+- Basically double definition. 
+
+
+
+
+Sun Aug 15 01:50:48 AM CDT 2021
+
+I think, at this point, it's easiest to have 
+just one wrapper file.
+This will make things easier.
+
+
+

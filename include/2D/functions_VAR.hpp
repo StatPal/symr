@@ -25,9 +25,9 @@
 
 
 
-#include "functions_gen.hpp"
-#include "functions_LS_and_init_value.hpp"
-#include "functions_AECM.hpp"
+#include "../functions_gen.hpp"
+#include "../functions_LS_and_init_value.hpp"
+#include "../functions_AECM.hpp"
 
 #include <ctime>
 #include <iomanip>

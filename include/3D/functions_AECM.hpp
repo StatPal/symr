@@ -20,15 +20,15 @@
 
 /* _AECM_HEADER_ */
 
-#ifndef _AECM_HEADER_
-#define _AECM_HEADER_
+#ifndef _AECM_HEADER_3D_
+#define _AECM_HEADER_3D_
 
 
 
 
-#include "functions_gen.hpp"
-#include "read_files.hpp"
-#include "functions_LS_and_init_value.hpp"
+#include "../functions_gen.hpp"
+#include "../read_files.hpp"
+#include "../functions_LS_and_init_value.hpp"
 
 
 #include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
@@ -48,7 +48,7 @@
 /**
 Penalised NEGATIVE log likelihood -- to be minimised
 */
-double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
+double l_star_AECM(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta,
               const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma, const Matrix_eig_row &r, 
               MRF_param &MRF_obj, int penalized){
 
@@ -90,7 +90,7 @@ double l_star(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector
 * Optim template for MRF parameters
 */
 template<typename T>
-class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim_3D : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -105,7 +105,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 
 
   public:	
-	MRF_optim(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
+	MRF_optim_3D(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
@@ -160,7 +160,7 @@ class MRF_optim : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
 * Optim template for rows of W.
 */
 template<typename T>
-class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is inheriting fn from cppoptlib::BoundedProblem
+class Likeli_optim_3D : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_3D is inheriting fn from cppoptlib::BoundedProblem
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -186,7 +186,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 
 	
   public:
-	Likeli_optim(MRF_param &MRF_obj_optim_, const TMatrix_row& r_, TMatrix_row& Theta_, 
+	Likeli_optim_3D(MRF_param &MRF_obj_optim_, const TMatrix_row& r_, TMatrix_row& Theta_, 
 				 TMatrix_row& W_, TMatrix_row& W_old_,
 				 int penalized_,
 				 const TVector& lb_, const TVector& ub_, 
@@ -412,7 +412,7 @@ class Likeli_optim : public cppoptlib::BoundedProblem<T> {			// Likeli_optim is 
 	verbose: 	verbose, default 0
 	verbose2:	Secondary level of verbose - default 0
 */
-void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
+void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta, 
                const Vector_eig &TE_example, const Vector_eig &TR_example, 
                const Vector_eig &sigma, const Matrix_eig_row &r, 
                double r_scale, double TE_scale, double TR_scale, 
@@ -437,7 +437,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	int bad_count_o = 0, bad_count_o_2 = 0, bad_bound_1 = 0, bad_bound_2 = 0, nan_count = 0; 
 	int n = r.rows(), m = r.cols();
 	
-	old_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+	old_likeli = l_star_AECM(W_init, Psi_inv, beta, TE_example, TR_example,
 							sigma, r, MRF_obj, penalized);
 	
 	
@@ -479,8 +479,8 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
 		
-		MRF_optim<double> f_2(W_init, MRF_obj);
-		cppoptlib::LbfgsbSolver<MRF_optim<double>> solver_2;
+		MRF_optim_3D<double> f_2(W_init, MRF_obj);
+		cppoptlib::LbfgsbSolver<MRF_optim_3D<double>> solver_2;
 		
 		
 		// *MRF based initial values:* //
@@ -598,14 +598,14 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			// lb, ub, etc would be shared
 			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
 			// 
-			Likeli_optim<double> f(MRF_obj, r, Theta, W_init, W_old, penalized, lb, ub,
+			Likeli_optim_3D<double> f(MRF_obj, r, Theta, W_init, W_old, penalized, lb, ub,
 									sigma, TE_example, TR_example, beta, Psi_inv);
 			f.setLowerBound(lb);	f.setUpperBound(ub);
 			f.update_size();
 			
 			
 	
-			cppoptlib::LbfgsbSolver<Likeli_optim<double>> solver;			// For MRF parameters!
+			cppoptlib::LbfgsbSolver<Likeli_optim_3D<double>> solver;			// For MRF parameters!
 			cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
 			crit_voxel.iterations = 25;
 			solver.setStopCriteria(crit_voxel);
@@ -870,7 +870,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 				
 		// with penalized negative log likelihood:
-		current_best_likeli = l_star(W_init, Psi_inv, beta, TE_example, TR_example,
+		current_best_likeli = l_star_AECM(W_init, Psi_inv, beta, TE_example, TR_example,
 									 sigma, r, MRF_obj, penalized);
 		
 		

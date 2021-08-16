@@ -37,9 +37,7 @@ Debugging level definitions
 
 
 
-
-
-
+To Do:
 
 
 
@@ -59,10 +57,10 @@ i.e., proper index if r is not taken.
 -- Sorry - NO BUG. r is not passed. train is passed. Hence completely Okay!
 
 BUG: Lambda * Psi 
-
-Some problem with extra added sigma_j^2 in some later versions, previously it was correct. 
-
 was negative/positive. Hessian had this BUG.
+
+
+BUG: In some later version, there is an extra sigma^2 inside h().
 
 */
 
@@ -70,9 +68,13 @@ was negative/positive. Hessian had this BUG.
 
 
 
-
 #ifndef MAIN_HEADER
 #define MAIN_HEADER
+
+
+#include <Rcpp.h>
+
+
 
 #include <iostream>
 #include <iomanip>
@@ -88,9 +90,6 @@ was negative/positive. Hessian had this BUG.
 
 #include <cmath> 	//For bessel fn if cpp17
 #include <chrono>
-
-#include <string>
-
 
 
 extern "C" {
@@ -112,6 +111,9 @@ typedef Eigen::SparseMatrix<double> SpMat;
 typedef Eigen::SparseVector<double> SpVec;
 typedef Eigen::Matrix3d Matrix3d_eig;
 
+
+
+
 #define SQ(x) ((x) * (x))
 
 const int IF_DEBUG = 1;
@@ -122,7 +124,7 @@ const int IF_DEBUG = 1;
 #define DEBUG_LEVEL_0				//Minimal debugs
 
 #ifdef DEBUG_LEVEL_0
-#define Debug0(x) {std::cout << "DEBUG 0: "<< x << "\n";}
+#define Debug0(x) {Rcpp::Rcout << "DEBUG 0: "<< x << "\n";}
 #else
 #define Debug0(x)
 #endif
@@ -131,7 +133,7 @@ const int IF_DEBUG = 1;
 #define DEBUG_LEVEL_1				//Important ones.
 
 #ifdef DEBUG_LEVEL_1
-#define Debug1(x) {std::cout << "DEBUG 1: "<< x << "\n";}
+#define Debug1(x) {Rcpp::Rcout << "DEBUG 1: "<< x << "\n";}
 #else
 #define Debug1(x)
 #endif
@@ -156,7 +158,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-//#define DEBUG_LEVEL_LS
+// #define DEBUG_LEVEL_LS
 
 #ifdef DEBUG_LEVEL_LS
 #define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}
@@ -186,6 +188,7 @@ const int IF_DEBUG = 1;
 
 
 
+
 const Matrix_eig G((Matrix_eig(6,9) << 
   1, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 0, 1, 0, 0, 0, 0, 0,
@@ -193,6 +196,10 @@ const Matrix_eig G((Matrix_eig(6,9) <<
   0, 0, 0, 0, 1, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 1, 0, 1, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 1).finished());
+
+
+
+
 
 
 
@@ -265,8 +272,7 @@ double our_bessel_I(double x, double nu){
 		std::cout << "neg arg in bessel function" << std::endl;
 		return -1.0e-50;
 	}
-}								 //besselI(0.05, 0.0); our_bessel_I(0.05, 0.0)		// value out of range in 'bessel_i'	 -- check
-
+}
 
 
 
@@ -553,8 +559,8 @@ Vector_eig to_vector(Matrix_eig v1, int is_transpose=0){
 		return(Eigen::Map<Vector_eig> (v1.transpose().data(), v1.rows()*v1.cols()));
 	}
 }
-Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){
-	
+
+Vector_eig to_vector_1(Matrix_eig_row v1, int is_transpose=0){	
 	Vector_eig tmp = Vector_eig::Zero(v1.size());
 	for (int i = 0; i < v1.size(); i++){
 		tmp(i) = *(v1.data() + i);
@@ -638,12 +644,10 @@ double sp_log_det_7(SpMat A){			// Log determinant - LU
 * Log determinant of a matrix
 * Not used now - see finding det with Cholesky
 */
-/*
 double log_det_2(const Matrix_eig &B){
 	Eigen::SelfAdjointEigenSolver<Matrix_eig> es(B);
 	return log_vec(es.eigenvalues()).sum();
 }
-*/
 
 
 
@@ -756,9 +760,6 @@ void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_ei
 
 /**
 * Checks whether any vector of size 3(x) is inside proper bounds(lb and ub) or not
-* @param x
-* @param lower bound
-* @param upper bound
 * @return number of cases of going outside bound
 */
 int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
@@ -780,11 +781,9 @@ int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_e
 
 
 
-/**
-* Checks whether there is NaN or not and prints the location of NAN in a matrix
-* @param The corresponding matrix
-* @param The name of the matrix
-* @return number of such cases.
+/*
+* Checks whether there is NaN or not and prints the location in a matrix
+* returns number of such cases.
 */
 int check_nan(const Matrix_eig_row &A, const char* mat_name = ""){
 	int bad_count = 0;
@@ -831,7 +830,7 @@ int check_nan_vec(const Vector_eig &A){
 	int bad_count = 0;
 	for(int i = 0; i < A.size(); ++i){
 		if(std::isnan(A(i))){
-			Debug0("NAN in location: ("<< i << ") of the vector!" << std::flush);
+			// Debug0("NAN in location: ("<< i << ") of the vector!" << std::flush);
 			bad_count++;
 		}
 	}
@@ -874,6 +873,7 @@ Matrix_eig Kron_eig(const Matrix_eig &m1, const Matrix_eig &m2){
 	return m3;
 }
 */
+
 
 /*
 * Kroneker product of two Vectors
@@ -935,7 +935,7 @@ SpMat I_n(int n_x){
 SpMat J_n(int n_x){				// has determinant 0???				// When n_x =1
 	SpMat temp(n_x, n_x);
 	if(n_x==1){
-		temp.coeffRef(0,0) = 1;
+		temp.coeffRef(0,0) = 0;
 	} else if(n_x == 2){
 		temp.insert(0,0) = 1;
 		temp.insert(0,1) = -1;
@@ -978,6 +978,27 @@ Vector_eig eigenvals_J_n(int n) {
 }
 
 
+/* 
+* Indicator of duplicate elements in a vector
+*/
+int not_unique(const Vector_eig &x){
+	
+	int tmp = 0, i, j, n = x.size();
+	
+	for(i = 0; i < n-1; ++i){
+		for(j = i+1; j < n; ++j){
+			if(x(i) == x(j)){
+				tmp++;
+				break;
+			}
+		}
+		if(tmp > 0)
+			break;
+	}
+	return tmp;
+}
+
+
 
 
 
@@ -1003,9 +1024,8 @@ class MRF_param{
 	Matrix_eig tmp_Wt_L_W;
 	Matrix_eig tmp_Lambda_W;
 	Matrix_eig Psi_grad = Matrix_eig::Zero(6, 1);
-	// Matrix_eig tmp_i_Psi_inv = Matrix_eig::Zero(1, 3);
+	Matrix_eig tmp_i_Psi_inv = Matrix_eig::Zero(1, 3);
 	Matrix_eig tmp_i_Psi_inv_new = Matrix_eig::Zero(1, 3);
-	
 	
 	
 	// Important variables:
@@ -1014,14 +1034,13 @@ class MRF_param{
 	double tmp_i_coeff_1 = 0.0;
 	
 	
-	
 	// For likeli num i
+	Matrix_eig tmp_i = Matrix_eig::Zero(1, 3);
+	
 	Matrix_eig tmp_i_1 = Matrix_eig::Zero(1, 3);
 	Matrix_eig tmp_i_2 = Matrix_eig::Zero(1, 3);
-	Matrix_eig tmp_i_3 = Matrix_eig::Zero(1, 3);
 	Matrix_eig tmp_i_Psi_inv_1 = Matrix_eig::Zero(1, 3);
 	Matrix_eig tmp_i_Psi_inv_2 = Matrix_eig::Zero(1, 3);
-	Matrix_eig tmp_i_Psi_inv_3 = Matrix_eig::Zero(1, 3);
 	Matrix_eig tmp_i_Psi_inv_final = Matrix_eig::Zero(1, 3);
 	
 	
@@ -1029,7 +1048,6 @@ class MRF_param{
 	Vector_eig tmp2_vec = Vector_eig::Zero(3);
 	Vector_eig tmp3_vec = Vector_eig::Zero(3);
 	Vector_eig MRF_grad = Vector_eig::Zero(3);
-	
 	
 	
 	//Constructor:
@@ -1044,26 +1062,6 @@ class MRF_param{
 	
 		n_x_ = n_x; n_y_ = n_y; n_z_ = n_z;
 		n = n_x * n_y * n_z;
-		/*
-		H_1 = Kron_Sparse_eig( J_n(n_x), I_n(n_y*n_z));
-		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_x), J_n(n_y)), I_n(n_z));
-		H_3 = Kron_Sparse_eig( I_n(n_x*n_y), J_n(n_z));
-		
-		eigenval_1_small = eigenvals_J_n(n_x);
-		eigenval_2_small = eigenvals_J_n(n_y);
-		eigenval_3_small = eigenvals_J_n(n_z);
-		
-		one_1 = Vector_eig::Ones(n_x);
-		one_2 = Vector_eig::Ones(n_y);
-		one_3 = Vector_eig::Ones(n_z);
-		one_23 = Vector_eig::Ones(n_y*n_z);
-		one_12 = Vector_eig::Ones(n_x*n_y);
-		
-		eigenval_1 = Kron_vec_eig(eigenval_1_small, one_23);
-		eigenval_2 = Kron_vec_eig(one_1, Kron_vec_eig(eigenval_2_small, one_3) );
-		eigenval_3 = Kron_vec_eig(one_12, eigenval_3_small);
-		*/
-		
 		
 		H_1 = Kron_Sparse_eig( I_n(n_z*n_y), J_n(n_x));
 		H_2 = Kron_Sparse_eig( Kron_Sparse_eig(I_n(n_z), J_n(n_y)), I_n(n_x));
@@ -1138,7 +1136,9 @@ class MRF_param{
 	/*
 	* The ratio of eigenvalue sum part of Lambda(beta, n_x, n_y, n_z) for the derivative
 	* Depends on the value of k (0, 1, 2 - corresponding to derivative wt beta_1, beta_2, beta_3)
+	* Needed for the derivative only
 	*/
+	/*
 	double sp_log_inv_specific(const Vector_eig &beta, int k, double thres = 0.000001){
 	
 		eigens.noalias() =  beta(0) * eigenval_1 + beta(1) * eigenval_2 + beta(2) * eigenval_3;
@@ -1159,7 +1159,7 @@ class MRF_param{
 		double temp = (double)final_vec.sum();
 		return (temp);
 	}
-	
+	*/
 	
 	
 	/* 
@@ -1213,11 +1213,8 @@ class MRF_param{
 	double MRF_log_likeli(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		double likeli_sum = MRF_log_likeli_num(W, Psi_inv, beta);
-		// Debug0("likeli_sum num: " << likeli_sum);
 		likeli_sum += ( 3 * sp_log_det_specific(beta) + 
 								n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2;
-		//Debug0("likeli_sum den: "<< ( 3 * sp_log_det_specific(beta) + 
-		//						n * log_det_3(Psi_inv) - 3 * n * log(2*M_PI) )/2  );
 		
 		return likeli_sum;
 		
@@ -1227,6 +1224,60 @@ class MRF_param{
 	
 	
 	
+	/* 
+	* Numerator of the log likelihood from the MRF part:
+	* just w.r.t. i-th row of W.
+	* Not used now
+	*/
+	/*
+	double MRF_log_likeli_num_i(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
+									const Vector_eig &beta, const int i) {
+	
+		//Lambda_init_row = beta(0)*H_1.row(i) + 
+		//					beta(1)*H_2.row(i) + 
+		//					beta(2)*H_3.row(i);
+		tmp_i = Matrix_eig::Zero(1, 3);
+		
+		//for(int j = 0; j < n; ++j){
+		//	tmp_i += Lambda_init_row.coeff(1, j) * W.row(j);	// Make it compact
+		//}
+
+		
+		//for(int k = 0; k < Lambda_init_row.outerSize(); ++k){
+		//	for (SpMat::InnerIterator it(Lambda_init_row, k); it; ++it){
+		//		tmp_i += W.row(it.col()) * it.value();
+		//	}
+		//}
+		//Check if there is any other way or not...
+		
+		tmp_row = H_1.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				tmp_i += W.row(it.col()) * it.value() * beta(0);
+			}
+		}
+		
+		//if(i == 99){
+		//	Debug0("tmp_i: " << tmp_i);
+		//}
+		
+		tmp_row = H_2.row(i);
+		for(int k = 0; k < tmp_row.outerSize(); ++k){
+			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
+				tmp_i += W.row(it.col()) * it.value();
+			}
+		}
+		
+		tmp_i_Psi_inv.noalias() = tmp_i * Psi_inv;
+		//if(i == 99){
+		//	Debug0("W.row(i): " <<  W.row(i));
+		//	Debug0("old MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv * W.row(i).transpose()).value());
+		//}
+		return ( -0.5 * (tmp_i_Psi_inv * W.row(i).transpose()).value());
+	}
+	*/
+	
+	
 	
 	
 	
@@ -1234,25 +1285,27 @@ class MRF_param{
 	/*
 	* Values are updated: 
 	* To find 
-			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv 				// Not exactly this -- BUG
+			sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv				// Not exactly this -- BUG
 	*
 	* splitted in two parts:
 			sum_{j != i} (H_1(i, j) * W.row(j)) * Psi_inv * beta(0)			// BUG this part * 2 
 		and
 			sum_{j != i} (H_2(i, j) * W.row(j)) * Psi_inv 
+	*
+	* Not used now
 	*/
+	/*
 	void update_neighbours_likeli_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, 
 								      const Vector_eig &beta, const int i){
 	
 		tmp_i_1 = Matrix_eig::Zero(1, 3);
 		tmp_i_2 = Matrix_eig::Zero(1, 3);
-		tmp_i_3 = Matrix_eig::Zero(1, 3);
 		
-		tmp_row = H_1.row(i);							//Check this can be omitted or not - might take some time
+		tmp_row = H_1.row(i);
 		for(int k = 0; k < tmp_row.outerSize(); ++k){
 			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
 				if(it.col() != i){
-					tmp_i_1 += W.row(it.col()) * it.value();		//* beta(0)
+					tmp_i_1 += W.row(it.col()) * it.value();		// * beta(0)
 				}
 			}
 		}
@@ -1272,35 +1325,14 @@ class MRF_param{
 				}
 			}
 		}
-		tmp_i_2 = tmp_i_2 * beta(1);
 		
-		
-		
-		tmp_row = H_3.row(i);
-		for(int k = 0; k < tmp_row.outerSize(); ++k){
-			for (SpMat::InnerIterator it(tmp_row, k); it; ++it){
-				if(it.col() != i){
-					tmp_i_3 += W.row(it.col()) * it.value();
-				}
-			}
-		}
-		
-		/*
 		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
 		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
-		tmp_i_Psi_inv_3.noalias() = tmp_i_3 * Psi_inv;
-		tmp_i_Psi_inv_final.noalias() = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2 + tmp_i_Psi_inv_3; //Was not multiplied by 2 -- BUG
+		tmp_i_Psi_inv_final = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2;			// This was not multiplied by 2 -- BUG
 		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
-		*/
-		
-		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 + tmp_i_3;
-		tmp_i_Psi_inv_final = tmp_i_Psi_inv_final * Psi_inv;
-		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
-		
-		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + beta(1) * H_2.coeff(i, i) + H_3.coeff(i, i);
+		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + H_2.coeff(i, i);
 	}
-	
-	
+	*/
 	
 	
 	
@@ -1320,52 +1352,30 @@ class MRF_param{
 	
 		tmp_i_1 = Matrix_eig::Zero(1, 3);
 		tmp_i_2 = Matrix_eig::Zero(1, 3);
-		tmp_i_3 = Matrix_eig::Zero(1, 3);
 		
-		for (SpMat::InnerIterator it(H_1, i); it; ++it){
+		
+		for(SpMat::InnerIterator it(H_1, i); it; ++it){
 			if(it.row() != i){
-				tmp_i_1 += W.row(it.row()) * it.value();		//* beta(0)
+				tmp_i_1 += W.row(it.row()) * it.value();		// * beta(0)
 			}
 		}
+		// I guess this is much faster way: 
 		tmp_i_1 = tmp_i_1 * beta(0);
 		
 		
-		
-		for (SpMat::InnerIterator it(H_2, i); it; ++it){
+		for(SpMat::InnerIterator it(H_2, i); it; ++it){
 			if(it.row() != i){
 				tmp_i_2 += W.row(it.row()) * it.value();
 			}
 		}
-		tmp_i_2 = tmp_i_2 * beta(1);
 		
 		
-		
-		for (SpMat::InnerIterator it(H_3, i); it; ++it){
-			if(it.row() != i){
-				tmp_i_3 += W.row(it.row()) * it.value();
-			}
-		}
-		
-		
-		/*
-		tmp_i_Psi_inv_1.noalias() = tmp_i_1 * Psi_inv;
-		tmp_i_Psi_inv_2.noalias() = tmp_i_2 * Psi_inv;
-		tmp_i_Psi_inv_3.noalias() = tmp_i_3 * Psi_inv;
-		tmp_i_Psi_inv_final.noalias() = tmp_i_Psi_inv_1 + tmp_i_Psi_inv_2 + tmp_i_Psi_inv_3; //Was not multiplied by 2 -- BUG
-		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
-		*/
-		
-		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 + tmp_i_3;
+		tmp_i_Psi_inv_final.noalias() = tmp_i_1 + tmp_i_2 ;
 		tmp_i_Psi_inv_final = tmp_i_Psi_inv_final * Psi_inv;
-		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
 		
-		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + beta(1) * H_2.coeff(i, i) + H_3.coeff(i, i);
+		tmp_i_Psi_inv_final *= 2;													// BUG fixed I guess
+		tmp_i_coeff_1 = beta(0) * H_1.coeff(i, i) + H_2.coeff(i, i);
 	}
-	
-	
-	
-	
-	
 	
 	
 	
@@ -1374,19 +1384,14 @@ class MRF_param{
 	/* 
 	* Numerator of the log likelihood from the MRF part:
 	* w.r.t. i-th row of W.
-		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv 					// Not this -- BUG
-								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv + 	// This line multiplied by 2
+		tmp_i_Psi_inv_new = sum_j (Lambda(i, j) * W.row(j)) * Psi_inv  					// Not this -- BUG
+								 = sum_{j != i} (Lambda(i, j) * W.row(j)) * Psi_inv +  	// This line multiplied by 2
 								 + Lambda(i, i) * x' * Psi_inv
 	* final output is: 
 		 - tmp_i_Psi_inv_new * x / 2;
 	*/
 	double MRF_log_likeli_num_i_new(const Vector_eig &x, const Matrix3d_eig &Psi_inv) {
 	
-		//if(i == 99){
-		//	Debug0("W.row(i): " << W.row(i));
-		//	Debug0("(beta(0) * H_1.coeff(i, i) ) * x.transpose(): " << (beta(0) * H_1.coeff(i, i) ) * x.transpose());
-		//	Debug0("new MRF log likeli i:" << -0.5 * (tmp_i_Psi_inv_new * x).value());
-		//}
 		
 		//tmp_i_Psi_inv_new.noalias() = tmp_i_Psi_inv_final + 
 		//								tmp_i_coeff_1 * (x.transpose() * Psi_inv);		// Can be little more compact here
@@ -1404,13 +1409,13 @@ class MRF_param{
 	
 	
 	
-	
-	
 	/*
 	* gradient of likelihood w.r.t. i-th row of W.
 	* Shorten if possible - maybe using increment
+	* Not used now
 	*/
-	Vector_eig MRF_grad_fn_old(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
+	/*
+	Vector_eig MRF_grad_fn(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta, int i){
 		
 		tmp_W_Psi_inv.noalias() = W * Psi_inv;
 		tmp1_vec.noalias() = H_1.row(i) * tmp_W_Psi_inv;
@@ -1419,7 +1424,7 @@ class MRF_param{
 		MRF_grad.noalias() = beta(0)*tmp1_vec + beta(1)*tmp2_vec + beta(2)*tmp3_vec;
 		return MRF_grad;
 	}
-	
+	*/
 	
 	
 	
@@ -1430,6 +1435,7 @@ class MRF_param{
 		MRF_grad += 0.5 * tmp_i_Psi_inv_final.transpose();
 	}
 
+	
 	
 	
 	
@@ -1495,28 +1501,35 @@ class MRF_param{
 	
 	
 	// Derivative of the MRF-likelihood w.r.t. MRF parameters
+	/*
 	Vector_eig MRF_log_likeli_grad(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vector_eig &beta) {
 	
 		// SpMat Gamma_inv = Lambda(beta);
 		// Is it okay to say some sparse mat = some sparse mat? (noalias is not possible)
 		Lambda_init = Lambda(beta);
 		
-		
 		Psi_grad.noalias() = 0.5 * G * to_vector(n * Psi_inv.llt().solve(Matrix3d_eig::Identity(3, 3)) - W.transpose()*Lambda_init*W);
-	
+		
 		tmp_W_Psi_inv.noalias() = W * Psi_inv; 		// Is this direction faster?, make another temp mat
 		double beta_x_grad = 1.5*sp_log_inv_specific(beta, 0) - 
 		                    	0.5*(W.transpose() * H_1 * tmp_W_Psi_inv).trace();
-		double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
-		                    	0.5*(W.transpose() *  H_2 * tmp_W_Psi_inv).trace();
-		
-		
-		Vector_eig grad(8);
-		grad.segment(0, 6) = Psi_grad;				// 6x1 matrix I guess
-		grad(6) = beta_x_grad; grad(7) = beta_y_grad;
+		Vector_eig grad;
+		if(n_z_ > 1){
+			double beta_y_grad = 1.5*sp_log_inv_specific(beta, 1) - 
+			                    	0.5*(W.transpose() *  H_2 * tmp_W_Psi_inv).trace();
+			grad = Vector_eig::Zero(8);
+			grad.segment(0, 6) = Psi_grad;				// 6x1 matrix I guess
+			grad(6) = beta_x_grad; grad(7) = beta_y_grad;
+		} else if(n_z_ == 1) {
+			Debug2("2D image here!");
+			grad = Vector_eig::Zero(7);
+			grad.segment(0, 6) = Psi_grad;				// 6x1 matrix I guess
+			grad(6) = beta_x_grad;
+		}
 	
 		return grad;
 	}
+	*/
 	
 	
 	
@@ -1524,6 +1537,10 @@ class MRF_param{
 	~MRF_param(){ }
 	
 };
+
+
+
+
 
 
 
@@ -1578,7 +1595,6 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 	
 	// Keep an eye: there is another pragma outside in the optimizer
 	// I guess that would not be a problem
-	#pragma omp parallel for
 	for(int i = 0; i < nRow; ++i) {
 		for(int j = 0; j < nCol; ++j) {
 			tmp(i,j) = W(i,0) * 
@@ -1592,7 +1608,7 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 			}
 		}
 	}
-	return tmp;
+	return(tmp);
 }
 
 
@@ -1809,6 +1825,7 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 * Input: \nu matrix and sigma
 * Output: Generate a sample r matrix
 */
+
 Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_eig &sigma){
 	int nRow = our_v_mat.rows();	 //n
 	int nCol = our_v_mat.cols();	 //m
@@ -1832,6 +1849,7 @@ Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_ei
 /*
 * Same function as before with different parametrization
 */
+
 Matrix_eig_row Gen_r(const Matrix_eig_row &W, const Vector_eig &TE, const Vector_eig &TR, const Vector_eig &sigma){
 	return(Gen_r_from_v_mat(v_mat(W, TE, TR), sigma));
 }
@@ -1864,8 +1882,8 @@ double dee_v_ij_dee_W_ik(const Matrix_eig_row &W, const Vector_eig &TE, const Ve
 		return -1000000;
 	}
 }
-*/
 // There was a mistake, W(i, 3) would be W(i,2) and so on ... C and R indexing case -- corrected
+*/
 
 
 /**
@@ -1924,8 +1942,8 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Matrix_eig_row &W, const Vector_eig &
 		return -1000000;
 	}
 }
-*/
 // BUG, see next
+*/
 
 
 
@@ -2007,47 +2025,9 @@ void show_dim_sp(SpMat A){
 
 
 
-
-
-
-
-int choose(int n, int r){
-	int tmp = n;
-	for(int i = 1; i < r; ++i){
-		tmp *= (n-i);
-		tmp /= (i+1);
-	}
-	return tmp;
-}
-
-
-// https://stackoverflow.com/a/9430993
-Matrix_eig combi(int n, int r){
-
-	std::vector<bool> v(n);
-	std::fill(v.begin(), v.begin() + r, true);
-	int m = choose(n, r);
-	Matrix_eig tmp = Matrix_eig::Zero(m, r);
-	
-	int k1 = 0, k2 = 0;
-	
-	do {
-		k2 = 0;
-		for (int i = 0; i < n; ++i) {
-			if (v[i]) {
-				// std::cout << (i + 1) << " ";
-				tmp(k1, k2) = i; // + 1;
-				k2++;
-			}
-		}
-		k1++;
-	} while (std::prev_permutation(v.begin(), v.end()));
-	
-	return tmp;
-}
-
-
-
+/***************************************************
+**************** Information Matrix ****************
+****************************************************/
 
 
 
@@ -2123,6 +2103,55 @@ void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_t
 	file_connection << "\n";
 	file_connection.close();
 }
+
+
+
+
+
+
+
+int choose(int n, int r){
+	int tmp = n;
+	for(int i = 1; i < r; ++i){
+		tmp *= (n-i);
+		tmp /= (i+1);
+	}
+	return tmp;
+}
+
+
+// https://stackoverflow.com/a/9430993
+Matrix_eig combi(int n, int r){
+
+	std::vector<bool> v(n);
+	std::fill(v.begin(), v.begin() + r, true);
+	int m = choose(n, r);
+	Matrix_eig tmp = Matrix_eig::Zero(m, r);
+	
+	int k1 = 0, k2 = 0;
+	
+	do {
+		k2 = 0;
+		for (int i = 0; i < n; ++i) {
+			if (v[i]) {
+				std::cout << (i + 1) << " ";
+				tmp(k1, k2) = i; // + 1;
+				k2++;
+			}
+		}
+		k1++;
+	} while (std::prev_permutation(v.begin(), v.end()));
+	
+	return tmp;
+}
+
+
+
+
+
+
+
+
 
 
 

@@ -33,8 +33,8 @@ int main(int argc, char * argv[]){
 	data_file = argv[1];	sd_file = argv[2];	char will_write = *(argv[3])-48;		// Converted from ascii
 	short our_dim[8];
 	// Values of TE and TR (in seconds)
-	Eigen::VectorXd TE_example((Eigen::VectorXd(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	Eigen::VectorXd TR_example((Eigen::VectorXd(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
+	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
+	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
 	
 	// Main step:
 	int do_least_sq = 1;
@@ -48,6 +48,8 @@ int main(int argc, char * argv[]){
 
 
 
+#ifndef INIT_VAL
+#define INIT_VAL
 
 
 
@@ -56,15 +58,12 @@ int main(int argc, char * argv[]){
 
 
 
-
-#include "../../CppNumericalSolvers/include/cppoptlib/meta.h"
-#include "../../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
-#include "../../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
-
+// #include "../CppNumericalSolvers/include/cppoptlib/meta.h"
+#include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
+#include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
 
 
-#ifndef INIT_VAL
-#define INIT_VAL
+
 
 
 
@@ -82,6 +81,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	typedef Matrix_eig_row TMatrix_row;
 	
 	TVector r_row;
+	double fx;
 
 
   public:
@@ -92,26 +92,24 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 
 	TVector TE, TR, lb, ub, v_new;
 	int i;
-	double fx;
-	
 	
 	
 	void update_size(){
 		v_new = TVector::Zero(TE.size());
 	}
+	
+	
 
-	
 	// Track the best:
-	Eigen::VectorXd current_best_param;
+	Vector_eig current_best_param;
 	double current_best_val = 1.0e+15;
-	
+
 
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
 		Bloch_vec(x, TE, TR, v_new);
-		DebugLS("x: " << x.transpose() << "; value: " << (r_row - v_new).squaredNorm()); 
 		fx = (r_row - v_new).squaredNorm();
-				
+		
 		// Track the best:
 		if(fx < current_best_val){
 			if(check_bounds_vec_3(x, lb, ub) == 0){
@@ -119,7 +117,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 				current_best_val = fx;
 			}
 		}
-		
+				
 		return (fx);
 	}
 
@@ -145,7 +143,8 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
-		DebugLS("grad: " << grad.transpose() << "\n" );
+		if(i == 2)
+			DebugLS("grad: " << grad.transpose() << "\n" );
 	}
 
 
@@ -162,7 +161,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 * 			W is changed
 */
 void least_sq_solve(Matrix_eig_row &W, 
-					const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+					const Vector_eig &TE_example, const Vector_eig &TR_example, 
                     const Matrix_eig_row &r, double r_scale, double TE_scale, double TR_scale){
 
 
@@ -170,7 +169,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	auto time_1_lsq = std::chrono::high_resolution_clock::now();
 	
 	Least_Sq_est<double> f;
-	Eigen::VectorXd x(3), lb(3), ub(3); 
+	Vector_eig x(3), lb(3), ub(3); 
 	
 	//Bounds of rho, W1, W2:
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
@@ -207,24 +206,19 @@ void least_sq_solve(Matrix_eig_row &W,
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
 	// Loop of 
-	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, lb, ub, std::cout)
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, std::cout)
 	for(int i = 0; i < n; ++i){
 	
-		if(i % 100000 == 0 ){
+		if(i % 100000 == 0){
 			Debug1("i: "<< i);
 		}
 		
 		// Track the best:
-		// double current_best_val = 1.0e+15;
 		f.current_best_val = 1.0e+15;
-		
 		
 		f.i = i;
 		x = W.row(i);
-		
 		f.r_row = r.row(i);
-		
-		
 		
 	
 		//Print initial values:
@@ -237,17 +231,10 @@ void least_sq_solve(Matrix_eig_row &W,
 		solver.minimize(f, x);
 		fx = f.value(x);
 		
-		
 		// Track the best:
 		x = f.current_best_param;
 		fx = f.current_best_val;
 		DebugLS("f(param_new) in argmin: " << fx << "\t x:" << x.transpose());
-		
-		
-		DebugLS("argmin: " << x.transpose() << ";\tf(x) in argmin: " << f(x)) ;
-		DebugLS("Solver status: " << solver.status() );	//Guess: bad reports: under constraints => grad is not ~0 
-		DebugLS("Final criteria values: " << "\n" << solver.criteria());
-		DebugLS("f(param_new) in argmin: " << fx << "\t old val:" << old_val);
 		
 		
 		
@@ -262,13 +249,11 @@ void least_sq_solve(Matrix_eig_row &W,
 			if(check_nan_vec(x) == 0){				// Added later, to catch NaN - Subrata
 				W.row(i) = x;
 			} else {
-				Debug0("nan in LS estimate. \n" << "i: " << i << ", x: " << x.transpose() << 
-						"\n W.row(i): " << W.row(i) << ", old_val: " << old_val << ", fx: " << fx  <<
-						"\n r.row(i): " << r.row(i) << "\n lb: " << lb.transpose() << "; ub:" << ub.transpose());
-				Debug0("Solver status: " << solver.status() );
+				Debug0("nan in LS estimate. \n" << "i: " << i << ", x: " << x.transpose());
 				nan_count++;
 			}
 		}
+		
 	}
 	
 	Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
@@ -276,8 +261,8 @@ void least_sq_solve(Matrix_eig_row &W,
 			" and bad init bounds:" << bad_bound_1 << " and " << bad_bound_2);
 	
 	auto time_2_lsq = std::chrono::high_resolution_clock::now();
-	auto duration_lsq = std::chrono::duration_cast<std::chrono::seconds>(time_2_lsq - time_1_lsq);
-	Debug1("Time taken total Least Square: " << duration_lsq.count() << " seconds\n");
+	auto duration_lsq = std::chrono::duration_cast<std::chrono::microseconds>(time_2_lsq - time_1_lsq);
+	Debug1("Time taken total Least Square: " << duration_lsq.count() << " microseconds\n");
 }
 
 
@@ -314,7 +299,7 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 * 	it gives the least square solution.
 */
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
-                        const Eigen::VectorXd &TE_example, const Eigen::VectorXd &TR_example, 
+                        const Vector_eig &TE_example, const Vector_eig &TR_example, 
                         short our_dim[8], 
                         double r_scale, double TE_scale, double TR_scale, 
                         double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
@@ -331,12 +316,14 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 	W.col(1) *= W_1_init;
 	W.col(2) *= W_2_init;
 	for(int i = 0; i < r.rows(); ++i){
-		if(W(i, 0)>450){
-			W(i, 0) = 425;
+		if(W(i, 0)>450.0){
+			W(i, 0) = 425.0;
 		}
-		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possible due to scaling sown
+		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possiblw due to scaling down
 			W(i, 0) = 0.0001;
 		}
+
+		
 	}
 	Debug1("1st level preprocess of initial value done!\n----------------\n----------------\n");
 
@@ -383,11 +370,12 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		 Scaling factor is sd / MAD w.r.t. mean
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
-							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
-							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
+							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
 							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
-	int n_test = TE_test.size();
+
+	
+	int n_test = TE_test.size(), n = W.rows();
 	assert(sigma_test.size() == n_test);
 	Vector_eig Performance_test = Vector_eig::Zero(n_test);
 	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// just testing 
@@ -398,40 +386,35 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	Vector_eig v_star(n_test);
 	
 	int fg_num = 0;
-
+	
 	
 	// Not exactly correct: Subrata - Check
 	
-	//#pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
-	for(int i = 0; i < W.rows(); ++i) {
+	// #pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
+	for(int i = 0; i < n; ++i) {
 		if(black_list(i) == 0){
 			fg_num++;
 			Bloch_vec(W.row(i), TE_test, TR_test, v_new);			// v_{ij}
-		
-		
+			
+			
 			if(v_type == 1){
 				v_star = v_new;
 			} else if (v_type == 2){
 				// Need to be done - mode of rice distn to be calculated with NR method
 			} else if (v_type == 3){
-				for(int j = 0; j < n_test; ++j){					// BUG resolved, j started from 1 - R style indexing
+				for(int j = 0; j < n_test; ++j){
 					v_star(j) = mean_rice(v_new(j), sigma_test(j));
 				}
 			}
 			
 			tmp = (v_star - test.row(i).transpose()).array().abs();
-			
+		
 			if(measure_type == 2){
 				for(int j = 0; j < n_test; ++j){
 					tmp(j) = SQ(tmp(j));
 				}
 			}
 			
-			
-		
-			
-			//std::cout << tmp.transpose() << "\n";
-			// Perf_mat.row(i) = v_star.transpose() - test.row(i);
 			
 			if(verbose){
 				if(i < 100){
@@ -441,21 +424,33 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 				}			
 			}
 			
-		
+			int bad_ct = 0;
+			for(int j = 0; j < tmp.size(); ++j){
+				if(std::isnan(tmp(j))){
+					bad_ct++;
+					Debug1("i: " << i << ", W.row(i): " << W.row(i) << 
+							"\n, v_new:" << v_new.transpose() <<  ", v_star:" << v_star.transpose() << 
+							",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
+							 ", tmp: " << tmp.transpose() << "\n");
+					//break;
+					exit(EXIT_FAILURE);
+				}
+			}
+			
+			
 			Perf_mat.row(i) = tmp;
 			// Performance_test = Performance_test + tmp;				// This is main
-			// Debug1("i: " << i << ", Performance_test" << Performance_test.transpose());
 		}
 	}
-	// Debug1("Performance_test" << Performance_test);
-	// std::cout << Perf_mat.colwise().mean() << " and " <<  Perf_mat.array().abs().colwise().mean() << "\n";
-	//Performance_test = Perf_mat.array().abs().colwise().mean();
-	
 	
 	// Performance_test = Performance_test/W.rows();
 	Performance_test = Perf_mat.array().colwise().sum()/fg_num;
 	
 	
+	
+	if(verbose){
+		 Debug0("Performance_test: " << Performance_test.transpose());
+	}
 	
 	if(measure_type == 2){
 		for(int j = 0; j < n_test; ++j){
@@ -483,6 +478,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	return Performance_test;
 }
+
 
 
 

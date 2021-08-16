@@ -1,0 +1,12 @@
+Package: symR
+Type: Package
+Title: Model based Synthetic MRI and standard errors of estimates of regions 
+Version: 1.0
+Date: 2021-03-25
+Author: Subrata Pal, Somak Dutta, Ranjan Maitra
+Maintainer: <subrata@iastate.edu>
+Description: symR is an R wrapper to the C++ software symr for Synthetic Magnetic Resonance (MR) technique. Its main objective is to predict images at new design parameters(TE, TR pair) from a few observed MR scans. The specialty of our methodology is that it carefully uses both the physical and statistical properties of the underlying MR signal and noise. This method uses a theoretically sound and computationally practical, matrix-free approach modeled by a multi-layered Gausssain Markov Random Field. It can predict images from as small as three MR scans and be used in individualized patient- and anatomy-specific contexts, without the need of many a lot of data to train on. We have also developed an accurate estimation of the regional means' standard errors in the predicted images.
+License: GPL-3
+Imports: Rcpp (>= 1.0.6), RcppEigen, RcppGSL, RcppParallel, Matrix
+LinkingTo: Rcpp, RcppEigen, RcppGSL
+Suggests: oro.nifti
