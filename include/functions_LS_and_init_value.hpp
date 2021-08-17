@@ -206,7 +206,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
 	// Loop of 
-	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, std::cout)
+	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, Rcpp::Rcout)
 	for(int i = 0; i < n; ++i){
 	
 		if(i % 100000 == 0){

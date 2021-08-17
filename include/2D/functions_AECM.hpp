@@ -573,7 +573,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		Eigen::setNbThreads(1);
 		
 		// * Loop over voxels: * //
-		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i, tmp2) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve,    r, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, std::cout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
+		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i, tmp2) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve,    r, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, Rcpp::Rcout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
 		{
 		
 			// lb, ub, etc would be shared
@@ -597,7 +597,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						std::cout << std::endl;
+						//Rcpp::Rcout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -691,7 +691,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			std::cout << std::flush;
+			//std::cout << std::flush;
 			// * Checkerboard white ends * //
 			
 			
@@ -706,7 +706,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						std::cout << std::endl;
+						//std::cout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -796,7 +796,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			std::cout << std::flush;
+			//std::cout << std::flush;
 			// * Checkerboard black ends * //
 			
 		}
