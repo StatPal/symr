@@ -12,7 +12,7 @@
 
 Make sure your system have the following softwares installed
 * C++ compiler (tested with [GCC, the GNU Compiler Collection](https://gcc.gnu.org))
-* [Eigen](http://eigen.tuxfamily.org/) - a header only C++ library
+* [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) - a header only C++ library
 * [gsl library](https://www.gnu.org/software/gsl/) for bessel functions
 * [openmp](https://www.openmp.org/) for parallel processing.
 

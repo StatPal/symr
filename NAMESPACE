@@ -1,6 +1,6 @@
 exportPattern("^[[:alpha:]]+")
 useDynLib(symR)
-import(RcppEigen)
+#import(RcppEigen)
 import(RcppGSL, except=c(fastLmPure, fastLm))
 import(RcppParallel, except=c(LdFlags))
 import(Matrix)
