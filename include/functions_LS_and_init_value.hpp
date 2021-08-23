@@ -143,8 +143,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 						x(0)*TE(j) * std::exp((TE(j)-1)*log(x(2))) * 
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
-		if(i == 2)
-			DebugLS("grad: " << grad.transpose() << "\n" );
 	}
 
 
