@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+CppNumericalSolvers/.drone.yml
+CppNumericalSolvers/.ci
+^LICENSE\.md$
