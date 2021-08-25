@@ -47,12 +47,12 @@ protected:
             allIndices[i] = i;
         }
         partial_sort(allIndices.begin(), allIndices.begin() + N, allIndices.end(), [&x](size_t i1, size_t i2) { return x[i1] < x[i2]; });
-        //std::cout << "SORTED: ";
+        //Rcpp::Rcout << "SORTED: ";
         for (Eigen::ArrayXd::Index i = 0; i < N; i++) {
             indices[i] = allIndices[i];
-            //std::cout << indices[i] << ",";
+            //Rcpp::Rcout << indices[i] << ",";
         }
-        //std::cout << std::endl;
+        //Rcpp::Rcout << std::endl;
         return indices;
     }
 
@@ -119,13 +119,13 @@ public:
         int eigen_next_eval = std::max<Scalar>(1, 1/(10*n*(c1+cmu)));
         this->m_current.reset();
         if (Super::m_debug >= DebugLevel::Low) {
-            std::cout << "CMA-ES Initial Config" << std::endl;
-            std::cout << "n " << n << " la " << la << " mu " << mu << " mu_eff " << mu_eff << " sigma " << sigma << std::endl;
-            std::cout << "cs " << cs << " ds " << ds << " chi " << chi << " cc " << cc
+            Rcpp::Rcout << "CMA-ES Initial Config" << std::endl;
+            Rcpp::Rcout << "n " << n << " la " << la << " mu " << mu << " mu_eff " << mu_eff << " sigma " << sigma << std::endl;
+            Rcpp::Rcout << "cs " << cs << " ds " << ds << " chi " << chi << " cc " << cc
                       << " c1 " << c1 << " cmu " << cmu << " hsig_thr " << hsig_thr << std::endl;
-            std::cout << "C" << std::endl << C << std::endl;
-            std::cout << "Hessian will be updated every " << eigen_next_eval << " iterations." << std::endl;
-            std::cout << "Iteration: " << this->m_current.iterations << " best cost " << prevCost << " sigma " << sigma
+            Rcpp::Rcout << "C" << std::endl << C << std::endl;
+            Rcpp::Rcout << "Hessian will be updated every " << eigen_next_eval << " iterations." << std::endl;
+            Rcpp::Rcout << "Iteration: " << this->m_current.iterations << " best cost " << prevCost << " sigma " << sigma
                       << " cond " << this->m_current.condition << " xmean " << x0.transpose() << std::endl;
         }
         do {
@@ -151,9 +151,9 @@ public:
             }
 
             if (Super::m_debug >= DebugLevel::High) {
-                std::cout << "arz" << std::endl << arz << std::endl;
-                std::cout << "arx" << std::endl << arx << std::endl;
-                std::cout << "costs " << costs.transpose() << std::endl;
+                Rcpp::Rcout << "arz" << std::endl << arz << std::endl;
+                Rcpp::Rcout << "arx" << std::endl << arx << std::endl;
+                Rcpp::Rcout << "costs " << costs.transpose() << std::endl;
             }
 
             std::vector<size_t> indices = index_partial_sort(costs, mu);
@@ -190,10 +190,10 @@ public:
                 B = eigenSolver.eigenvectors();
                 D.diagonal() = eigenSolver.eigenvalues().array().sqrt();
                 if (Super::m_debug >= DebugLevel::High) {
-                    std::cout << "Updated hessian." << std::endl;
-                    std::cout << "C" << std::endl << C << std::endl;
-                    std::cout << "B" << std::endl << B << std::endl;
-                    std::cout << "D" << std::endl << D << std::endl;
+                    Rcpp::Rcout << "Updated hessian." << std::endl;
+                    Rcpp::Rcout << "C" << std::endl << C << std::endl;
+                    Rcpp::Rcout << "B" << std::endl << B << std::endl;
+                    Rcpp::Rcout << "D" << std::endl << D << std::endl;
                 }
             }
             Super::m_current.condition = D.diagonal().maxCoeff() / D.diagonal().minCoeff();
@@ -202,13 +202,13 @@ public:
             Super::m_current.fDelta = fabs(costs[indices[0]] - prevCost);
             prevCost = costs[indices[0]];
             if (Super::m_debug >= DebugLevel::Low) {
-                std::cout << "Iteration: " << this->m_current.iterations << " best cost " << costs[indices[0]]
+                Rcpp::Rcout << "Iteration: " << this->m_current.iterations << " best cost " << costs[indices[0]]
                           << " sigma " << sigma << " cond " << this->m_current.condition << " xmean " << xmean.transpose() << std::endl;
             }
             if (fabs(costs[indices[0]] - costs[indices[mu-1]]) < 1e-6) {
                 sigma = sigma * exp(0.2+cs/ds);
                 if (Super::m_debug >= DebugLevel::Low) {
-                    std::cout << "Flat fitness " << costs[indices[0]] << " " << costs[indices[mu-1]] << std::endl;
+                    Rcpp::Rcout << "Flat fitness " << costs[indices[0]] << " " << costs[indices[mu-1]] << std::endl;
                 }
             }
             Super::m_status = checkConvergence(this->m_stop, this->m_current);
@@ -217,11 +217,11 @@ public:
         x0 = xmean;
         m_stepSize = sigma;
         if (Super::m_debug >= DebugLevel::Low) {
-            std::cout << "Stop" << std::endl;
-            this->m_stop.print(std::cout);
-            std::cout << "Current" << std::endl;
-            this->m_current.print(std::cout);
-            std::cout << "Reason: " << Super::m_status << std::endl;
+            Rcpp::Rcout << "Stop" << std::endl;
+            this->m_stop.print(Rcpp::Rcout);
+            Rcpp::Rcout << "Current" << std::endl;
+            this->m_current.print(Rcpp::Rcout);
+            Rcpp::Rcout << "Reason: " << Super::m_status << std::endl;
         }
     }
 };

@@ -23,7 +23,7 @@ Maintainer: \packageMaintainer{symR}
 \references{
 	For background information, look at, \href{https://arxiv.org/abs/2103.01532}{Arxiv version of the paper} and \href{https://github.com/StatPal/symr}{C++ package}
 }
-\keyword{ Synthetic Magnetic Resonance Image, package }
+\concept{ Synthetic-MRI, MRI, spatial, multivariate }
 \examples{
 ## 2D example: 
 ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:

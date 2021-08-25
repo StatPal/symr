@@ -84,3 +84,10 @@ This will make things easier.
 
 
 
+
+
+
+
+
+Deleting unnecessary files from L-BFGS-B solver. Check this is okay or not.
+

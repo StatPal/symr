@@ -334,7 +334,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		least_sq_solve(W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale);
 	}
 	if(DEBUG_ANOTHER_LEVEL){
-		std::cout << "After the operation:";
+		Rcpp::Rcout << "After the operation:";
 		show_head(W);
 	}
 	
@@ -388,7 +388,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	
 	// Not exactly correct: Subrata - Check
 	
-	// #pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, std::cout, Perf_mat)		// reduction(+:Performance_test)
+	// #pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, Rcpp::Rcout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < n; ++i) {
 		if(black_list(i) == 0){
 			fg_num++;

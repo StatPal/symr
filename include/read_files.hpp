@@ -37,14 +37,14 @@ Eigen::MatrixXd read_data(char* const data_file, short dim[8], float& vox_offset
 
 	std::ifstream infile(data_file, std::ios::binary);
 	if (infile.fail()) {
-		std::cout << "Could not read file *.nii" << std::endl;
+		Rcpp::Rcout << "Could not read file *.nii" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	infile.seekg (vox_offset, std::ios::cur);
 
 	int n = dim[3]*dim[2]*dim[1];
 	long unsigned int num_voxels = dim[1] * dim[2] * dim[3] * dim[4] * dim[5] * dim[6] * dim[7];
-	std::cout << "Reading " << num_voxels << " voxels" << std::endl;
+	Rcpp::Rcout << "Reading " << num_voxels << " voxels" << std::endl;
 
 
 	Eigen::MatrixXd img_mat;
@@ -65,7 +65,7 @@ Eigen::MatrixXd read_data(char* const data_file, short dim[8], float& vox_offset
 						img_mat(m, l) = data[ m ];
 					}
 					
-					std::cout << l+1 << "-th set have size:" << img_mat.col(l).size() << 
+					Rcpp::Rcout << l+1 << "-th set have size:" << img_mat.col(l).size() << 
 					";  mean: " << img_mat.col(l).mean() << std::endl;
 					
 					if( will_write == 1){
@@ -75,16 +75,16 @@ Eigen::MatrixXd read_data(char* const data_file, short dim[8], float& vox_offset
 						file_name += oss.str();
 						file_name += ".txt";
 						
-						std::cout << "Writing " << dim[1] << "x" << dim[2] << "x" << dim[3] << " file " << file_name.c_str() << std::endl;
-						std::cout << "mean: " << img_mat.col(l).mean() << std::endl;
+						Rcpp::Rcout << "Writing " << dim[1] << "x" << dim[2] << "x" << dim[3] << " file " << file_name.c_str() << std::endl;
+						Rcpp::Rcout << "mean: " << img_mat.col(l).mean() << std::endl;
 						std::ofstream myfile;
 						myfile.open(file_name.c_str());
 						myfile << img_mat.col(l) ;
 						myfile.close();
 					}
 				}
-				std::cout << "-------------------------------------------\n-------------------------------------------\n";
-				std::cout << std::flush;
+				Rcpp::Rcout << "-------------------------------------------\n-------------------------------------------\n";
+				Rcpp::Rcout << std::flush;
 			}
 		}
 	}
@@ -108,13 +108,13 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 
 	if (infile.fail())
 	{
-		std::cout << "Could not read file *.nii" << std::endl;
+		Rcpp::Rcout << "Could not read file *.nii" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	size_t bytes_read = 0;
 
-	std::cout << "----------------\nReading header:\n----------------\n" ;
+	Rcpp::Rcout << "----------------\nReading header:\n----------------\n" ;
 
 	int sizeof_header;
 	infile.read(reinterpret_cast<char*>(&sizeof_header), sizeof(sizeof_header));
@@ -122,7 +122,7 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 
 	if (sizeof_header != 348)
 	{
-		std::cout << "Invalid header size: should be 348 bytes" << std::endl;
+		Rcpp::Rcout << "Invalid header size: should be 348 bytes" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -154,14 +154,14 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 	infile.read(reinterpret_cast<char*>(&dim), sizeof(dim));
 	bytes_read += infile.gcount();
 
-	std::cout << dim[0] << " dimensions" << std::endl;
-	std::cout << "Dim 1(X): " << dim[1] << std::endl;
-	std::cout << "Dim 2(Y): " << dim[2] << std::endl;
-	std::cout << "Dim 3(Z): " << dim[3] << std::endl;
-	std::cout << "Dim 4(T): " << dim[4] << std::endl;
-	std::cout << "Dim 5   : " << dim[5] << std::endl;
-	std::cout << "Dim 6   : " << dim[6] << std::endl;
-	std::cout << "Dim 7   : " << dim[7] << std::endl;
+	Rcpp::Rcout << dim[0] << " dimensions" << std::endl;
+	Rcpp::Rcout << "Dim 1(X): " << dim[1] << std::endl;
+	Rcpp::Rcout << "Dim 2(Y): " << dim[2] << std::endl;
+	Rcpp::Rcout << "Dim 3(Z): " << dim[3] << std::endl;
+	Rcpp::Rcout << "Dim 4(T): " << dim[4] << std::endl;
+	Rcpp::Rcout << "Dim 5   : " << dim[5] << std::endl;
+	Rcpp::Rcout << "Dim 6   : " << dim[6] << std::endl;
+	Rcpp::Rcout << "Dim 7   : " << dim[7] << std::endl;
 
 	float intent_p1;
 	infile.read(reinterpret_cast<char*>(&intent_p1), sizeof(intent_p1));
@@ -182,12 +182,12 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 	short datatype;
 	infile.read(reinterpret_cast<char*>(&datatype), sizeof(datatype));
 	bytes_read += infile.gcount();
-	std::cout << "Datatype code: " << datatype << ";\t";
+	Rcpp::Rcout << "Datatype code: " << datatype << ";\t";
 
 	short bitpix;
 	infile.read(reinterpret_cast<char*>(&bitpix), sizeof(bitpix));
 	bytes_read += infile.gcount();
-	std::cout << "Bits per pixel: " << bitpix << std::endl;
+	Rcpp::Rcout << "Bits per pixel: " << bitpix << std::endl;
 
 	short slice_start;
 	infile.read(reinterpret_cast<char*>(&slice_start), sizeof(slice_start));
@@ -201,7 +201,7 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 	infile.read(reinterpret_cast<char*>(&vox_offset), sizeof(vox_offset));
 	bytes_read += infile.gcount();
 	
-	std::cout << "Bytes offset to data file: " << vox_offset << std::endl;
+	Rcpp::Rcout << "Bytes offset to data file: " << vox_offset << std::endl;
 	
 	float scl_slope;
 	infile.read(reinterpret_cast<char*>(&scl_slope), sizeof(scl_slope));
@@ -309,9 +309,9 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 	infile.read(reinterpret_cast<char*>(&magic), sizeof(magic));
 	bytes_read += infile.gcount();
 
-	std::cout << "Read " << bytes_read << " bytes.\n-----------------------" << std::endl;
+	Rcpp::Rcout << "Read " << bytes_read << " bytes.\n-----------------------" << std::endl;
 	if (bytes_read != 348) {
-		std::cout << "Error reading header" << std::endl;
+		Rcpp::Rcout << "Error reading header" << std::endl;
 		exit(EXIT_FAILURE);		//Has read this many bytes
 	}
 
@@ -354,7 +354,7 @@ Eigen::MatrixXd Read_nift1(char* const data_file, short our_dim[8], char will_wr
 		//	break;
 		//case 2304: return read_data<RGBA>(data_file, dim, vox_offset, will_write);
 		//	break; 
-		default: std::cout << "Not supported yet" << std::endl;
+		default: Rcpp::Rcout << "Not supported yet" << std::endl;
 			exit(EXIT_FAILURE);
 			//https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/datatype.html
 	}

@@ -411,7 +411,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 // Change
 
 	if(verbose){
-		std::cout << "\n\n\n";
+		Rcpp::Rcout << "\n\n\n";
 		if(penalized){
 			Debug0("Doing AECM Estimate!");
 		} else {
@@ -691,7 +691,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			//std::cout << std::flush;
+			//Rcpp::Rcout << std::flush;
 			// * Checkerboard white ends * //
 			
 			
@@ -706,7 +706,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						//std::cout << std::endl;
+						//Rcpp::Rcout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -796,7 +796,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			//std::cout << std::flush;
+			//Rcpp::Rcout << std::flush;
 			// * Checkerboard black ends * //
 			
 		}
@@ -828,7 +828,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old_reserve) - to_vector(W_init)) <= abs_diff){
 			if(verbose){
-				std::cout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
+				Rcpp::Rcout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
 				Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old_reserve) - to_vector(W_init)));				
 			}
 			break;
@@ -858,7 +858,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		}
 		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
 			if(verbose){
-				std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
+				Rcpp::Rcout << "\nStopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ", abs diff: " 
 					<< fabs(current_best_likeli - old_likeli) << ")\n";
 			}
@@ -894,7 +894,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	// std::cout << "\n";
+	// Rcpp::Rcout << "\n";
 	if(verbose){
 		Debug1("Number of bad cases in optimization:" << bad_count_o << 
 				" and worse: " << bad_count_o_2 << 

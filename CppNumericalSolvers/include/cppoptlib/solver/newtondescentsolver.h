@@ -29,7 +29,7 @@ class NewtonDescentSolver : public ISolver<ProblemType, 2> {
             TVector delta_x = hessian.lu().solve(-grad);
             const double rate = Armijo<ProblemType, 1>::linesearch(x0, delta_x, objFunc) ;
             x0 = x0 + rate * delta_x;
-            // std::cout << "iter: "<<iter<< ", f = " <<  objFunc.value(x0) << ", ||g||_inf "<<gradNorm  << std::endl;
+            // Rcpp::Rcout << "iter: "<<iter<< ", f = " <<  objFunc.value(x0) << ", ||g||_inf "<<gradNorm  << std::endl;
             ++this->m_current.iterations;
             this->m_current.gradNorm = grad.template lpNorm<Eigen::Infinity>();
             this->m_status = checkConvergence(this->m_stop, this->m_current);

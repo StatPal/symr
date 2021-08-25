@@ -101,7 +101,7 @@ class LbfgsSolver : public ISolver<ProblemType, 1> {
             H0k = y.dot(s) / static_cast<double>(y.dot(y));
 
             x_old = x0;
-            // std::cout << "iter: "<<globIter<< ", f = " <<  objFunc.value(x0) << ", ||g||_inf "
+            // Rcpp::Rcout << "iter: "<<globIter<< ", f = " <<  objFunc.value(x0) << ", ||g||_inf "
             // <<gradNorm  << std::endl;
 
             iter++;
