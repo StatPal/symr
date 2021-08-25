@@ -16,5 +16,5 @@ LinkingTo: Rcpp, RcppEigen, RcppGSL
 NeedsCompilation: yes
 Suggests: 
     testthat (>= 3.0.0),
-    oro.nifti
+    RNifti
 Config/testthat/edition: 3

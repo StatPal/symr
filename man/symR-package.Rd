@@ -23,13 +23,16 @@ Maintainer: \packageMaintainer{symR}
 \references{
 	For background information, look at, \href{https://arxiv.org/abs/2103.01532}{Arxiv version of the paper} and \href{https://github.com/StatPal/symr}{C++ package}
 }
-\concept{ Synthetic-MRI, MRI, spatial, multivariate }
+\concept{Synthetic-MRI}
+\concept{MRI}
+\concept{spatial}
+\concept{multivariate}
 \examples{
 ## 2D example: 
 ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:
 file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
-#oro.nifti::readNIfTI("R/Researchs/MRI/Git/symR/inst/extdata/new_phantom.nii.gz")
-phantom <- oro.nifti::readNIfTI(file_name)
+#RNifti::readNifti("R/Researchs/MRI/Git/symR/inst/extdata/new_phantom.nii.gz")
+phantom <- RNifti::readNifti(file_name, internal=T)
 phantom <- apply(phantom, 4, function(x){c(x)})
 phantom[phantom==0.0] <- 0.5  ## Pre-processing to remove the -Inf issue in likelihood. 
 n <- nrow(phantom)
@@ -70,40 +73,18 @@ W2_init <- exp(-1/(0.1*TE_scale))
 W_init <- Init_val_least_sq_R(train, TE_train, TR_train, dimen, 
                  r_scale, TE_scale, TR_scale, W1_init, W2_init)
 
-cat("\nOverall performaces of LS: \n")
+# Overall performaces of LS
 mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
-mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 3, 1, 1))
-mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 2, 1))
-mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 3, 2, 1))
 
-## Plot the predicted images: 
+## Plot first 2 predicted images: 
 est_LS <- v_mat_R(W_init, TE_test, TR_test)
-for(i in 1:length(TE_test)){
+for(i in 1:2){
   tmp <- matrix(est_LS[,i], dimen[2], dimen[3])
   image(tmp)
 }
 
 
-## Get MLE estimates: 
-MLE_val <- AECM_R(W_init, dimen, TE_train, TR_train, sigma_train, train, 
-   r_scale, TE_scale, TR_scale, mask, 
-   maxiter = 50, penalized = 0, abs_diff = 1e-1, 
-   rel_diff = 1e-5, verbose = 0, verbose2 = 0)
-
-cat("\nOverall performaces of MLE: \n")
-mean(Performance_test_R(MLE_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
-mean(Performance_test_R(MLE_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 1, 1))
-mean(Performance_test_R(MLE_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 2, 1))
-mean(Performance_test_R(MLE_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 2, 1))
-
-## Plot the predicted images: 
-est_MLE <- v_mat_R(MLE_val$W, TE_test, TR_test)
-for(i in 1:length(TE_test)){
-  tmp <- matrix(est_MLE[,i], dimen[2], dimen[3])
-  image(tmp)
-}
-
-
+\dontrun{
 
 # Get MPLE estimates using OSL: 
 OSL_val <- OSL_R(W_init, dimen, TE_train, TR_train, sigma_train, train, 
@@ -111,19 +92,17 @@ OSL_val <- OSL_R(W_init, dimen, TE_train, TR_train, sigma_train, train,
   maxiter = 50, penalized = 1, abs_diff = 1e-1, 
   rel_diff = 1e-5, verbose = 0, verbose2 = 0)
 
-cat("\nOverall performaces of OSL: \n")
+# Overall performaces of OSL
 mean(Performance_test_R(OSL_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
-mean(Performance_test_R(OSL_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 1, 1))
-mean(Performance_test_R(OSL_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 2, 1))
-mean(Performance_test_R(OSL_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 2, 1))
 
-## Plot the predicted images: 
+## Plot first two predicted images: 
 est_OSL <- v_mat_R(OSL_val$W, TE_test, TR_test)
-for(i in 1:length(TE_test)){
+for(i in 1:2){
   tmp <- matrix(est_OSL[,i], dimen[2], dimen[3])
   image(tmp)
 }
 
+}
 
 
 ## Get MPLE estimates using AECM:
@@ -131,22 +110,15 @@ AECM_val <- AECM_R(W_init, dimen, TE_train, TR_train, sigma_train, train,
    r_scale, TE_scale, TR_scale, mask, 
    maxiter = 50, penalized = 1, abs_diff = 1e-1, 
    rel_diff = 1e-5, verbose = 0, verbose2 = 0)
-# head(AECM_val$W); AECM_val$Psi_inv; AECM_val$beta
 
-cat("\nOverall performaces of AECM: \n")
+# Overall performaces of AECM
 mean(Performance_test_R(AECM_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
-mean(Performance_test_R(AECM_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 1, 1))
-mean(Performance_test_R(AECM_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 2, 1))
-mean(Performance_test_R(AECM_val$W, test, TE_test, TR_test, sigma_test, mask, 3, 2, 1))
 
-## Plot the predicted images: 
+## Plot first two predicted images: 
 est_AECM <- v_mat_R(AECM_val$W, TE_test, TR_test)
-for(i in 1:length(TE_test)){
+for(i in 1:2){
   tmp <- matrix(est_AECM[,i], dimen[2], dimen[3])
   image(tmp)
 }
 
-
-
-## 3D example: 
 }

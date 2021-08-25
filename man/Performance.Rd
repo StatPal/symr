@@ -37,6 +37,9 @@ sig <- c(1.2, 1.1, 1.4, 1.2)
 mask <- c(1,1)
 
 Performance_test_R(W, test, TE, TR, sig, mask, 1, 1, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 3, 1, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 1, 2, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 3, 2, 1)
 
 }
 \author{Subrata Pal, Somak Dutta, Ranjan Maitra}
