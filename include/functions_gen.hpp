@@ -65,7 +65,13 @@ BUG: In some later version, there is an extra sigma^2 inside h().
 */
 
 
-
+/*
+ * Changes from C++ package:
+     * 1) #include <Rcpp.h> after #define MAIN_HEADER
+     * 2) Rcpp::Rcout instead of std::cout
+     * 3) Gen_r_from_v_mat and Gen_r should be changed. 
+     * 4) 
+ */
 
 
 #ifndef MAIN_HEADER
