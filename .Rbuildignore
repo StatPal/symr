@@ -5,3 +5,4 @@
 ^LICENSE\.md$
 ^basic_change_to_R.sh$
 ^info.txt$
+^memcheck.R$
