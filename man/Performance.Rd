@@ -27,14 +27,15 @@
   See \code{\link{symR-package}} for more details.
 }
 \examples{
-W <- cbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
-test <- cbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
+W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
+test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
 
 ## Test design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)
 TR <- c(0.6, 0.6, 1, 0.8)
 sig <- c(1.2, 1.1, 1.4, 1.2)
-mask <- c(1,1)
+mask <- c(0,0)
+
 
 Performance_test_R(W, test, TE, TR, sig, mask, 1, 1, 1)
 Performance_test_R(W, test, TE, TR, sig, mask, 3, 1, 1)

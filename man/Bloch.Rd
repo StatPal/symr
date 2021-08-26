@@ -58,7 +58,7 @@ sig <- c(1.2, 1.1, 1.4, 1.2)
 ## Forward transformed values: 
 Bloch_eqn_R(W_row, TE, TR)
 v_mat_R(W, TE, TR)
-Generate_r(W, TE, TR, sig)
+\dontrun{Generate_r(W, TE, TR, sig)}
 
 dee_v_ij_dee_W_ik(W_row, TE, TR, 1, 1)					## dv_i1/dW_i1
 dee_2_v_ij_dee_W_ik_dee_W_ik1(W_row, TE, TR, 1, 1, 2)	## d^2v_i1/(dW_i1 dW_i2)
