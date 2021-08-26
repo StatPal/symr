@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^CppNumericalSolvers/.drone.yml$
-^CppNumericalSolvers/.ci$
+^src/CppNumericalSolvers/.drone.yml$
+^src/CppNumericalSolvers/.ci$
 ^LICENSE\.md$
 ^basic_change_to_R.sh$
 ^info.txt$

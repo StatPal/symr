@@ -5,11 +5,11 @@
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::depends(RcppGSL)]]
 
-#include "../include/functions_gen.hpp"
-#include "../include/functions_LS_and_init_value.hpp"
+#include "include/functions_gen.hpp"
+#include "include/functions_LS_and_init_value.hpp"
 
-#include "../include/2D/functions_AECM.hpp"
-#include "../include/2D/functions_OSL.hpp"
+#include "include/2D/functions_AECM.hpp"
+#include "include/2D/functions_OSL.hpp"
 
 using namespace Rcpp;
 
@@ -218,8 +218,8 @@ Eigen::VectorXd Performance_test_R(const Eigen::Map<Eigen::MatrixXd> &W, const E
 
 // 3D
 
-#include "../include/3D/functions_AECM.hpp"
-#include "../include/3D/functions_OSL.hpp"
+#include "include/3D/functions_AECM.hpp"
+#include "include/3D/functions_OSL.hpp"
 
 
 
