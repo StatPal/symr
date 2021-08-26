@@ -28,11 +28,11 @@ Maintainer: \packageMaintainer{symR}
 \concept{spatial}
 \concept{multivariate}
 \examples{
-## 2D example: 
+## Basic 2D example: 
 ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:
 file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
 #RNifti::readNifti("R/Researchs/MRI/Git/symR/inst/extdata/new_phantom.nii.gz")
-phantom <- RNifti::readNifti(file_name, internal=T)
+phantom <- RNifti::readNifti(file_name, internal=TRUE)
 phantom <- apply(phantom, 4, function(x){c(x)})
 phantom[phantom==0.0] <- 0.5  ## Pre-processing to remove the -Inf issue in likelihood. 
 n <- nrow(phantom)
@@ -76,49 +76,27 @@ W_init <- Init_val_least_sq_R(train, TE_train, TR_train, dimen,
 # Overall performaces of LS
 mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 
-## Plot first 2 predicted images: 
+## Predicted images: 
 est_LS <- v_mat_R(W_init, TE_test, TR_test)
-for(i in 1:2){
-  tmp <- matrix(est_LS[,i], dimen[2], dimen[3])
-  image(tmp)
-}
+# First image with proper dimension: 
+estimate_1 <- matrix(est_LS[,1], dimen[2], dimen[3])
 
 
-\dontrun{
-
-# Get MPLE estimates using OSL: 
-OSL_val <- OSL_R(W_init, dimen, TE_train, TR_train, sigma_train, train, 
-   r_scale, TE_scale, TR_scale, mask, 
-  maxiter = 50, penalized = 1, abs_diff = 1e-1, 
-  rel_diff = 1e-5, verbose = 0, verbose2 = 0)
-
-# Overall performaces of OSL
-mean(Performance_test_R(OSL_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
-
-## Plot first two predicted images: 
-est_OSL <- v_mat_R(OSL_val$W, TE_test, TR_test)
-for(i in 1:2){
-  tmp <- matrix(est_OSL[,i], dimen[2], dimen[3])
-  image(tmp)
-}
-
-}
 
 
 ## Get MPLE estimates using AECM:
 AECM_val <- AECM_R(W_init, dimen, TE_train, TR_train, sigma_train, train, 
    r_scale, TE_scale, TR_scale, mask, 
-   maxiter = 50, penalized = 1, abs_diff = 1e-1, 
-   rel_diff = 1e-5, verbose = 0, verbose2 = 0)
+   maxiter = 10, penalized = 1, abs_diff = 1e-1, 
+   rel_diff = 1e-3)
+## For possibly better results, increase maxiter/decrease rel_diff or abs_diff
 
 # Overall performaces of AECM
 mean(Performance_test_R(AECM_val$W, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 
-## Plot first two predicted images: 
+## Predicted images: 
 est_AECM <- v_mat_R(AECM_val$W, TE_test, TR_test)
-for(i in 1:2){
-  tmp <- matrix(est_AECM[,i], dimen[2], dimen[3])
-  image(tmp)
-}
+# First image with proper dimension: 
+estimate_1 <- matrix(est_AECM[,1], dimen[2], dimen[3])
 
 }

@@ -48,7 +48,7 @@
 \examples{
 ## Sample row of parameters, W
 W_row <- c(50, 0.01, 0.003)
-W <- cbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))	## Two sample rows
+W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))	## Two sample rows
 
 ## Design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)
