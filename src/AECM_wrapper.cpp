@@ -82,7 +82,7 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::Map<Eigen::VectorXd> &W_row,
 Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train, 
                         const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
                         Eigen::Map<Eigen::VectorXd> our_dim_1, 
-                        double train_scale, double TE_scale, double TR_scale, 
+                        double train_scale, double TE_scale, double TR_scale, int maxiter_LS, 
                         double W_1_init, double W_2_init){ //, 
                         // int do_least_sq = 1, char will_write = 0){
     
@@ -107,7 +107,7 @@ Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train,
 	}
 	Debug1("1st level preprocess of initial value done!\n----------------\n----------------\n");
 		
-	least_sq_solve(W, TE_train, TR_train, train, train_scale, TE_scale, TR_scale);
+	least_sq_solve(W, TE_train, TR_train, train, train_scale, TE_scale, TR_scale, maxiter_LS);
 	
 	return(W);
 }

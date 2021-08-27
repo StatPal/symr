@@ -71,7 +71,7 @@ W2_init <- exp(-1/(0.1*TE_scale))
 
 ## Get LS estimate: 
 W_init <- Init_val_least_sq_R(train, TE_train, TR_train, dimen, 
-                 r_scale, TE_scale, TR_scale, W1_init, W2_init)
+                 r_scale, TE_scale, TR_scale, maxiter_LS = 20, W1_init, W2_init)
 
 # Overall performaces of LS
 mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))

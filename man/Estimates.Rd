@@ -10,7 +10,7 @@
 }
 \usage{
 Init_val_least_sq_R(train, TE_train, TR_train, our_dim_1, 
-                     train_scale, TE_scale, TR_scale, W_1_init, W_2_init)
+                     train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
 AECM_R(W, our_dim_1, TE_train, TR_train, sigma_train, train, 
        train_scale, TE_scale, TR_scale, black_list, 
 	   maxiter = 50, penalized = 1, abs_diff = 1e-1, 
@@ -38,6 +38,7 @@ OSL_R_3D(W, our_dim_1, TE_train, TR_train, sigma_train, train,
   \item{train_scale}{a positive real number by which voxels are scaled}
   \item{TE_scale}{a positive real number by which TE values are scaled}
   \item{TR_scale}{a positive real number by which TR values are scaled}
+  \item{maxiter_LS}{maximum number of iteration for LS L-BFGS-B algorithm}
   \item{black_list}{a numeric vector representing the background voxels}
   \item{maxiter}{maximum iteration number of the EM algorithm}
   \item{penalized}{whether to use the MRF penalty or not. If 0, tthe answer becomes the MLE}

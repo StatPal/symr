@@ -118,8 +118,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Init_val_least_sq_R
-Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd>& train, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, Eigen::Map<Eigen::VectorXd> our_dim_1, double train_scale, double TE_scale, double TR_scale, double W_1_init, double W_2_init);
-RcppExport SEXP _symR_Init_val_least_sq_R(SEXP trainSEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP our_dim_1SEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP W_1_initSEXP, SEXP W_2_initSEXP) {
+Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd>& train, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, Eigen::Map<Eigen::VectorXd> our_dim_1, double train_scale, double TE_scale, double TR_scale, int maxiter_LS, double W_1_init, double W_2_init);
+RcppExport SEXP _symR_Init_val_least_sq_R(SEXP trainSEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP our_dim_1SEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP maxiter_LSSEXP, SEXP W_1_initSEXP, SEXP W_2_initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -130,9 +130,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type train_scale(train_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type TE_scale(TE_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type TR_scale(TR_scaleSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter_LS(maxiter_LSSEXP);
     Rcpp::traits::input_parameter< double >::type W_1_init(W_1_initSEXP);
     Rcpp::traits::input_parameter< double >::type W_2_init(W_2_initSEXP);
-    rcpp_result_gen = Rcpp::wrap(Init_val_least_sq_R(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, W_1_init, W_2_init));
+    rcpp_result_gen = Rcpp::wrap(Init_val_least_sq_R(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -270,7 +271,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_symR_Generate_r", (DL_FUNC) &_symR_Generate_r, 4},
     {"_symR_dee_v_ij_dee_W_ik", (DL_FUNC) &_symR_dee_v_ij_dee_W_ik, 5},
     {"_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1", (DL_FUNC) &_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1, 6},
-    {"_symR_Init_val_least_sq_R", (DL_FUNC) &_symR_Init_val_least_sq_R, 9},
+    {"_symR_Init_val_least_sq_R", (DL_FUNC) &_symR_Init_val_least_sq_R, 10},
     {"_symR_AECM_R", (DL_FUNC) &_symR_AECM_R, 16},
     {"_symR_OSL_R", (DL_FUNC) &_symR_OSL_R, 16},
     {"_symR_Performance_test_R", (DL_FUNC) &_symR_Performance_test_R, 10},

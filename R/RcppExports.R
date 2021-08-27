@@ -33,8 +33,8 @@ dee_2_v_ij_dee_W_ik_dee_W_ik1 <- function(W_row, TE, TR, j, k, k1) {
     .Call('_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1', PACKAGE = 'symR', W_row, TE, TR, j, k, k1)
 }
 
-Init_val_least_sq_R <- function(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, W_1_init, W_2_init) {
-    .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, W_1_init, W_2_init)
+Init_val_least_sq_R <- function(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init) {
+    .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
 }
 
 AECM_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {

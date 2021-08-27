@@ -130,7 +130,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 */
 void least_sq_solve(Matrix_eig_row &W, 
 					const Vector_eig &TE_example, const Vector_eig &TR_example, 
-                    const Matrix_eig_row &r, double r_scale, double TE_scale, double TR_scale){
+                    const Matrix_eig_row &r, double r_scale, double TE_scale, double TR_scale, int maxiter_LS){
 
 
 	Debug0("Doing Least Square Estimate!");
@@ -165,7 +165,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	// Declaring the solver
 	cppoptlib::LbfgsbSolver<Least_Sq_est<double>> solver;
 	cppoptlib::Criteria<double> crit_LS = cppoptlib::Criteria<double>::defaults();
-	crit_LS.iterations = 100;
+	crit_LS.iterations = maxiter_LS;
 	solver.setStopCriteria(crit_LS);
 	
 	
@@ -269,7 +269,7 @@ Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char wil
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
                         const Vector_eig &TE_example, const Vector_eig &TR_example, 
                         short our_dim[8], 
-                        double r_scale, double TE_scale, double TR_scale, 
+                        double r_scale, double TE_scale, double TR_scale, int maxiter_LS, 
                         double W_1_init = exp(-1/2.0), double W_2_init = exp(-1/0.1), 
                         int do_least_sq = 1, char will_write = 0){
 
@@ -301,7 +301,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		show_head(W);
 	}
 	if(do_least_sq){
-		least_sq_solve(W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale);
+		least_sq_solve(W, TE_example, TR_example, r, r_scale, TE_scale, TR_scale, maxiter_LS);
 	}
 	if(DEBUG_ANOTHER_LEVEL){
 		Rcpp::Rcout << "After the operation:";
