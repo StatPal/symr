@@ -66,12 +66,12 @@ BUG: In some later version, there is an extra sigma^2 inside h().
 
 
 
+
 #ifndef MAIN_HEADER
 #define MAIN_HEADER
 
 
 #include <Rcpp.h>
-
 
 
 #include <iostream>
@@ -1830,7 +1830,7 @@ Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_ei
 	Matrix_eig_row tmp3 = our_v_mat;
 	double tmp1, tmp2;
 	
-	//std::srand((unsigned int) time(0));		
+	//std::srand((unsigned int) time(0));
 	std::random_device rd{};	std::mt19937 gen{rd()};
 	std::normal_distribution<> d{0,1};
 	

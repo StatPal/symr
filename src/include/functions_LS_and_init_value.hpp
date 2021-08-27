@@ -18,38 +18,7 @@
 */
 
 
-/**
-*
-* File to get initial values through Least Squares :
-* Example use in main :
 
-
-int main(int argc, char * argv[]){
-	if (argc != 4) {
-		fprintf(stderr, "\nUsage: %s <file_name> <SD_file_name> <will_write_to_a_file?> <temp_val> \n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
-	char *data_file, *sd_file;
-	data_file = argv[1];	sd_file = argv[2];	char will_write = *(argv[3])-48;		// Converted from ascii
-	short our_dim[8];
-	// Values of TE and TR (in seconds)
-	Vector_eig TE_example((Vector_eig(12) << 0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1).finished());
-	Vector_eig TR_example((Vector_eig(12) << 0.6, 0.6, 0.6, 1, 1, 1, 2, 2, 2, 3, 3, 3).finished());
-	
-	// Main step:
-	int do_least_sq = 1;
-	Matrix_eig_row r = Preprocess_data(data_file, our_dim, will_write);
-	Matrix_eig_row W_init = Init_val(r, TE_example, TR_example, our_dim, do_least_sq, will_write);
-	
-	return 0;
-}
-
-*/
-
-
-
-#ifndef INIT_VAL
-#define INIT_VAL
 
 
 
@@ -64,6 +33,8 @@ int main(int argc, char * argv[]){
 
 
 
+#ifndef INIT_VAL
+#define INIT_VAL
 
 
 
@@ -144,7 +115,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 						(1-std::exp(TR(j)*std::log(x(1))));
 		}
 	}
-
 
 };
 
@@ -317,7 +287,7 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		if(W(i, 0)>450.0){
 			W(i, 0) = 425.0;
 		}
-		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possiblw due to scaling down
+		if(W(i, 0) < 0.0001){		// Added later to recover from sub lb[0] case possiblw due to scaling sown
 			W(i, 0) = 0.0001;
 		}
 

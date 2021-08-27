@@ -257,7 +257,7 @@ class Likeli_optim_3D : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_
 		
 		for (SpMat::InnerIterator it(MRF_obj_optim.H_1, i); it; ++it){
 			if(it.row() != i){
-				tmp_i_1 += W.row(it.row()) * it.value();		//* beta(0)
+				tmp_i_1 += W.row(it.row()) * it.value();		//  * beta(0)
 			}
 		}
 		tmp_i_1 = tmp_i_1 * beta(0);
@@ -617,7 +617,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						//Rcpp::Rcout << std::endl;
+						Rcpp::Rcout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}

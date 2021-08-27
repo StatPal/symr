@@ -597,7 +597,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						//Rcpp::Rcout << std::endl;
+						Rcpp::Rcout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -691,7 +691,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			//Rcpp::Rcout << std::flush;
+			Rcpp::Rcout << std::flush;
 			// * Checkerboard white ends * //
 			
 			
@@ -706,7 +706,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						//Rcpp::Rcout << std::endl;
+						Rcpp::Rcout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -796,7 +796,7 @@ void AECM_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 				}
 			}
 			
-			//Rcpp::Rcout << std::flush;
+			Rcpp::Rcout << std::flush;
 			// * Checkerboard black ends * //
 			
 		}

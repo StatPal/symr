@@ -44,12 +44,12 @@ int main(int argc, char const *argv[]) {
     TLinearRegression f(X, y);
 
     TVector beta = TVector::Random(4);
-    std::cout << "start in   " << beta.transpose() << std::endl;
+    Rcpp::Rcout << "start in   " << beta.transpose() << std::endl;
     cppoptlib::BfgsSolver<TLinearRegression> solver;
     solver.minimize(f, beta);
 
-    std::cout << "result     " << beta.transpose() << std::endl;
-    std::cout << "true model " << true_beta.transpose() << std::endl;
+    Rcpp::Rcout << "result     " << beta.transpose() << std::endl;
+    Rcpp::Rcout << "true model " << true_beta.transpose() << std::endl;
 
     return 0;
 }

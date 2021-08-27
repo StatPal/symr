@@ -69,8 +69,8 @@ int main(int argc, char const *argv[]) {
     // and minimize the function
     solver.minimize(f, x);
     // print argmin
-    std::cout << "argmin      " << x.transpose() << std::endl;
-    std::cout << "f in argmin " << f(x) << std::endl;
+    Rcpp::Rcout << "argmin      " << x.transpose() << std::endl;
+    Rcpp::Rcout << "f in argmin " << f(x) << std::endl;
 
     return 0;
 }
