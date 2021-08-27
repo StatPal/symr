@@ -1,3 +1,23 @@
+/*
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) 2021  Subrata Pal, Somak Dutta, Ranjan Maitra
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*/
+
+
 /**
 * 
 
@@ -217,10 +237,10 @@ int main(int argc, char * argv[]) {
 	Debug1("W - Penalized Likelihood");
 	show_head(W_init);
 	
-	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 1);
-	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 1);
-	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 1, 2);
-	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, 3, 2);
+	perf_1 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 1);
+	perf_2 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 1);
+	perf_3 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 1, 2);
+	perf_4 = Performance_test(W_init, test, TE_test, TR_test, sigma_test, black_list, 3, 2);
 	Debug0("Avg perfs MPLE: " << perf_1.mean() << ", " << perf_2.mean() << ", "
 						 << perf_3.mean() << ", " << perf_4.mean());
 	
