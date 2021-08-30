@@ -1,9 +1,18 @@
-#include <RcppEigen.h>
-#include <RcppGSL.h>
+//#include <RcppEigen.h>
+//#include <RcppGSL.h>
 
-// [[Rcpp::plugins(cpp17)]]
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppGSL)]]
+// c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) example.cpp -o example$(python3-config --extension-suffix) -I /usr/include/eigen3 -lgsl -lgslcblas -lm -fopenmp
+
+
+
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
+
+namespace py = pybind11;
+
+using namespace pybind11::literals;
+
+
 
 #include "include/functions_gen.hpp"
 #include "include/functions_LS_and_init_value.hpp"
@@ -11,7 +20,6 @@
 #include "include/2D/functions_AECM.hpp"
 #include "include/2D/functions_OSL.hpp"
 
-using namespace Rcpp;
 
 
 typedef Eigen::MappedSparseMatrix< double > mappedSparseMatrix ;
@@ -24,22 +32,22 @@ typedef Eigen::Map<Eigen::VectorXd> mappedVector;
 // Derivatives and double derivatves
 // Hessian etc etc etc
 
-//[[Rcpp::export]]
+
 double mean_rice_R(double nu, double sigma){
 	return mean_rice(nu, sigma);
 }
 
-//[[Rcpp::export]]
+
 Eigen::SparseMatrix<double> J(int n){
 	return J_n(n);
 }
 
-//[[Rcpp::export]]
+
 Eigen::VectorXd eigenvals_J(int n) {
 	return eigenvals_J_n(n);
 }
 
-//[[Rcpp::export]]
+
 Eigen::VectorXd Bloch_eqn_R(const Eigen::Map<Eigen::VectorXd> W_row, 
 							const Eigen::Map<Eigen::VectorXd> TE, const Eigen::Map<Eigen::VectorXd> TR){
 	Eigen::VectorXd tmp = Eigen::Map<Eigen::VectorXd>::Zero(TE.size());
@@ -47,13 +55,13 @@ Eigen::VectorXd Bloch_eqn_R(const Eigen::Map<Eigen::VectorXd> W_row,
 	return tmp;
 }
 
-//[[Rcpp::export]]
+
 Eigen::MatrixXd v_mat_R(const Eigen::Map<Eigen::MatrixXd> &W, 
 						const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR){
 	return v_mat(W, TE, TR);
 }
 
-//[[Rcpp::export]]
+
 Eigen::MatrixXd Generate_r(const Eigen::Map<Eigen::MatrixXd> &W, 
 							const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
 					     	const Eigen::Map<Eigen::VectorXd> &sigma){
@@ -61,14 +69,14 @@ Eigen::MatrixXd Generate_r(const Eigen::Map<Eigen::MatrixXd> &W,
 }
 
 
-//[[Rcpp::export]]
+
 double dee_v_ij_dee_W_ik(const Eigen::Map<Eigen::VectorXd> &W_row, 
 						const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
 						int j, int k){
 	return simple_dee_v_ij_dee_W_ik(W_row, TE, TR, j-1, k-1);
 }
 
-//[[Rcpp::export]]
+
 double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::Map<Eigen::VectorXd> &W_row, 
 									const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
                                     int j, int k, int k1){
@@ -78,7 +86,7 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::Map<Eigen::VectorXd> &W_row,
 
 
 
-//[[Rcpp::export]]
+
 Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train, 
                         const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
                         Eigen::Map<Eigen::VectorXd> our_dim_1, 
@@ -113,7 +121,7 @@ Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train,
 }
 
 
-//[[Rcpp::export]]
+
 Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
             const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
             const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
@@ -153,7 +161,7 @@ Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-//[[Rcpp::export]]
+
 Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
             const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
             const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
@@ -192,7 +200,7 @@ Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-//[[Rcpp::export]]
+
 Eigen::VectorXd Performance_test_R(const Eigen::Map<Eigen::MatrixXd> &W, const Eigen::Map<Eigen::MatrixXd> &test, 
 							const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
 							const Eigen::Map<Eigen::VectorXd> &sigma_test,const Eigen::Map<Eigen::VectorXd> &black_list, 
@@ -223,7 +231,7 @@ Eigen::VectorXd Performance_test_R(const Eigen::Map<Eigen::MatrixXd> &W, const E
 
 
 
-//[[Rcpp::export]]
+
 Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
             const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
             const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
@@ -263,7 +271,7 @@ Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-//[[Rcpp::export]]
+
 Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
             const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
             const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
@@ -305,10 +313,33 @@ Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
+// ----------------
+// Python interface
+// ----------------
 
 
+PYBIND11_MODULE(sympy, m) {
+    m.doc() = "pybind11 plugin corresponding to symr"; // optional module docstring
+
+//    m.def("inv", &inv);
+//    m.def("det", &det);
+    
+    m.def("mean_rice", 			&mean_rice_R);
+    //m.def("J_n", 				&J_n);
+    m.def("eigenvals_J_n", 		&eigenvals_J_n);
+    m.def("Bloch_eqn", 			&Bloch_eqn_R);
+    m.def("v_mat", 				&v_mat_R);
+    m.def("Generate_r", 		&Generate_r);
+    m.def("Generate_r", 		&Generate_r);
+    m.def("Generate_r", 		&Generate_r);
+    
+    m.def("LS_est", 			&Init_val_least_sq_R);
+    m.def("AECM_est",	 		&AECM_R);
+    m.def("OSL_est", 			&OSL_R);
+    m.def("Performance_test", 	&Performance_test_R);
+}
 
 
-
+	
 
 
