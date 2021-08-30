@@ -1,7 +1,7 @@
 //#include <RcppEigen.h>
 //#include <RcppGSL.h>
 
-// c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) example.cpp -o example$(python3-config --extension-suffix) -I /usr/include/eigen3 -lgsl -lgslcblas -lm -fopenmp
+// c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) AECM_wrapper.cpp -o example$(python3-config --extension-suffix) -I /usr/include/eigen3 -lgsl -lgslcblas -lm -fopenmp
 
 
 
