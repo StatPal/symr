@@ -52,12 +52,12 @@ int main(int argc, char const *argv[]) {
     // create initial guess (make sure it's valid >= 0)
     TVector beta = TVector::Random(DIM);
     beta = (beta.array() < 0).select(-beta, beta);
-    Rcpp::Rcout << "true b  = " << true_beta.transpose() << "\tloss:" << f(true_beta) << std::endl;
-    Rcpp::Rcout << "start b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
+    std::cout << "true b  = " << true_beta.transpose() << "\tloss:" << f(true_beta) << std::endl;
+    std::cout << "start b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
     // init L-BFGS-B for box-constrained solving
     cppoptlib::LbfgsbSolver<TNNLS> solver;
     solver.minimize(f, beta);
-    Rcpp::Rcout << "final b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
+    std::cout << "final b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
 
     return 0;
 }

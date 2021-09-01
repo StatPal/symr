@@ -321,7 +321,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 
 
 	if(verbose)
-		Rcpp::Rcout << "\n\n\n";
+		std::cout << "\n\n\n";
 	if(penalized){
 		Debug0("Doing OSL-EM Estimate!");
 	} else {
@@ -502,11 +502,11 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// Change: 
 		// Little bit different answer: - Subrata
-		#pragma omp parallel for default(none) firstprivate(f, solver, fx, old_val, x) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, Rcpp::Rcout)
+		#pragma omp parallel for default(none) firstprivate(f, solver, fx, old_val, x) shared(W_init, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, verbose, verbose2, black_list, penalized, MRF_grad, std::cout)
 		for(int i = 0; i < n; ++i){
 			if(i % 100000 == 0 ){
 				if(verbose){
-					Rcpp::Rcout << std::endl;
+					std::cout << std::endl;
 					Debug1("i: "<< i);
 				}
 			}
@@ -588,7 +588,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// E_step:
 		f.E_step_update();
-		Rcpp::Rcout << std::flush;
+		std::cout << std::flush;
 		
 		
 		
@@ -612,7 +612,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 		
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old) - to_vector(W_init)) <= abs_diff){
-			Rcpp::Rcout << "Stopped after " << iter << " iterations" << "\n";
+			std::cout << "Stopped after " << iter << " iterations" << "\n";
 			break;
 		}
 		if(verbose)
@@ -638,7 +638,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 					"\t abs diff:" << fabs(current_best_likeli - old_likeli));
 		}
 		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
-			Rcpp::Rcout << "Stopped after " << iter << " iterations (rel. diff.: " 
+			std::cout << "Stopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ") abs diff:" 
 					<< fabs(current_best_likeli - old_likeli) << "\n";
 			break;
@@ -671,7 +671,7 @@ void OSL_optim(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &beta,
 	
 	
 	
-	// Rcpp::Rcout << "\n";
+	// std::cout << "\n";
 	if(verbose){
 		Debug0("Number of bad cases in Initial value determination:" << bad_count_o << 
 				" and worse: " << bad_count_o_2 << 

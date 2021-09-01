@@ -23,8 +23,8 @@ using namespace pybind11::literals;
 
 
 typedef Eigen::MappedSparseMatrix< double > mappedSparseMatrix ;
-typedef Eigen::Map<Eigen::MatrixXd> mappedMatrix;
-typedef Eigen::Map<Eigen::VectorXd> mappedVector;
+//typedef Eigen::Map<Eigen::MatrixXd> mappedMatrix;
+//typedef Eigen::Map<Eigen::VectorXd> mappedVector;
 
 
 // add mean_rice, J_n matrix and eigenvalues
@@ -48,37 +48,37 @@ Eigen::VectorXd eigenvals_J(int n) {
 }
 
 
-Eigen::VectorXd Bloch_eqn_R(const Eigen::Map<Eigen::VectorXd> W_row, 
-							const Eigen::Map<Eigen::VectorXd> TE, const Eigen::Map<Eigen::VectorXd> TR){
+Eigen::VectorXd Bloch_eqn_R(const Eigen::VectorXd W_row, 
+							const Eigen::VectorXd TE, const Eigen::VectorXd TR){
 	Eigen::VectorXd tmp = Eigen::Map<Eigen::VectorXd>::Zero(TE.size());
 	Bloch_vec(W_row, TE, TR, tmp);
 	return tmp;
 }
 
 
-Eigen::MatrixXd v_mat_R(const Eigen::Map<Eigen::MatrixXd> &W, 
-						const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR){
+Eigen::MatrixXd v_mat_R(Eigen::MatrixXd &W, 
+						Eigen::VectorXd &TE, Eigen::VectorXd &TR){
 	return v_mat(W, TE, TR);
 }
 
 
-Eigen::MatrixXd Generate_r(const Eigen::Map<Eigen::MatrixXd> &W, 
-							const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
-					     	const Eigen::Map<Eigen::VectorXd> &sigma){
+Eigen::MatrixXd Generate_r(const Eigen::MatrixXd &W, 
+							const Eigen::VectorXd &TE, const Eigen::VectorXd &TR, 
+					     	const Eigen::VectorXd &sigma){
 	return Gen_r(W, TE, TR, sigma);
 }
 
 
 
-double dee_v_ij_dee_W_ik(const Eigen::Map<Eigen::VectorXd> &W_row, 
-						const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
+double dee_v_ij_dee_W_ik(const Eigen::VectorXd &W_row, 
+						const Eigen::VectorXd &TE, const Eigen::VectorXd &TR, 
 						int j, int k){
 	return simple_dee_v_ij_dee_W_ik(W_row, TE, TR, j-1, k-1);
 }
 
 
-double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::Map<Eigen::VectorXd> &W_row, 
-									const Eigen::Map<Eigen::VectorXd> &TE, const Eigen::Map<Eigen::VectorXd> &TR, 
+double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::VectorXd &W_row, 
+									const Eigen::VectorXd &TE, const Eigen::VectorXd &TR, 
                                     int j, int k, int k1){
 	return simple_dee_2_v_ij_dee_W_ik_dee_W_ik1(W_row, TE, TR, j-1, k-1, k1-1);
 }
@@ -87,9 +87,9 @@ double dee_2_v_ij_dee_W_ik_dee_W_ik1(const Eigen::Map<Eigen::VectorXd> &W_row,
 
 
 
-Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train, 
-                        const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-                        Eigen::Map<Eigen::VectorXd> our_dim_1, 
+Eigen::MatrixXd Init_val_least_sq_R(const Eigen::MatrixXd &train, 
+                        const Eigen::VectorXd &TE_train, const Eigen::VectorXd &TR_train, 
+                        Eigen::VectorXd our_dim_1, 
                         double train_scale, double TE_scale, double TR_scale, int maxiter_LS, 
                         double W_1_init, double W_2_init){ //, 
                         // int do_least_sq = 1, char will_write = 0){
@@ -122,11 +122,19 @@ Eigen::MatrixXd Init_val_least_sq_R(const Eigen::Map<Eigen::MatrixXd> &train,
 
 
 
-Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+
+
+
+#include <tuple>
+
+
+
+
+std::tuple<Eigen::MatrixXd, Eigen::Matrix3d, Eigen::VectorXd> AECM_R(Eigen::MatrixXd W, Eigen::VectorXd our_dim_1,
+            const Eigen::VectorXd &TE_train, const Eigen::VectorXd &TR_train, 
+            const Eigen::VectorXd &sigma_train, const Eigen::MatrixXd &train, 
             double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
+            const Eigen::VectorXd &black_list, 
 	        int maxiter = 50, int penalized = 1, 
             double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
 
@@ -151,9 +159,7 @@ Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
 	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
 
-	return Rcpp::List::create(Named("W") = W_init,
-                          Named("Psi_inv") = Psi_inv_init,
-                          Named("beta") = beta_init);
+	return std::make_tuple(W_init, Psi_inv_init, beta_init);
 }
 
 
@@ -162,11 +168,14 @@ Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+
+
+
+std::tuple<Eigen::MatrixXd, Eigen::Matrix3d, Eigen::VectorXd> OSL_R(Eigen::MatrixXd W, Eigen::VectorXd our_dim_1,
+            const Eigen::VectorXd &TE_train, const Eigen::VectorXd &TR_train, 
+            const Eigen::VectorXd &sigma_train, const Eigen::MatrixXd &train, 
             double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
+            const Eigen::VectorXd &black_list, 
 	        int maxiter = 50, int penalized = 1, 
             double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
 
@@ -191,9 +200,9 @@ Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
 	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
 
-	return Rcpp::List::create(Named("W") = W_init,
-                          Named("Psi_inv") = Psi_inv_init,
-                          Named("beta") = beta_init);
+	
+	
+	return std::make_tuple(W_init, Psi_inv_init, beta_init);
 }
 
 
@@ -201,9 +210,9 @@ Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-Eigen::VectorXd Performance_test_R(const Eigen::Map<Eigen::MatrixXd> &W, const Eigen::Map<Eigen::MatrixXd> &test, 
-							const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
-							const Eigen::Map<Eigen::VectorXd> &sigma_test,const Eigen::Map<Eigen::VectorXd> &black_list, 
+Eigen::VectorXd Performance_test_R(const Eigen::MatrixXd &W, const Eigen::MatrixXd &test, 
+							const Eigen::VectorXd &TE_test, const Eigen::VectorXd &TR_test, 
+							const Eigen::VectorXd &sigma_test,const Eigen::VectorXd &black_list, 
 							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
 
@@ -232,11 +241,11 @@ Eigen::VectorXd Performance_test_R(const Eigen::Map<Eigen::MatrixXd> &W, const E
 
 
 
-Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+std::tuple<Eigen::MatrixXd, Eigen::Matrix3d, Eigen::VectorXd> AECM_R_3D(Eigen::MatrixXd W, Eigen::VectorXd our_dim_1,
+            const Eigen::VectorXd &TE_train, const Eigen::VectorXd &TR_train, 
+            const Eigen::VectorXd &sigma_train, const Eigen::MatrixXd &train, 
             double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
+            const Eigen::VectorXd &black_list, 
 	        int maxiter = 50, int penalized = 1, 
             double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
 
@@ -261,9 +270,7 @@ Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
 	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
 
-	return Rcpp::List::create(Named("W") = W_init,
-                          Named("Psi_inv") = Psi_inv_init,
-                          Named("beta") = beta_init);
+	return std::make_tuple(W_init, Psi_inv_init, beta_init);
 }
 
 
@@ -272,11 +279,11 @@ Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+std::tuple<Eigen::MatrixXd, Eigen::Matrix3d, Eigen::VectorXd> OSL_R_3D(Eigen::MatrixXd W, Eigen::VectorXd our_dim_1,
+            const Eigen::VectorXd &TE_train, const Eigen::VectorXd &TR_train, 
+            const Eigen::VectorXd &sigma_train, const Eigen::MatrixXd &train, 
             double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
+            const Eigen::VectorXd &black_list, 
 	        int maxiter = 50, int penalized = 1, 
             double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
 
@@ -301,9 +308,7 @@ Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
 	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
 
-	return Rcpp::List::create(Named("W") = W_init,
-                          Named("Psi_inv") = Psi_inv_init,
-                          Named("beta") = beta_init);
+	return std::make_tuple(W_init, Psi_inv_init, beta_init);
 }
 
 
@@ -327,11 +332,11 @@ PYBIND11_MODULE(sympy, m) {
     m.def("mean_rice", 			&mean_rice_R);
     //m.def("J_n", 				&J_n);
     m.def("eigenvals_J_n", 		&eigenvals_J_n);
-    m.def("Bloch_eqn", 			&Bloch_eqn_R);
+    m.def("Bloch_eqn", 			&Bloch_eqn_R);		// PROBLEM sarts here
     m.def("v_mat", 				&v_mat_R);
     m.def("Generate_r", 		&Generate_r);
-    m.def("Generate_r", 		&Generate_r);
-    m.def("Generate_r", 		&Generate_r);
+    m.def("dee_v_ij_dee_W_ik", 		&dee_v_ij_dee_W_ik);
+    m.def("dee_2_v_ij_dee_W_ik_dee_W_ik1", 		&dee_2_v_ij_dee_W_ik_dee_W_ik1);
     
     m.def("LS_est", 			&Init_val_least_sq_R);
     m.def("AECM_est",	 		&AECM_R);

@@ -221,7 +221,7 @@ class LbfgsbSolver : public ISolver<TProblem, 1> {
 
   void minimize(TProblem &problem, TVector &x0) {
     if(!problem.isValid(x0))
-      Rcpp::Rcerr << "start with invalid x0" << std::endl;
+      std::cerr << "start with invalid x0" << std::endl;
     DIM = x0.rows();
     theta = 1.0;
     W = MatrixType::Zero(DIM, 0);
@@ -295,9 +295,9 @@ class LbfgsbSolver : public ISolver<TProblem, 1> {
     }
     x0 = x;
     if (this->m_debug > DebugLevel::None) {
-        Rcpp::Rcout << "Stop status was: " << this->m_status << std::endl;
-        Rcpp::Rcout << "Stop criteria were: " << std::endl << this->m_stop << std::endl;
-        Rcpp::Rcout << "Current values are: " << std::endl << this->m_current << std::endl;
+        std::cout << "Stop status was: " << this->m_status << std::endl;
+        std::cout << "Stop criteria were: " << std::endl << this->m_stop << std::endl;
+        std::cout << "Current values are: " << std::endl << this->m_current << std::endl;
     }
   }
 };

@@ -157,7 +157,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		if(black_list(i) == 0){
 		
 			if(i % 10000 == 0){
-				Rcpp::Rcout << "\n";
+				std::cout << "\n";
 				Debug1("Hessian matrix, i: "<< i);
 			}
 			
@@ -213,7 +213,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 			
 			ldltOfA.compute(A);
 			if(ldltOfA.info() == Eigen::NumericalIssue){
-				Rcpp::Rcout << "Not psd\n";
+				std::cout << "Not psd\n";
 			} else {
 				if(with_MRF){
 					for(k = 0; k < 3; ++k) {
@@ -387,15 +387,15 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 	
 	
 	// First i or j, which would be better? - check.
-	Rcpp::Rcout << std::endl << std::flush;
+	std::cout << std::endl << std::flush;
 	Debug1("Hessian loop starts!");
-	Rcpp::Rcout << std::endl << std::flush;
+	std::cout << std::endl << std::flush;
 	
 	for(int j = 0; j < TE_test.size(); ++j){
 		for(int i = 0; i < n; ++i){
 		
 			if( i % 100 == 0){
-				Rcpp::Rcout << std::endl;
+				std::cout << std::endl;
 				Debug1("Info i: "<< i << ", j: " << j);
 			}
 			
@@ -403,7 +403,7 @@ Matrix_eig Var_est_test_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv
 			
 			tmp_soln = cg.solve(b);
 			if( i % 1000 == 0)
-				Rcpp::Rcout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+				std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 			Var_est(i, j) = b.dot(tmp_soln);			
 		}
 	}
@@ -520,7 +520,7 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 		auto hess_2_tmp = std::chrono::high_resolution_clock::now();
 		auto hess_duration_tmp = std::chrono::duration_cast<std::chrono::seconds>(hess_2_tmp - hess_1_tmp);
 		Debug1("Time taken for Info matrix using Hessian: " << hess_duration_tmp.count() << " seconds\n");
-		Rcpp::Rcout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+		std::cout << "CG: #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 		Var_est_vec(j) = x.dot(tmp_soln);
 	}
 	

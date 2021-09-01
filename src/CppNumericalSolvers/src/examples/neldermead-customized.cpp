@@ -32,14 +32,14 @@ namespace cppoptlib {
 
       //   // Be mindful of calls to value() in the callback if the function is
       //   // computationally intensive.expensive. Consider using detailed_callback().
-      //   Rcpp::Rcout << std::setw(6) << state.iterations << std::setw(12) << a[0] << std::setw(12) << a[1] << std::setw(12) << value(x) << std::endl;
+      //   std::cout << std::setw(6) << state.iterations << std::setw(12) << a[0] << std::setw(12) << a[1] << std::setw(12) << value(x) << std::endl;
       //   return true;
       // }
 
       bool detailed_callback(const cppoptlib::Criteria<T> &state, SimplexOp op, int index, const MatrixType &x, std::vector<Scalar> f) {
         TVector xp = x.col(index).transpose();
 
-        Rcpp::Rcout << std::setw(6) << state.iterations << std::setw(12) << xp[0] << std::setw(12) << xp[1] << std::setw(12) << f[index] << std::endl;
+        std::cout << std::setw(6) << state.iterations << std::setw(12) << xp[0] << std::setw(12) << xp[1] << std::setw(12) << f[index] << std::endl;
 
         // Write simplex trace
         TVector x0 = x.col(0).transpose();
@@ -133,11 +133,11 @@ int main( int argc, char** argv ) {
   trace_stream.close();
 
   // Print results
-  Rcpp::Rcout << std::string(42, '-') << std::endl;
-  Rcpp::Rcout << "   stop:" << "  " << solver.stop_condition << std::endl;
-  Rcpp::Rcout << "   argmin: " << x.transpose() << std::endl;
-  Rcpp::Rcout << "   f in argmin: " << f(x) << std::endl;
-  Rcpp::Rcout << "   trace written to simplex-trace.json" << std::endl;
+  std::cout << std::string(42, '-') << std::endl;
+  std::cout << "   stop:" << "  " << solver.stop_condition << std::endl;
+  std::cout << "   argmin: " << x.transpose() << std::endl;
+  std::cout << "   f in argmin: " << f(x) << std::endl;
+  std::cout << "   trace written to simplex-trace.json" << std::endl;
 
   return 0;
 }

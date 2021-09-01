@@ -1,1 +1,4 @@
-Change back all Rcpp::Rcout etc to std::cout etc
+1) Change back all Rcpp::Rcout etc to std::cout etc
+
+2) Remove all const Eigen::Map<Eigen::MatrixXd> ... to const Eigen::MatrixXd  ...
+

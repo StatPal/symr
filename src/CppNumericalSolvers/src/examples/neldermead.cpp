@@ -26,7 +26,7 @@ namespace cppoptlib {
 
         // Be mindful of calls to value() in the callback if the function is
         // computationally intensive.expensive. Consider using detailed_callback().
-        Rcpp::Rcout << std::setw(6) << state.iterations << std::setw(12) << a[0] << std::setw(12) << a[1] << std::setw(12) << value(x) << std::endl;
+        std::cout << std::setw(6) << state.iterations << std::setw(12) << a[0] << std::setw(12) << a[1] << std::setw(12) << value(x) << std::endl;
         return true;
       }
   };
@@ -52,9 +52,9 @@ int main( int argc, char** argv ) {
   solver.minimize(f, x);
 
   // print argmin
-  Rcpp::Rcout << std::string(42, '-') << std::endl;
-  Rcpp::Rcout << "   argmin: " << x.transpose() << std::endl;
-  Rcpp::Rcout << "   f in argmin: " << f(x) << std::endl;
+  std::cout << std::string(42, '-') << std::endl;
+  std::cout << "   argmin: " << x.transpose() << std::endl;
+  std::cout << "   f in argmin: " << f(x) << std::endl;
 
   return 0;
 }

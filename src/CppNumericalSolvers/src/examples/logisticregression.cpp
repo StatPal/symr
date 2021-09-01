@@ -48,12 +48,12 @@ int main(int argc, char const *argv[]) {
     LogReg f(X, y);
 
     TVector beta = TVector::Random(4);
-    Rcpp::Rcout << "start in   " << beta.transpose() << std::endl;
+    std::cout << "start in   " << beta.transpose() << std::endl;
     cppoptlib::BfgsSolver<LogReg> solver;
     solver.minimize(f, beta);
 
-    Rcpp::Rcout << "result     " << beta.transpose() << std::endl;
-    Rcpp::Rcout << "true model " << true_beta.transpose() << std::endl;
+    std::cout << "result     " << beta.transpose() << std::endl;
+    std::cout << "true model " << true_beta.transpose() << std::endl;
 
     return 0;
 }

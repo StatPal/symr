@@ -25,7 +25,7 @@ class Simple : public cppoptlib::Problem<T, 2> {
     }
 
     bool callback(const cppoptlib::Criteria<T> &state, const TVector &x) {
-        Rcpp::Rcout << "(" << std::setw(2) << state.iterations << ")"
+        std::cout << "(" << std::setw(2) << state.iterations << ")"
                   << " ||dx|| = " << std::fixed << std::setw(8) << std::setprecision(4) << state.gradNorm
                   << " ||x|| = "  << std::setw(6) << x.norm()
                   << " f(x) = "   << std::setw(8) << value(x)
@@ -44,8 +44,8 @@ int main(int argc, char const *argv[]) {
     cppoptlib::GradientDescentSolver<TSimple> solver;
     solver.setStopCriteria(crit);
     solver.minimize(f, x);
-    Rcpp::Rcout << "f in argmin " << f(x) << std::endl;
-    Rcpp::Rcout << "Solver status: " << solver.status() << std::endl;
-    Rcpp::Rcout << "Final criteria values: " << std::endl << solver.criteria() << std::endl;
+    std::cout << "f in argmin " << f(x) << std::endl;
+    std::cout << "Solver status: " << solver.status() << std::endl;
+    std::cout << "Final criteria values: " << std::endl << solver.criteria() << std::endl;
     return 0;
 }

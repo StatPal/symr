@@ -122,7 +122,7 @@ const int IF_DEBUG = 1;
 #define DEBUG_LEVEL_0				//Minimal debugs
 
 #ifdef DEBUG_LEVEL_0
-#define Debug0(x) {Rcpp::Rcout << "DEBUG 0: "<< x << "\n";}
+#define Debug0(x) {std::cout << "DEBUG 0: "<< x << "\n";}
 #else
 #define Debug0(x)
 #endif
@@ -131,7 +131,7 @@ const int IF_DEBUG = 1;
 #define DEBUG_LEVEL_1				//Important ones.
 
 #ifdef DEBUG_LEVEL_1
-#define Debug1(x) {Rcpp::Rcout << "DEBUG 1: "<< x << "\n";}
+#define Debug1(x) {std::cout << "DEBUG 1: "<< x << "\n";}
 #else
 #define Debug1(x)
 #endif
@@ -140,7 +140,7 @@ const int IF_DEBUG = 1;
 // #define DEBUG_LEVEL_2
 
 #ifdef DEBUG_LEVEL_2
-#define Debug2(x) {Rcpp::Rcout << "DEBUG 2: "<< x << "\n";}
+#define Debug2(x) {std::cout << "DEBUG 2: "<< x << "\n";}
 #else
 #define Debug2(x)
 #endif
@@ -150,7 +150,7 @@ const int IF_DEBUG = 1;
 //#define DEBUG_LEVEL_3
 
 #ifdef DEBUG_LEVEL_3
-#define Debug3(x) {Rcpp::Rcout << "DEBUG 3: "<< x << "\n";}
+#define Debug3(x) {std::cout << "DEBUG 3: "<< x << "\n";}
 #else
 #define Debug3(x)
 #endif
@@ -159,7 +159,7 @@ const int IF_DEBUG = 1;
 // #define DEBUG_LEVEL_LS
 
 #ifdef DEBUG_LEVEL_LS
-#define DebugLS(x) {Rcpp::Rcout << "DEBUG LS: "<< x << "\n";}
+#define DebugLS(x) {std::cout << "DEBUG LS: "<< x << "\n";}
 #else
 #define DebugLS(x)
 #endif
@@ -174,7 +174,7 @@ const int IF_DEBUG = 1;
 #define DEBUG_LEVEL_times				// Time debugs only
 
 #ifdef DEBUG_LEVEL_times
-#define Debug_time(x) {Rcpp::Rcout << "DEBUG t: "<< x << "\n";}
+#define Debug_time(x) {std::cout << "DEBUG t: "<< x << "\n";}
 #else
 #define Debug_time(x)
 #endif
@@ -223,7 +223,7 @@ static double besseli(double x, int alpha){
 		sum = tmp;
 		for(int k = 1; k < 25; ++k) {
 			tmp *= y / (k*(k+alpha));
-			sum += tmp; 	//Rcpp::Rcout << "sum = " << sum << "\t\t\tMonitor(" << tmp << ")\n";
+			sum += tmp; 	//std::cout << "sum = " << sum << "\t\t\tMonitor(" << tmp << ")\n";
 			if(fabs(tmp)<ABS_ERR)
 				break;
 		}
@@ -236,7 +236,7 @@ static double besseli(double x, int alpha){
 		
 		for(int k = 1; k < max_k; fct1*=++k) {		// Weird behaviour -- k<50 for nu=0.
 			tmp *= ((2*k-1-2*alpha)*(2*k-1+2*alpha))/(k*y);
-			sum += tmp; 	//Rcpp::Rcout << "sum = " << sum << "\t\t\tMonitor(" << tmp << ")\n";
+			sum += tmp; 	//std::cout << "sum = " << sum << "\t\t\tMonitor(" << tmp << ")\n";
 			if(fabs(tmp)<ABS_ERR)
 				break;
 		}
@@ -267,7 +267,7 @@ double our_bessel_I(double x, double nu){
 	return(gsl_sf_bessel_In(nu, x));
 	
 	} else {
-		Rcpp::Rcout << "neg arg in bessel function" << std::endl;
+		std::cout << "neg arg in bessel function" << std::endl;
 		return -1.0e-50;
 	}
 }
@@ -483,15 +483,15 @@ double abs_dev_mean(const Vector_eig &x){
 */
 // Kept it as overload, not template for now
 void show_head(const Matrix_eig &W, int n = 10){
-	Rcpp::Rcout << "Head of the matrix:\n" ;
+	std::cout << "Head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
-		Rcpp::Rcout << W.row(i) << "\n";
+		std::cout << W.row(i) << "\n";
 	}
 }
 void show_head(const Matrix_eig_row &W, int n = 10){
-	Rcpp::Rcout << "Head of the matrix:\n" ;
+	std::cout << "Head of the matrix:\n" ;
 	for(int i = 0; i < n; ++i){
-		Rcpp::Rcout << W.row(i) << "\n";
+		std::cout << W.row(i) << "\n";
 	}
 }
 
@@ -503,22 +503,22 @@ void show_head(const Matrix_eig_row &W, int n = 10){
 * Similar to head function in R for a vector - helpful for debugging
 */
 void show_head_vec(const Vector_eig &W, int n = 10, int endLine = 0){
-	Rcpp::Rcout << "Head of the vector:\t" ;
+	std::cout << "Head of the vector:\t" ;
 	for(int i = 0; i < n; ++i){
-		Rcpp::Rcout << W(i) << ", ";
+		std::cout << W(i) << ", ";
 	}
 	if(endLine) 
-		Rcpp::Rcout << "\n";
+		std::cout << "\n";
 	else 
-		Rcpp::Rcout << "\t";
+		std::cout << "\t";
 }
 
 
 
 void show_head_sp(const SpMat &A, int n = 10){
-	Rcpp::Rcout << "Head of the Sparse matrix:\n" ;
+	std::cout << "Head of the Sparse matrix:\n" ;
 	for(int i = 0; i < n; ++i){
-		Rcpp::Rcout << A.row(i) << "\n";
+		std::cout << A.row(i) << "\n";
 	}
 }
 
@@ -728,7 +728,7 @@ void check_bounds(const Matrix_eig_row &W, const Vector_eig &lb, const Vector_ei
 * Prints dim of a matrix in stdout.
 */
 void show_dim(const Matrix_eig &A){
-	Rcpp::Rcout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
+	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
 }
 
 
@@ -738,14 +738,14 @@ void show_dim(const Matrix_eig &A){
 void check_bounds_vec(const Vector_eig &x, const Vector_eig &lb, const Vector_eig &ub){
 
 	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
-		//Rcpp::Rcout << "Lower bound crossed initially!";
+		//std::cout << "Lower bound crossed initially!";
 		if(x(0)<lb(0)) Debug2("1st");
 		if(x(1)<lb(1)) Debug2("2nd");
 		if(x(2)<lb(2)) Debug2("3rd");
 		//bad_bound_1++;
 	}
 	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
-		//Rcpp::Rcout << "Upper Bound crossed initially!";
+		//std::cout << "Upper Bound crossed initially!";
 		if(x(0)>ub(0)) Debug2("1st");
 		if(x(1)>ub(1)) Debug2("2nd");
 		if(x(2)>ub(2)) Debug2("3rd");
@@ -764,11 +764,11 @@ int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_e
 
 	int bad_bound_1 = 0, bad_bound_2 = 0;
 	if(x(0)<lb(0) || x(1)<lb(1) || x(2)<lb(2)){
-		//Rcpp::Rcout << "Lower bound crossed initially!";
+		//std::cout << "Lower bound crossed initially!";
 		bad_bound_1++;
 	}
 	if(x(0)>ub(0) || x(1)>ub(1) || x(2)>ub(2)){
-		//Rcpp::Rcout << "Upper Bound crossed initially!";
+		//std::cout << "Upper Bound crossed initially!";
 		bad_bound_2++;
 	}
 	return (bad_bound_1 + bad_bound_2);
@@ -785,7 +785,7 @@ int check_bounds_vec_3(const Vector_eig &x, const Vector_eig &lb, const Vector_e
 */
 int check_nan(const Matrix_eig_row &A, const char* mat_name = ""){
 	int bad_count = 0;
-	Rcpp::Rcout << mat_name;
+	std::cout << mat_name;
 	for(int i = 0; i < A.rows(); ++i){
 		for(int j = 0; j < A.cols(); ++j){
 			if(std::isnan(A(i, j))){
@@ -2014,7 +2014,7 @@ Vector_eig read_sd(char* const sd_file, int our_dim_4){
 
 
 void show_dim_sp(SpMat A){
-	Rcpp::Rcout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
+	std::cout << "Dimension of the mat: " << A.rows() << " x " << A.cols() << "\n";
 }
 
 
@@ -2064,9 +2064,9 @@ void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_t
 			}
 		}
 	} else {
-		Rcpp::Rcout << "mat.innerSize: " << sm.innerSize() << "\n";
-		Rcpp::Rcout << "mat.outerSize: " << sm.outerSize() << "\n";
-		Rcpp::Rcout << "mat.nonZeros: " << sm.nonZeros() << "\n";
+		std::cout << "mat.innerSize: " << sm.innerSize() << "\n";
+		std::cout << "mat.outerSize: " << sm.outerSize() << "\n";
+		std::cout << "mat.nonZeros: " << sm.nonZeros() << "\n";
  	
 	
 		double* Values = sm.valuePtr();		  	// Pointer to the values
@@ -2089,9 +2089,9 @@ void save_sparse(Eigen::SparseMatrix<double> sm, const char* file_name, int if_t
 		}
 		/*
 		if(if_nnz){
-			Rcpp::Rcout << std::endl;
+			std::cout << std::endl;
 			for(int i = 0; i < sm.innerSize(); ++i){
-				Rcpp::Rcout << (*(InnerNNZs+i)) << " ";
+				std::cout << (*(InnerNNZs+i)) << " ";
 			}
 		}
 		*/
@@ -2133,7 +2133,7 @@ Matrix_eig combi(int n, int r){
 		k2 = 0;
 		for (int i = 0; i < n; ++i) {
 			if (v[i]) {
-				Rcpp::Rcout << (i + 1) << " ";
+				std::cout << (i + 1) << " ";
 				tmp(k1, k2) = i; // + 1;
 				k2++;
 			}

@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
     TVector beta = TVector::Ones(DIM) * 21;
     cppoptlib::LbfgsbSolver<TNNLS> solver;
     solver.minimize(f, beta);
-    Rcpp::Rcout << "final b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
+    std::cout << "final b = " << beta.transpose() << "\tloss:" << f(beta) << std::endl;
 
     return 0;
 }

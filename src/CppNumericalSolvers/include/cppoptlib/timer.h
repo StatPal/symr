@@ -63,7 +63,7 @@ public:
       t.sart();
       // do something
       t.stop();
-      Rcpp::Rcout << t.elapsed<UNIT>() << std::endl;
+      std::cout << t.elapsed<UNIT>() << std::endl;
 
     where UNIT can be:
     std::chrono::nanoseconds

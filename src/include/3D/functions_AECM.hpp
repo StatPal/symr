@@ -423,7 +423,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 // Change
 
 	if(verbose)
-		Rcpp::Rcout << "\n\n\n";
+		std::cout << "\n\n\n";
 	if(verbose){
 		if(penalized){
 			Debug0("Doing AECM Estimate!");
@@ -592,7 +592,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 		
 		
 		// * Loop over voxels: * //
-		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve, tmp2,    r, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, Rcpp::Rcout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
+		#pragma omp parallel default(none) firstprivate(x, old_val, fx, v_old_i) shared(MRF_obj, Theta, W_init, W_old, W_old_reserve, tmp2,    r, penalized, lb, ub, sigma, TE_example, TR_example, Psi_inv, beta,   n, m, verbose, verbose2, bad_count_o, bad_count_o_2, nan_count, std::cout, checkerboard_white, black_list)		// Check v_old_i, tmp2 -- CAREFULLY - Subrata
 		{
 		
 			// lb, ub, etc would be shared
@@ -617,7 +617,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						Rcpp::Rcout << std::endl;
+						std::cout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -716,7 +716,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 				}
 			}
 			
-			//Rcpp::Rcout << std::flush;
+			//std::cout << std::flush;
 			// * Checkerboard white ends * //
 			
 			
@@ -730,7 +730,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 			for(int i = 0; i < n; ++i){
 				if(i % 100000 == 0 ){
 					if(verbose){
-						//Rcpp::Rcout << std::endl;
+						//std::cout << std::endl;
 						Debug1("i: "<< i);
 					}
 				}
@@ -825,7 +825,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 				}
 			}
 			
-			//Rcpp::Rcout << std::flush;
+			//std::cout << std::flush;
 			// * Checkerboard black ends * //
 			
 			
@@ -859,7 +859,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 		
 		// w.r.t. W 
 		if(abs_sum(to_vector(W_old_reserve) - to_vector(W_init)) <= abs_diff){
-			Rcpp::Rcout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
+			std::cout << "Stopped after " << iter << " iterations" << "\n";			// This is weird to stop at
 			if(verbose)
 				Debug1("abs diff. (W_old - W_new):" << abs_sum(to_vector(W_old_reserve) - to_vector(W_init)));
 			break;
@@ -888,7 +888,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 					",  rel. diff.: " << fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli));
 		}
 		if(fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) <= rel_diff || iter == maxiter){
-			Rcpp::Rcout << "\nStopped after " << iter << " iterations (rel. diff.: " 
+			std::cout << "\nStopped after " << iter << " iterations (rel. diff.: " 
 					<< fabs(current_best_likeli - old_likeli)/fabs(current_best_likeli) << ", abs diff: " 
 					<< fabs(current_best_likeli - old_likeli) << ")\n";
 			break;
@@ -922,7 +922,7 @@ void AECM_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &be
 	Psi_inv *= tmp_sum;
 
 	
-	// Rcpp::Rcout << "\n";
+	// std::cout << "\n";
 	if(verbose){
 		Debug1("Number of bad cases in optimization:" << bad_count_o << 
 				" and worse: " << bad_count_o_2 << 

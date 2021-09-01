@@ -33,8 +33,8 @@ int main(int argc, char const *argv[]) {
 
     BfgsSolver<Simple<double>> solver;
     solver.minimize(f, x);
-    Rcpp::Rcout << "f in argmin " << f(x) << std::endl;
-    Rcpp::Rcout << "Solver status: " << solver.status() << std::endl;
-    Rcpp::Rcout << "Final criteria values: " << std::endl << solver.criteria() << std::endl;
+    std::cout << "f in argmin " << f(x) << std::endl;
+    std::cout << "Solver status: " << solver.status() << std::endl;
+    std::cout << "Final criteria values: " << std::endl << solver.criteria() << std::endl;
     return 0;
 }

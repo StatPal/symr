@@ -32,14 +32,14 @@ public:
       const Scalar rate = MoreThuente<ProblemType, 1>::linesearch(x0, -direction, objFunc) ;
       x0 = x0 - rate * direction;
       this->m_current.gradNorm = direction.template lpNorm<Eigen::Infinity>();
-      // Rcpp::Rcout << "iter: "<<iter<< " f = " <<  objFunc.value(x0) << " ||g||_inf "<<gradNorm  << std::endl;
+      // std::cout << "iter: "<<iter<< " f = " <<  objFunc.value(x0) << " ||g||_inf "<<gradNorm  << std::endl;
       ++this->m_current.iterations;
       this->m_status = checkConvergence(this->m_stop, this->m_current);
     } while (objFunc.callback(this->m_current, x0) && (this->m_status == Status::Continue));
     if (this->m_debug > DebugLevel::None) {
-        Rcpp::Rcout << "Stop status was: " << this->m_status << std::endl;
-        Rcpp::Rcout << "Stop criteria were: " << std::endl << this->m_stop << std::endl;
-        Rcpp::Rcout << "Current values are: " << std::endl << this->m_current << std::endl;
+        std::cout << "Stop status was: " << this->m_status << std::endl;
+        std::cout << "Stop criteria were: " << std::endl << this->m_stop << std::endl;
+        std::cout << "Current values are: " << std::endl << this->m_current << std::endl;
     }
   }
 
