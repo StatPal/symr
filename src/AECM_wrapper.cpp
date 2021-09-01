@@ -341,6 +341,8 @@ PYBIND11_MODULE(sympy, m) {
     m.def("LS_est", 			&Init_val_least_sq_R);
     m.def("AECM_est",	 		&AECM_R);
     m.def("OSL_est", 			&OSL_R);
+    m.def("AECM_est_3D",	 		&AECM_R_3D);
+    m.def("OSL_est_3D", 			&OSL_R_3D);
     m.def("Performance_test", 	&Performance_test_R);
 }
 
