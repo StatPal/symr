@@ -71,7 +71,6 @@ BUG: In some later version, there is an extra sigma^2 inside h().
 #define MAIN_HEADER
 
 
-#include <Rcpp.h>
 
 
 #include <iostream>
