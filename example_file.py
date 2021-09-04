@@ -25,3 +25,18 @@ sim.Generate_r(W, TE, TR, sig)
 
 sim.dee_v_ij_dee_W_ik(W_row, TE, TR, 1, 1)					## dv_i1/dW_i1
 sim.dee_2_v_ij_dee_W_ik_dee_W_ik1(W_row, TE, TR, 1, 1, 2)	## d^2v_i1/(dW_i1 dW_i2)
+
+
+
+
+
+
+
+mask <- np.array([0,0])
+
+
+Performance_test_R(W, test, TE, TR, sig, mask, 1, 1, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 3, 1, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 1, 2, 1)
+Performance_test_R(W, test, TE, TR, sig, mask, 3, 2, 1)
+
