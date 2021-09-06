@@ -57,3 +57,50 @@ OSL_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train
     .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
 }
 
+
+
+
+symR <- function(W=NULL, 
+    method=c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM"), 
+    our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) 
+{
+    if(method=="LS" | method== "Least Square"){
+        .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
+    } else {
+        ##  If W is not given for other methods, take the initial simplest guess.
+        if(is.null(W)){
+            n = NROW(train)
+            W <- array(1, dim=c(n, 3))
+            W[,1] <- colMeans(train)
+            W[,2] <- array(W_1_init, dim=n)
+            W[,3] <- array(W_2_init, dim=n)
+            ## Numerical modifications:
+            W[,1] <- ifelse(W[,1]>450.0, 425.0, W[,1])
+            W[,1] <- ifelse(W[,1]<0.0001, 0.0001, W[,1])
+        }
+        ## So there is an estimated W now.
+
+        ## Check 2D/3D:
+        if(our_dim_1[4]==1){
+            ## 2D - OSL/MLE/AECM:
+            if(method == "ML" | method == "Maximum Likelihood"){
+                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
+                ## Or the AECM???? (Two step case - but more checked - Subrata)
+            } else if(method == "OSL-EM" | method == "One Step Late EM"){
+                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            } else if(method == "EM" | method == "AECM"){
+                .Call('_symR_AECM_R_2D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            }
+        } else if(our_dim_1[4]>1){
+            ## 3D - OSL/MLE/AECM:
+            if(method == "ML" | method == "Maximum Likelihood"){
+                .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
+                ## Or the AECM???? (Two step case - but more checked - Subrata)
+            } else if(method == "OSL-EM" | method == "One Step Late EM"){
+                .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            } else if(method == "EM" | method == "AECM"){
+                .Call('_symR_AECM_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            }
+        }
+    }
+}
