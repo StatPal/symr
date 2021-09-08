@@ -65,8 +65,6 @@ The final estimate of \code{W} after executing the method.
 Synthetic Magnetic Resonance (symR)
 }
 \examples{
-add(1, 1)
-add(10, 1)
 ## Basic 2D example: 
 ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size n x m:
 file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
