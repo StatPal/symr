@@ -15,7 +15,9 @@ dee_2_v_ij_dee_W_ik_dee_W_ik1(W_row, TE, TR, j, k, k1)
 
 \item{j}{index of image number or corresponding settings number}
 
-\item{k, }{k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken}
+\item{k}{co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken}
+
+\item{k1}{Second co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken}
 }
 \value{
 The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})

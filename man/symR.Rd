@@ -38,6 +38,8 @@ symR(
 
 \item{sigma_train}{A numeric vector, sigma_j values for the training set}
 
+\item{train}{A numeric matrix of size n x m of observed signals to be trained on, where m is the number of training MR images.}
+
 \item{train_scale}{A positive real number by which voxels are scaled}
 
 \item{TE_scale}{A positive real number by which TE values are scaled}
