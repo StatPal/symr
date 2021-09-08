@@ -91,7 +91,8 @@ dee_v_ij_dee_W_ik <- function(W_row, TE, TR, j, k) {
 #' @param TE A numeric vector, TE values for the training set
 #' @param TR A numeric vector, TR values for the training set
 #' @param j  index of image number or corresponding settings number
-#' @param k, k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @param k  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @param k1  Second co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
 #' @return The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
 #' @export
 #' 
@@ -173,6 +174,7 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 #' @param W A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used. 
 #' @param method The method to be used, possible options are.
 #' @param dimen The dimension of the train MR signals (possibly read from the nifti file, the format would be: )
+#' @param train A numeric matrix of size n x m of observed signals to be trained on, where m is the number of training MR images. 
 #' @param TE_train A numeric vector, TE values for the training set
 #' @param TR_train A numeric vector, TR values for the training set
 #' @param sigma_train A numeric vector, sigma_j values for the training set

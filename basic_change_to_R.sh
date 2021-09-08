@@ -23,6 +23,15 @@ find ./ -type f -exec sed -i -e 's/std::cout/Rcpp::Rcout/g' {} \;
      # 4)
 
 
+# Remove the whole function 'Preprocess_data' from the src/include/functions_LS_and_init_value.hpp
+
+# Then exclude the read_files.hpp ...
+## That contains most number of exit(EXIT_FAILURE)
+
+
+
+
+grep -iR 'exit' src/include/
 
 
 

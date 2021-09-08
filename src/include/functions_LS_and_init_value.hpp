@@ -242,20 +242,20 @@ void least_sq_solve(Matrix_eig_row &W,
 * Read the data and
 * replace the zeros by small number (0.5)
 */
-Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char will_write = 0){
+// Matrix_eig_row Preprocess_data(char* const data_file, short our_dim[8], char will_write = 0){
 	
-	// Load the data file first. 
-	Matrix_eig_row r = Read_nift1(data_file, our_dim, will_write);
-	for(int i = 0; i < our_dim[1]*our_dim[2]*our_dim[3]; ++i){
-		for(int j = 0; j < our_dim[4]; ++j){
-			if(r(i, j) == 0){
-				r(i, j) = 0.5;			// Just added a small value to remove -Inf problem of likelihood.
-			}
-		}
-	}
-	Debug1("Preprocessing done!");
-	return r;
-}
+// 	// Load the data file first. 
+// 	Matrix_eig_row r = Read_nift1(data_file, our_dim, will_write);
+// 	for(int i = 0; i < our_dim[1]*our_dim[2]*our_dim[3]; ++i){
+// 		for(int j = 0; j < our_dim[4]; ++j){
+// 			if(r(i, j) == 0){
+// 				r(i, j) = 0.5;			// Just added a small value to remove -Inf problem of likelihood.
+// 			}
+// 		}
+// 	}
+// 	Debug1("Preprocessing done!");
+// 	return r;
+// }
 
 
 
