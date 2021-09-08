@@ -2,8 +2,8 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @useDynLib symR
-#' @import RcppGSL
-#' @import RcppParallel
+#' @rawNamespace import(RcppGSL, except=c(fastLmPure, fastLm))
+#' @rawNamespace import(RcppParallel, except=c(LdFlags))
 #' @import Matrix
 #' @importFrom Rcpp evalCpp
 

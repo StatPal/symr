@@ -25,7 +25,7 @@ class Problem {
   virtual ~Problem()= default;
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+//#pragma GCC diagnostic ignored "-Wunused-parameter"
   virtual bool callback(const Criteria<Scalar> &state, const TVector &x) {
     return true;
   }
