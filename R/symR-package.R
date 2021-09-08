@@ -3,8 +3,8 @@
 #' @docType package
 #' @name symR
 #' @useDynLib symR
-#' @import RcppGSL
-#' @import RcppParallel
+#' @rawNamespace import(RcppGSL, except=c(fastLmPure, fastLm))
+#' @rawNamespace import(RcppParallel, except=c(LdFlags))
 #' @import Matrix
 #' @importFrom Rcpp evalCpp
 
