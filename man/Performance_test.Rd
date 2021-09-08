@@ -40,8 +40,11 @@ Performance_test(
 }
 \value{
 The vector corresponding to performance measures
-
-#examples 
+}
+\description{
+Performance_test
+}
+\examples{
 W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
 test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
 
@@ -55,7 +58,4 @@ Performance_test_R(W, test, TE, TR, sig, mask, 1, 1, 1)
 Performance_test_R(W, test, TE, TR, sig, mask, 3, 1, 1)
 Performance_test_R(W, test, TE, TR, sig, mask, 1, 2, 1)
 Performance_test_R(W, test, TE, TR, sig, mask, 3, 2, 1)
-}
-\description{
-Performance_test
 }

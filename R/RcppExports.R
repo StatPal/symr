@@ -19,6 +19,7 @@ eigenvals_J <- function(n) {
 #' @param TE A numeric vector, TE values for the training set
 #' @param TR A numeric vector, TR values for the training set
 #' @return The vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @export
 #' 
 #' @examples 
 #' ## Sample row of parameters, W
@@ -38,6 +39,7 @@ Bloch_eqn_R <- function(W_row, TE, TR) {
 #' @param  TE A numeric vector, TE values for the training set
 #' @param  TR A numeric vector, TR values for the training set
 #' @return The matrix corresponding to the MR signal values Bloch equation for a whole image
+#' @export
 #' 
 #' @examples 
 #' ## Sample row of parameters, W
@@ -63,6 +65,7 @@ Generate_r <- function(W, TE, TR, sigma) {
 #' @param j  index of image number or corresponding settings number
 #' @param k  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
 #' @return The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @export
 #' 
 #' @examples 
 #' ## Sample row of parameters, W
@@ -84,6 +87,7 @@ dee_v_ij_dee_W_ik <- function(W_row, TE, TR, j, k) {
 #' @param j  index of image number or corresponding settings number
 #' @param k, k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
 #' @return The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @export
 #' 
 #' @examples 
 #' ## Sample row of parameters, W
@@ -125,8 +129,9 @@ dee_2_v_ij_dee_W_ik_dee_W_ik1 <- function(W_row, TE, TR, j, k, k1) {
 #' @param  scale  Scaled measure if 1
 #' @param  verbose  More verboseity if 1
 #' @return The vector corresponding to performance measures
+#' @export
 #' 
-#' #examples 
+#' @examples 
 #' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
 #' test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
 #'
@@ -176,6 +181,7 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 #' @param verbose verbose outputs 
 #' @param verbose2 More verbose outputs
 #' @return The final estimate of \code{W} after executing the method.
+#' @export
 #' @examples
 #' add(1, 1)
 #' add(10, 1)
