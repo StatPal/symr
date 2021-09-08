@@ -1602,7 +1602,7 @@ Matrix_eig_row v_mat(const Matrix_eig_row &W, const Vector_eig &TE, const Vector
 			if(std::isnan(tmp(i, j))){
 				Debug0("NAN in v_mat i:" << i << " j:" << j << " W: " << W(i,0) << ", " << W(i,1) << ", " << W(i,2)  << 
 				"\t others:" << std::exp(TE(j)*std::log(W(i,2))) << ", " << (1-std::exp(TR(j)*std::log(W(i,1)))) );
-				exit(EXIT_FAILURE);
+				Rcpp::stop("NAN inside!\n"); //exit(EXIT_FAILURE);
 			}
 		}
 	}

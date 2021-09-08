@@ -401,7 +401,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 							",\n test: " << test.row(i) <<  "\n v_star - test_row" << v_star.transpose() - test.row(i) << 
 							 ", tmp: " << tmp.transpose() << "\n");
 					//break;
-					exit(EXIT_FAILURE);
+					Rcpp::stop("NAN inside!\n"); //exit(EXIT_FAILURE);
 				}
 			}
 			
