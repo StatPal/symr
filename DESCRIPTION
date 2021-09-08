@@ -19,3 +19,4 @@ Suggests:
     RNifti
 Config/testthat/edition: 3
 RoxygenNote: 7.1.1
+Encoding: UTF-8

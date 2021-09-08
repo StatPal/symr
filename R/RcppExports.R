@@ -13,11 +13,37 @@ eigenvals_J <- function(n) {
     .Call('_symR_eigenvals_J', PACKAGE = 'symR', n)
 }
 
-Bloch_eqn_R <- function(W_row, TE, TR) {
+#' Forward Bloch Equation (for a single voxel):
+#' @param  W_row A numeric Vector of size 3, any row of W}
+#' @param  TE A numeric vector, TE values for the training set}
+#' @param  TR A numeric vector, TR values for the training set}
+#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @examples 
+#' ## Sample row of parameters, W
+#' W_row <- c(50, 0.01, 0.003)
+#' ## Design parameters
+#' TE <- c(0.01, 0.03, 0.04, 0.01)
+#' TR <- c(0.6, 0.6, 1, 0.8)
+#' ## Forward transformed values: 
+#' Bloch_eqn(W_row, TE, TR)
+Bloch_eqn <- function(W_row, TE, TR) {
     .Call('_symR_Bloch_eqn_R', PACKAGE = 'symR', W_row, TE, TR)
 }
 
-v_mat_R <- function(W, TE, TR) {
+#' Forward Bloch Equation for whole MR image:
+#' @param  W A numeric Matrix of size nx3 corresponding to the transformed parameters, \eqn{\rho, \mathrm{T}_1, \mathrm{T}_2}
+#' @param  TE A numeric vector, TE values for the training set
+#' @param  TR A numeric vector, TR values for the training set
+#' @retrun the Matrix corresponding to the MR signal values Bloch equation predicts for a whole image
+#' @examples 
+#' ## Sample row of parameters, W
+#' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))	## Two sample rows
+#' ## Design parameters
+#' TE <- c(0.01, 0.03, 0.04, 0.01)
+#' TR <- c(0.6, 0.6, 1, 0.8)
+#' ## Forward transformed values: 
+#' v_mat(W, TE, TR)
+v_mat <- function(W, TE, TR) {
     .Call('_symR_v_mat_R', PACKAGE = 'symR', W, TE, TR)
 }
 
@@ -25,35 +51,207 @@ Generate_r <- function(W, TE, TR, sigma) {
     .Call('_symR_Generate_r', PACKAGE = 'symR', W, TE, TR, sigma)
 }
 
+#' Derivative corresponding to forward Bloch Equation (for a single voxel):
+#' @param  W_row A numeric Vector of size 3, any row of W
+#' @param  TE A numeric vector, TE values for the training set
+#' @param  TR A numeric vector, TR values for the training set
+#' @param  j  index of image number or corresponding settings number
+#' @param  k  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @examples 
+#' ## Sample row of parameters, W
+#' W_row <- c(50, 0.01, 0.003)
+#' ## Design parameters
+#' TE <- c(0.01, 0.03, 0.04, 0.01)
+#' TR <- c(0.6, 0.6, 1, 0.8)
+#' ## Forward transformed values: 
+#' dee_v_ij_dee_W_ik(W_row, TE, TR, 1, 1)					## dv_i1/dW_i1
 dee_v_ij_dee_W_ik <- function(W_row, TE, TR, j, k) {
     .Call('_symR_dee_v_ij_dee_W_ik', PACKAGE = 'symR', W_row, TE, TR, j, k)
 }
 
+#' 2nd Derivative corresponding to forward Bloch Equation (for a single voxel):
+#' @param  W_row A numeric Vector of size 3, any row of W
+#' @param  TE A numeric vector, TE values for the training set
+#' @param  TR A numeric vector, TR values for the training set
+#' @param  j  index of image number or corresponding settings number
+#' @param  k, k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' @examples 
+#' ## Sample row of parameters, W
+#' W_row <- c(50, 0.01, 0.003)
+#' ## Design parameters
+#' TE <- c(0.01, 0.03, 0.04, 0.01)
+#' TR <- c(0.6, 0.6, 1, 0.8)
+#' ## Forward transformed values: 
+#' dee_2_v_ij_dee_W_ik_dee_W_ik1(W_row, TE, TR, 1, 1, 2)	## d^2v_i1/(dW_i1 dW_i2)
 dee_2_v_ij_dee_W_ik_dee_W_ik1 <- function(W_row, TE, TR, j, k, k1) {
     .Call('_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1', PACKAGE = 'symR', W_row, TE, TR, j, k, k1)
 }
 
-Init_val_least_sq_R <- function(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init) {
-    .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
-}
+#Init_val_least_sq_R <- function(train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init) {
+#    .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, our_dim_1, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
+#}
 
-AECM_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
-    .Call('_symR_AECM_R', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
-}
+#AECM_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+#    .Call('_symR_AECM_R', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+#}
 
-OSL_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
-    .Call('_symR_OSL_R', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
-}
+#OSL_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+#    .Call('_symR_OSL_R', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+#}
 
-Performance_test_R <- function(W, test, TE_test, TR_test, sigma_test, black_list, v_type = 1L, measure_type = 1L, scale = 1L, verbose = 0L) {
+
+
+
+#' Performance_test
+#' @param  W  A numeric Matrix of size nx3, supplied as the initial value for the problem
+#' @param  test  A numeric Matrix, supplied as the values of the voxels of size nxm
+#' @param  TE_test  A numeric vector, TE values for the testing set
+#' @param  TR_test  A numeric vector, TR values for the testing set
+#' @param  sigma_test  A numeric vector, sigma_j values for the testing set
+#' @param  black_list  A numeric vector representing the background voxels
+#' @param  v_type  1 corresponds to compared with nu, and 3 corresponds to compared with the Rice mean
+#' @param  measure_type  1-abs deviation, 2-squared deviation from the mean
+#' @param  scale  Scaled measure if 1
+#' @param  verbose  More verboseity if 1
+#' @return returns the vector corresponding to performance measures
+#' #examples 
+#' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
+#' test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
+#'
+#' ## Test design parameters
+#' TE <- c(0.01, 0.03, 0.04, 0.01)
+#' TR <- c(0.6, 0.6, 1, 0.8)
+#' sig <- c(1.2, 1.1, 1.4, 1.2)
+#' mask <- c(0,0)
+#'
+#' Performance_test_R(W, test, TE, TR, sig, mask, 1, 1, 1)
+#' Performance_test_R(W, test, TE, TR, sig, mask, 3, 1, 1)
+#' Performance_test_R(W, test, TE, TR, sig, mask, 1, 2, 1)
+#' Performance_test_R(W, test, TE, TR, sig, mask, 3, 2, 1)
+Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, v_type = 1L, measure_type = 1L, scale = 1L, verbose = 0L) {
     .Call('_symR_Performance_test_R', PACKAGE = 'symR', W, test, TE_test, TR_test, sigma_test, black_list, v_type, measure_type, scale, verbose)
 }
 
-AECM_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
-    .Call('_symR_AECM_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
-}
+#AECM_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+#    .Call('_symR_AECM_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+#}
 
-OSL_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
-    .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
-}
+#OSL_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+#    .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+#}
 
+
+
+
+
+
+#' Synthetic Magnetic Resonance (symR) 
+#' 
+#' @param W A numeric Matrix of size nx3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used. 
+#' @param method The method to be used, possible options are.
+#' @param dimen The dimension of the train MR signals (possibly read from the nifti file, the format would be: )
+#' @param TE_train A numeric vector, TE values for the training set
+#' @param TR_train A numeric vector, TR values for the training set
+#' @param sigma_train A numeric vector, sigma_j values for the training set
+#' @param train_scale A positive real number by which voxels are scaled
+#' @param TE_scale A positive real number by which TE values are scaled
+#' @param TR_scale A positive real number by which TR values are scaled
+#' @param black_list A numeric vector of size n signifying the background voxels
+#' @param maxiter_LS The maximum iteration number for the L-BFGS-B procedure for LS
+#' @param maxiter The maximum iteration number for the EM algorithms for MLE/OSL/AECM
+#' @param abs_diff Absolute difference criteria to stop the EM algorithm
+#' @param rel_diff Relative difference criteria to stop the EM algorithm
+#' @param verbose verbose outputs 
+#' @param verbose2 More verbose outputs
+#' @return The final estimate of \code{W} after executing the method.
+#' @examples
+#' add(1, 1)
+#' add(10, 1)
+#' ## Basic 2D example: 
+#' ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:
+#' file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
+#' phantom <- RNifti::readNifti(file_name, internal=TRUE)
+#' phantom <- apply(phantom, 4, function(x){c(x)})
+#' phantom[phantom==0.0] <- 0.5  ## Pre-processing to remove the -Inf issue in likelihood. 
+#' n <- nrow(phantom)
+#' 
+#' ## Other input parameters: 
+#' TE_values <- c(0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 
+#'    0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10)
+#' TR_values <- c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3)
+#' sigma_values <- c(19.6926, 19.5212, 20.4545, 14.9832, 18.9208, 13.5797, 
+#'   21.9965, 21.4306, 25.0911, 21.1322, 22.1558, 18.9088, 
+#'   27.0099, 23.961, 25.0904, 22.2281, 26.9848, 22.1567)
+#' TE_scale = 2.01/min(TE_values); TR_scale = 2.01/min(TR_values); r_scale = 10.0
+#' TE_values = TE_values*TE_scale; TR_values = TR_values*TR_scale;
+#' phantom = phantom/r_scale; sigma_values <- sigma_values/r_scale
+#' 
+#' ## Make a mask or supply the mask: 
+#' mask <- array(1, dim=n)
+#' for (i in 1:n) {
+#'    mask[i] <- ifelse(any(phantom[i,]>50), 0, 1)
+#' }
+#' 
+#' ## Divide into train and test with 3 train images: 
+#' train_ind <- c(1, 7, 14)
+#' test_ind <- setdiff(1:ncol(phantom), train_ind)
+#' train <- phantom[,train_ind]; sigma_train <- sigma_values[train_ind]
+#' TE_train <- TE_values[train_ind]; TR_train <- TR_values[train_ind]
+#' test <- phantom[,test_ind]; sigma_test <- sigma_values[test_ind]
+#' TE_test <- TE_values[test_ind]; TR_test <- TR_values[test_ind]
+#' 
+#' dimen <- c(3, 256, 256, 1)		## First element correspond to dim+1
+#' 
+#' 
+#' ## Get LS estimate: 
+#' 
+#' # Overall performaces of LS
+#' #mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
+symR <- function(W=NULL, 
+    method=c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM"), 
+    dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter_LS = 50L, maxiter = 50L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) 
+{
+    if(method=="LS" | method== "Least Square"){
+        W_1_init <- exp(-1/(2.0*TR_scale))
+        W_2_init <- exp(-1/(0.1*TR_scale))
+        .Call('_symR_Init_val_least_sq_R', PACKAGE = 'symR', train, TE_train, TR_train, dimen, train_scale, TE_scale, TR_scale, maxiter_LS, W_1_init, W_2_init)
+    } else {
+        ##  If W is not given for other methods, take the initial simplest guess.
+        if(is.null(W)){
+            n = NROW(train)
+            W <- array(1, dim=c(n, 3))
+            W[,1] <- colMeans(train)
+            W[,2] <- array(W_1_init, dim=n)
+            W[,3] <- array(W_2_init, dim=n)
+            ## Numerical modifications:
+            W[,1] <- ifelse(W[,1]>450.0, 425.0, W[,1])
+            W[,1] <- ifelse(W[,1]<0.0001, 0.0001, W[,1])
+        }
+        ## So there is an estimated W now.
+
+        ## Check 2D/3D:
+        if(dimen[4]==1){
+            ## 2D - OSL/MLE/AECM:
+            if(method == "ML" | method == "Maximum Likelihood"){
+                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
+                ## Or the AECM???? (Two step case - but more checked - Subrata)
+            } else if(method == "OSL-EM" | method == "One Step Late EM"){
+                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            } else if(method == "EM" | method == "AECM"){
+                .Call('_symR_AECM_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            }
+        } else if(dimen[4]>1){
+            ## 3D - OSL/MLE/AECM:
+            if(method == "ML" | method == "Maximum Likelihood"){
+                .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
+                ## Or the AECM???? (Two step case - but more checked - Subrata)
+            } else if(method == "OSL-EM" | method == "One Step Late EM"){
+                .Call('_symR_OSL_R_3D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            } else if(method == "EM" | method == "AECM"){
+                .Call('_symR_AECM_R_3D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+            }
+        }
+    }
+}
