@@ -18,9 +18,9 @@ Performance_test(
 )
 }
 \arguments{
-\item{W}{A numeric Matrix of size nx3, supplied as the initial value for the problem}
+\item{W}{A numeric Matrix of size n x 3, supplied as the initial value for the problem}
 
-\item{test}{A numeric Matrix, supplied as the values of the voxels of size nxm}
+\item{test}{A numeric Matrix, supplied as the values of the voxels of size n x m}
 
 \item{TE_test}{A numeric vector, TE values for the testing set}
 
@@ -39,7 +39,8 @@ Performance_test(
 \item{verbose}{More verboseity if 1}
 }
 \value{
-returns the vector corresponding to performance measures
+The vector corresponding to performance measures
+
 #examples 
 W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
 test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )

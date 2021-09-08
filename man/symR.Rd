@@ -26,7 +26,7 @@ symR(
 )
 }
 \arguments{
-\item{W}{A numeric Matrix of size nx3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used.}
+\item{W}{A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used.}
 
 \item{method}{The method to be used, possible options are.}
 
@@ -68,7 +68,7 @@ Synthetic Magnetic Resonance (symR)
 add(1, 1)
 add(10, 1)
 ## Basic 2D example: 
-### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:
+### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size n x m:
 file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
 phantom <- RNifti::readNifti(file_name, internal=TRUE)
 phantom <- apply(phantom, 4, function(x){c(x)})

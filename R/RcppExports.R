@@ -14,10 +14,12 @@ eigenvals_J <- function(n) {
 }
 
 #' Forward Bloch Equation (for a single voxel):
-#' @param  W_row A numeric Vector of size 3, any row of W}
-#' @param  TE A numeric vector, TE values for the training set}
-#' @param  TR A numeric vector, TR values for the training set}
-#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
+#' @param W_row A numeric Vector of size 3, any row of W
+#' @param TE A numeric vector, TE values for the training set
+#' @param TR A numeric vector, TR values for the training set
+#' @return The vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
 #' @examples 
 #' ## Sample row of parameters, W
 #' W_row <- c(50, 0.01, 0.003)
@@ -25,16 +27,18 @@ eigenvals_J <- function(n) {
 #' TE <- c(0.01, 0.03, 0.04, 0.01)
 #' TR <- c(0.6, 0.6, 1, 0.8)
 #' ## Forward transformed values: 
-#' Bloch_eqn(W_row, TE, TR)
-Bloch_eqn <- function(W_row, TE, TR) {
+#' Bloch_eqn_R(W_row, TE, TR)
+Bloch_eqn_R <- function(W_row, TE, TR) {
     .Call('_symR_Bloch_eqn_R', PACKAGE = 'symR', W_row, TE, TR)
 }
 
 #' Forward Bloch Equation for whole MR image:
-#' @param  W A numeric Matrix of size nx3 corresponding to the transformed parameters, \eqn{\rho, \mathrm{T}_1, \mathrm{T}_2}
+#' 
+#' @param  W A numeric Matrix of size n x 3 corresponding to the transformed parameters, \eqn{\rho, \mathrm{T}_1, \mathrm{T}_2}
 #' @param  TE A numeric vector, TE values for the training set
 #' @param  TR A numeric vector, TR values for the training set
-#' @retrun the Matrix corresponding to the MR signal values Bloch equation predicts for a whole image
+#' @return The matrix corresponding to the MR signal values Bloch equation for a whole image
+#' 
 #' @examples 
 #' ## Sample row of parameters, W
 #' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))	## Two sample rows
@@ -42,8 +46,8 @@ Bloch_eqn <- function(W_row, TE, TR) {
 #' TE <- c(0.01, 0.03, 0.04, 0.01)
 #' TR <- c(0.6, 0.6, 1, 0.8)
 #' ## Forward transformed values: 
-#' v_mat(W, TE, TR)
-v_mat <- function(W, TE, TR) {
+#' v_mat_R(W, TE, TR)
+v_mat_R <- function(W, TE, TR) {
     .Call('_symR_v_mat_R', PACKAGE = 'symR', W, TE, TR)
 }
 
@@ -52,12 +56,14 @@ Generate_r <- function(W, TE, TR, sigma) {
 }
 
 #' Derivative corresponding to forward Bloch Equation (for a single voxel):
-#' @param  W_row A numeric Vector of size 3, any row of W
-#' @param  TE A numeric vector, TE values for the training set
-#' @param  TR A numeric vector, TR values for the training set
-#' @param  j  index of image number or corresponding settings number
-#' @param  k  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
-#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
+#' @param W_row A numeric Vector of size 3, any row of W
+#' @param TE A numeric vector, TE values for the training set
+#' @param TR A numeric vector, TR values for the training set
+#' @param j  index of image number or corresponding settings number
+#' @param k  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @return The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
 #' @examples 
 #' ## Sample row of parameters, W
 #' W_row <- c(50, 0.01, 0.003)
@@ -71,12 +77,14 @@ dee_v_ij_dee_W_ik <- function(W_row, TE, TR, j, k) {
 }
 
 #' 2nd Derivative corresponding to forward Bloch Equation (for a single voxel):
-#' @param  W_row A numeric Vector of size 3, any row of W
-#' @param  TE A numeric vector, TE values for the training set
-#' @param  TR A numeric vector, TR values for the training set
-#' @param  j  index of image number or corresponding settings number
-#' @param  k, k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
-#' @retrun the vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
+#' @param W_row A numeric Vector of size 3, any row of W
+#' @param TE A numeric vector, TE values for the training set
+#' @param TR A numeric vector, TR values for the training set
+#' @param j  index of image number or corresponding settings number
+#' @param k, k1  co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken
+#' @return The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+#' 
 #' @examples 
 #' ## Sample row of parameters, W
 #' W_row <- c(50, 0.01, 0.003)
@@ -105,8 +113,9 @@ dee_2_v_ij_dee_W_ik_dee_W_ik1 <- function(W_row, TE, TR, j, k, k1) {
 
 
 #' Performance_test
-#' @param  W  A numeric Matrix of size nx3, supplied as the initial value for the problem
-#' @param  test  A numeric Matrix, supplied as the values of the voxels of size nxm
+#' 
+#' @param  W  A numeric Matrix of size n x 3, supplied as the initial value for the problem
+#' @param  test  A numeric Matrix, supplied as the values of the voxels of size n x m
 #' @param  TE_test  A numeric vector, TE values for the testing set
 #' @param  TR_test  A numeric vector, TR values for the testing set
 #' @param  sigma_test  A numeric vector, sigma_j values for the testing set
@@ -115,7 +124,8 @@ dee_2_v_ij_dee_W_ik_dee_W_ik1 <- function(W_row, TE, TR, j, k, k1) {
 #' @param  measure_type  1-abs deviation, 2-squared deviation from the mean
 #' @param  scale  Scaled measure if 1
 #' @param  verbose  More verboseity if 1
-#' @return returns the vector corresponding to performance measures
+#' @return The vector corresponding to performance measures
+#' 
 #' #examples 
 #' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))		## Two sample rows of parameters, W
 #' test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4) )
@@ -149,7 +159,7 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 
 #' Synthetic Magnetic Resonance (symR) 
 #' 
-#' @param W A numeric Matrix of size nx3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used. 
+#' @param W A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used. 
 #' @param method The method to be used, possible options are.
 #' @param dimen The dimension of the train MR signals (possibly read from the nifti file, the format would be: )
 #' @param TE_train A numeric vector, TE values for the training set
@@ -170,7 +180,7 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 #' add(1, 1)
 #' add(10, 1)
 #' ## Basic 2D example: 
-#' ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size nxm:
+#' ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size n x m:
 #' file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
 #' phantom <- RNifti::readNifti(file_name, internal=TRUE)
 #' phantom <- apply(phantom, 4, function(x){c(x)})

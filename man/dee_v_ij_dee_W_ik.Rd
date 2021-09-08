@@ -17,6 +17,9 @@ dee_v_ij_dee_W_ik(W_row, TE, TR, j, k)
 
 \item{k}{co-ordinate of the W(i.e., \eqn{W_1} or \eqn{W_2} or \eqn{W_3} ) with respect to which the derivative is taken}
 }
+\value{
+The vector corresponding to derivatives Bloch equation predicts(i.e., \eqn{\hat{\nu}})
+}
 \description{
 Derivative corresponding to forward Bloch Equation (for a single voxel):
 }
