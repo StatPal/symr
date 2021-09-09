@@ -41,10 +41,7 @@
 #' phantom = phantom/r_scale; sigma_values <- sigma_values/r_scale
 #' 
 #' ## Make a mask or supply the mask: 
-#' mask <- array(1, dim=n)
-#' for (i in 1:n) {
-#'    mask[i] <- ifelse(any(phantom[i,]>50), 0, 1)
-#' }
+#' mask <- 1 - {rowSums(phantom > 50) > 0}
 #' 
 #' ## Divide into train and test with 3 train images: 
 #' train_ind <- c(1, 7, 14)
