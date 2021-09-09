@@ -230,10 +230,12 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 #' 
 #' 
 #' ## Get LS estimate: 
-#' W_LS <- symR(NULL, method="LS", dimen, TE_train, TR_train, sigma_train, train, r_scale, TE_scale, TR_scale, mask)
+#' W_LS <- symR(NULL, method="LS", dimen, TE_train, TR_train, sigma_train, train, 
+#'              r_scale, TE_scale, TR_scale, mask)
 #'  
 #' ## Get AECM estimate starting from LS initial value: 
-#' W_AECM <- symR(W_LS, method="AECM", dimen, TE_train, TR_train, sigma_train, train, r_scale, TE_scale, TR_scale, mask)
+#' W_AECM <- symR(W_LS, method="AECM", dimen, TE_train, TR_train, sigma_train, train, 
+#'              r_scale, TE_scale, TR_scale, mask)
 #'
 #' # Overall performaces of LS
 #' #mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
