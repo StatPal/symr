@@ -91,3 +91,27 @@ This will make things easier.
 
 Deleting unnecessary files from L-BFGS-B solver. Check this is okay or not.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Weird: you have to run devtools::document() first
+It will give errors
+Then git restore R/RcppExports.R
+Then it will be okay!!!!!
+
+
+
