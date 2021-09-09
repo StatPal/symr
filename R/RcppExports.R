@@ -230,7 +230,11 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test, black_list, 
 #' 
 #' 
 #' ## Get LS estimate: 
-#' 
+#' W_LS <- symR(NULL, method="LS", dimen, TE_train, TR_train, sigma_train, train, r_scale, TE_scale, TR_scale, mask)
+#'  
+#' ## Get AECM estimate starting from LS initial value: 
+#' W_AECM <- symR(W_LS, method="AECM", dimen, TE_train, TR_train, sigma_train, train, r_scale, TE_scale, TR_scale, mask)
+#'
 #' # Overall performaces of LS
 #' #mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 symR <- function(W=NULL, 
@@ -259,12 +263,12 @@ symR <- function(W=NULL,
         if(dimen[4]==1){
             ## 2D - OSL/MLE/AECM:
             if(method == "ML" | method == "Maximum Likelihood"){
-                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
+                .Call('_symR_OSL_R', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 0L, abs_diff, rel_diff, verbose, verbose2)
                 ## Or the AECM???? (Two step case - but more checked - Subrata)
             } else if(method == "OSL-EM" | method == "One Step Late EM"){
-                .Call('_symR_OSL_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+                .Call('_symR_OSL_R', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
             } else if(method == "EM" | method == "AECM"){
-                .Call('_symR_AECM_R_2D', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
+                .Call('_symR_AECM_R', PACKAGE = 'symR', W, dimen, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, 1L, abs_diff, rel_diff, verbose, verbose2)
             }
         } else if(dimen[4]>1){
             ## 3D - OSL/MLE/AECM:
