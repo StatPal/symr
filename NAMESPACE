@@ -13,4 +13,4 @@ importFrom(Rcpp,evalCpp)
 export(bloch)
 export(performance)
 export(symr)
-
+export(bloch.image)

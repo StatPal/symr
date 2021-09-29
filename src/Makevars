@@ -10,7 +10,7 @@ PKG_CPPFLAGS = -I. -I../inst/include
 ## Use the R_HOME indirection to support installations of multiple R version
 PKG_LIBS = `$(R_HOME)/bin/Rscript -e "RcppGSL:::LdFlags()"` $(SHLIB_OPENMP_CXXFLAGS)
 
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)  -w
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
 ## http://r.babo.ist/#/en/exts_1_2_1_1_openmp_support.html
 ## http://dirk.eddelbuettel.com/blog/2017/06/04/
 

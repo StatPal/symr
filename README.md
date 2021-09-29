@@ -2,7 +2,7 @@
 
 ## What is symr?
 
-*symr* is a C++ software for Synthetic Magnetic Resonance (MR) technique which predicts images at new design parameter from few observed MR scans. The speciality of the method behind the *symr* is that it carefully uses both the physical and statistical properties of the underlying MR ssignal and noise. This is a theoretically sound and computationally practical matrix-free approach using multi-layered Gausssain Markov Random Field, which can predict images from as small as three MR scans, which can be used in individualized patient- and anatomy-specific contexts. We have also developed an accurate estimation of standard errors of the regional means in in the predicted images. 
+*symr* is a C++ software for Synthetic Magnetic Resonance (MR) technique which predicts images at new design parameter from few observed MR scans. The speciality of the method behind the *symr* is that it carefully uses both the physical and statistical properties of the underlying MR signal and noise. This is a theoretically sound and computationally practical matrix-free approach using multi-layered Gaussain Markov Random Field, which can predict images from as small as three MR scans, which can be used in individualized patient- and anatomy-specific contexts. We have also developed an accurate estimation of standard errors of the regional means in in the predicted images. 
 
 
 

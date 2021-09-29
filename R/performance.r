@@ -5,11 +5,11 @@
 #' @param  TE  A numeric vector, TE values for the testing set
 #' @param  TR  A numeric vector, TR values for the testing set
 #' @param  sigma  A numeric vector, sigma_j values for the testing set
-#' @param  black_list  A numeric vector representing the background voxels
+#' @param  black.list  A numeric vector representing the background voxels
 #' @param  v_type  1 corresponds to compared with nu, and 3 corresponds to compared with the Rice mean
 #' @param  measure_type  1-abs deviation, 2-squared deviation from the mean
 #' @param  scale  Scaled measure if 1
-#' @param  verbose  More verboseity if 1
+#' @param  verbose  More verbosity if 1
 #' @return The vector corresponding to performance measures
 #' @export
 #' 

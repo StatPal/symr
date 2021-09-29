@@ -28,15 +28,15 @@ performance(
 
 \item{sigma}{A numeric vector, sigma_j values for the testing set}
 
+\item{black.list}{A numeric vector representing the background voxels}
+
 \item{v_type}{1 corresponds to compared with nu, and 3 corresponds to compared with the Rice mean}
 
 \item{measure_type}{1-abs deviation, 2-squared deviation from the mean}
 
 \item{scale}{Scaled measure if 1}
 
-\item{verbose}{More verboseity if 1}
-
-\item{black_list}{A numeric vector representing the background voxels}
+\item{verbose}{More verbosity if 1}
 }
 \value{
 The vector corresponding to performance measures

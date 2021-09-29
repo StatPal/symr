@@ -9,52 +9,52 @@ symr(
   method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM",
     "One Step Late EM", "AECM", "EM"),
   dimen,
-  TE_train,
-  TR_train,
-  sigma_train,
+  TE.train,
+  TR.train,
+  sigma.train,
   train,
-  train_scale,
-  TE_scale,
-  TR_scale,
-  black_list,
-  maxiter_LS = 50L,
+  train.scale,
+  TE.scale,
+  TR.scale,
+  black.list,
+  maxiter.LS = 50L,
   maxiter = 50L,
-  abs_diff = 0.1,
-  rel_diff = 1e-05,
+  abs.diff = 0.1,
+  rel.diff = 1e-05,
   verbose = 0L,
   verbose2 = 0L
 )
 }
 \arguments{
-\item{W}{A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Othwerwise, if NULL, a basic estimate of W is used.}
+\item{W}{A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Otherwise, if NULL, a basic estimate of W is used.}
 
 \item{method}{The method to be used, possible options are.}
 
 \item{dimen}{The dimension of the train MR signals (possibly read from the nifti file, the format would be: )}
 
-\item{TE_train}{A numeric vector, TE values for the training set}
+\item{TE.train}{A numeric vector, TE values for the training set}
 
-\item{TR_train}{A numeric vector, TR values for the training set}
+\item{TR.train}{A numeric vector, TR values for the training set}
 
-\item{sigma_train}{A numeric vector, sigma_j values for the training set}
+\item{sigma.train}{A numeric vector, sigma_j values for the training set}
 
 \item{train}{A numeric matrix of size n x m of observed signals to be trained on, where m is the number of training MR images.}
 
-\item{train_scale}{A positive real number by which voxels are scaled}
+\item{train.scale}{A positive real number by which voxels are scaled}
 
-\item{TE_scale}{A positive real number by which TE values are scaled}
+\item{TE.scale}{A positive real number by which TE values are scaled}
 
-\item{TR_scale}{A positive real number by which TR values are scaled}
+\item{TR.scale}{A positive real number by which TR values are scaled}
 
-\item{black_list}{A numeric vector of size n signifying the background voxels}
+\item{black.list}{A numeric vector of size n signifying the background voxels}
 
-\item{maxiter_LS}{The maximum iteration number for the L-BFGS-B procedure for LS}
+\item{maxiter.LS}{The maximum iteration number for the L-BFGS-B procedure for LS}
 
 \item{maxiter}{The maximum iteration number for the EM algorithms for MLE/OSL/AECM}
 
-\item{abs_diff}{Absolute difference criteria to stop the EM algorithm}
+\item{abs.diff}{Absolute difference criteria to stop the EM algorithm}
 
-\item{rel_diff}{Relative difference criteria to stop the EM algorithm}
+\item{rel.diff}{Relative difference criteria to stop the EM algorithm}
 
 \item{verbose}{verbose outputs}
 
@@ -82,8 +82,8 @@ TR_values <- c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3)
 sigma_values <- c(19.6926, 19.5212, 20.4545, 14.9832, 18.9208, 13.5797, 
   21.9965, 21.4306, 25.0911, 21.1322, 22.1558, 18.9088, 
   27.0099, 23.961, 25.0904, 22.2281, 26.9848, 22.1567)
-TE_scale = 2.01/min(TE_values); TR_scale = 2.01/min(TR_values); r_scale = 10.0
-TE_values = TE_values*TE_scale; TR_values = TR_values*TR_scale;
+TE.scale = 2.01/min(TE_values); TR.scale = 2.01/min(TR_values); r_scale = 10.0
+TE_values = TE_values*TE.scale; TR_values = TR_values*TR.scale;
 phantom = phantom/r_scale; sigma_values <- sigma_values/r_scale
 
 ## Make a mask or supply the mask: 
@@ -92,8 +92,8 @@ mask <- 1 - {rowSums(phantom > 50) > 0}
 ## Divide into train and test with 3 train images: 
 train_ind <- c(1, 7, 14)
 test_ind <- setdiff(1:ncol(phantom), train_ind)
-train <- phantom[,train_ind]; sigma_train <- sigma_values[train_ind]
-TE_train <- TE_values[train_ind]; TR_train <- TR_values[train_ind]
+train <- phantom[,train_ind]; sigma.train <- sigma_values[train_ind]
+TE.train <- TE_values[train_ind]; TR.train <- TR_values[train_ind]
 test <- phantom[,test_ind]; sigma_test <- sigma_values[test_ind]
 TE_test <- TE_values[test_ind]; TR_test <- TR_values[test_ind]
 
@@ -101,13 +101,13 @@ dimen <- c(3, 256, 256, 1)		## First element correspond to dim+1
 
 
 ## Get LS estimate: 
-W_LS <- symr(NULL, method="LS", dimen, TE_train, TR_train, sigma_train, train, 
-             r_scale, TE_scale, TR_scale, mask)
+W_LS <- symr(NULL, method="LS", dimen, TE.train, TR.train, sigma.train, train, 
+             r_scale, TE.scale, TR.scale, mask)
  
 ## Get AECM estimate starting from LS initial value: 
-W_AECM <- symr(W_LS, method="AECM", dimen, TE_train, TR_train, sigma_train, train, 
-             r_scale, TE_scale, TR_scale, mask)
+W_AECM <- symr(W_LS, method="AECM", dimen, TE.train, TR.train, sigma.train, train, 
+             r_scale, TE.scale, TR.scale, mask)
 
 # Overall performaces of LS
-#mean(Performance_test_R(W_init, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
+mean(performance(W_LS, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 }
