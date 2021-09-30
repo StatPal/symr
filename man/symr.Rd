@@ -67,46 +67,66 @@ The final estimate of \code{W} after executing the method.
 Synthetic Magnetic Resonance (symr)
 }
 \examples{
-## Basic 2D example: 
+## Basic 2D example:
 ### Load an nifti file (using oro.nifti or Rnifti or similar package) and resizing into size n x m:
 file_name <- system.file("extdata", "new_phantom.nii.gz", package = "symR", mustWork = TRUE)
-phantom <- RNifti::readNifti(file_name, internal=TRUE)
-phantom <- apply(phantom, 4, function(x){c(x)})
-phantom[phantom==0.0] <- 0.5  ## Pre-processing to remove the -Inf issue in likelihood. 
+phantom <- RNifti::readNifti(file_name, internal = TRUE)
+phantom <- apply(phantom, 4, function(x) {
+  c(x)
+})
+phantom[phantom == 0.0] <- 0.5 ## Pre-processing to remove the -Inf issue in likelihood.
 n <- nrow(phantom)
 
-## Other input parameters: 
-TE_values <- c(0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 
-   0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10)
+## Other input parameters:
+TE_values <- c(
+  0.03, 0.06, 0.04, 0.08, 0.05, 0.10, 0.03, 0.06, 0.04,
+  0.08, 0.05, 0.10, 0.03, 0.06, 0.04, 0.08, 0.05, 0.10
+)
 TR_values <- c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3)
-sigma_values <- c(19.6926, 19.5212, 20.4545, 14.9832, 18.9208, 13.5797, 
-  21.9965, 21.4306, 25.0911, 21.1322, 22.1558, 18.9088, 
-  27.0099, 23.961, 25.0904, 22.2281, 26.9848, 22.1567)
-TE.scale = 2.01/min(TE_values); TR.scale = 2.01/min(TR_values); r_scale = 10.0
-TE_values = TE_values*TE.scale; TR_values = TR_values*TR.scale;
-phantom = phantom/r_scale; sigma_values <- sigma_values/r_scale
+sigma_values <- c(
+  19.6926, 19.5212, 20.4545, 14.9832, 18.9208, 13.5797,
+  21.9965, 21.4306, 25.0911, 21.1322, 22.1558, 18.9088,
+  27.0099, 23.961, 25.0904, 22.2281, 26.9848, 22.1567
+)
+TE.scale <- 2.01 / min(TE_values)
+TR.scale <- 2.01 / min(TR_values)
+r_scale <- 10.0
+TE_values <- TE_values * TE.scale
+TR_values <- TR_values * TR.scale
+phantom <- phantom / r_scale
+sigma_values <- sigma_values / r_scale
 
-## Make a mask or supply the mask: 
-mask <- 1 - {rowSums(phantom > 50) > 0}
+## Make a mask or supply the mask:
+mask <- 1 - {
+  rowSums(phantom > 50) > 0
+}
 
-## Divide into train and test with 3 train images: 
+## Divide into train and test with 3 train images:
 train_ind <- c(1, 7, 14)
 test_ind <- setdiff(1:ncol(phantom), train_ind)
-train <- phantom[,train_ind]; sigma.train <- sigma_values[train_ind]
-TE.train <- TE_values[train_ind]; TR.train <- TR_values[train_ind]
-test <- phantom[,test_ind]; sigma_test <- sigma_values[test_ind]
-TE_test <- TE_values[test_ind]; TR_test <- TR_values[test_ind]
+train <- phantom[, train_ind]
+sigma.train <- sigma_values[train_ind]
+TE.train <- TE_values[train_ind]
+TR.train <- TR_values[train_ind]
+test <- phantom[, test_ind]
+sigma_test <- sigma_values[test_ind]
+TE_test <- TE_values[test_ind]
+TR_test <- TR_values[test_ind]
 
-dimen <- c(3, 256, 256, 1)		## First element correspond to dim+1
+dimen <- c(3, 256, 256, 1) ## First element correspond to dim+1
 
 
-## Get LS estimate: 
-W_LS <- symr(NULL, method="LS", dimen, TE.train, TR.train, sigma.train, train, 
-             r_scale, TE.scale, TR.scale, mask)
- 
-## Get AECM estimate starting from LS initial value: 
-W_AECM <- symr(W_LS, method="AECM", dimen, TE.train, TR.train, sigma.train, train, 
-             r_scale, TE.scale, TR.scale, mask)
+## Get LS estimate:
+W_LS <- symr(NULL,
+  method = "LS", dimen, TE.train, TR.train, sigma.train, train,
+  r_scale, TE.scale, TR.scale, mask
+)
+
+## Get AECM estimate starting from LS initial value:
+W_AECM <- symr(W_LS,
+  method = "AECM", dimen, TE.train, TR.train, sigma.train, train,
+  r_scale, TE.scale, TR.scale, mask
+)
 
 # Overall performaces of LS
 mean(performance(W_LS, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))

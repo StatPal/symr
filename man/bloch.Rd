@@ -25,6 +25,6 @@ w <- c(50, 0.01, 0.003)
 ## Design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)
 TR <- c(0.6, 0.6, 1, 0.8)
-## Forward transformed values: 
+## Forward transformed values:
 bloch(w, TE, TR)
 }

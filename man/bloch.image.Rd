@@ -21,10 +21,10 @@ Forward Bloch Equation (for whole MR image):
 }
 \examples{
 ## Sample row of parameters, w
-W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04))	## Two sample rows
+W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04)) ## Two sample rows
 ## Design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)
 TR <- c(0.6, 0.6, 1, 0.8)
-## Forward transformed values: 
+## Forward transformed values:
 bloch.image(W, TE, TR)
 }

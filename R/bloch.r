@@ -28,7 +28,7 @@ bloch <- function(w, TE, TR) {
 #' @export
 #'
 #' @examples
-#' ## Sample row of parameters, w
+#' ## Sample row of parameters, W
 #' W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04)) ## Two sample rows
 #' ## Design parameters
 #' TE <- c(0.01, 0.03, 0.04, 0.01)
