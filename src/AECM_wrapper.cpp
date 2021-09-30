@@ -152,82 +152,6 @@ Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
-#include "include/2D/functions_VAR.hpp"
-
-//[[Rcpp::export]]
-Eigen::MatrixXd Var_contrast(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, 
-			const Eigen::MappedSparseMatrix<double> contrast,
-            const Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
-            const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
-            double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
-	        int cg_maxiter = 50, double cg_tol = 1e-6, int penalized = 1, 
-            double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
-            
-
-	short our_dim_train[8];
-	for(int i = 0; i < 8; ++i){
-		our_dim_train[i] = our_dim_1[i];
-	}
-	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
-	
-	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
-	
-            
-	Eigen::MatrixXd var_est = Var_est_test_mat_contrast(W, Psi_inv, beta, 
-								TE_train, TR_train, sigma_train, train, MRF_obj_1,
-								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
-								cg_maxiter, cg_tol, // std::string preconditioner = "diagonal", 
-								"diagonal", 
-								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
-								penalized);
-	return var_est;
-}
-
-
-
-
-//[[Rcpp::export]]
-Eigen::MatrixXd Var_contrast_boot(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, 
-			const Eigen::MappedSparseMatrix<double> contrast,
-            const Eigen::Map<Eigen::VectorXd> our_dim_1,
-            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
-            const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
-            const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
-            double train_scale, double TE_scale, double TR_scale, 
-            const Eigen::Map<Eigen::VectorXd> &black_list, 
-	        int B = 15, int EM_iter = 10, double abs_diff = 1e-1, double rel_diff = 1e-4, int penalized = 1){
-            
-
-	short our_dim_train[8];
-	for(int i = 0; i < 8; ++i){
-		our_dim_train[i] = our_dim_1[i];
-	}
-	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
-	
-	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
-	
-            
-	Eigen::MatrixXd var_est = para_boot_test_mat_contrast(W, Psi_inv, beta, 
-								TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, MRF_obj_1,
-								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
-								B, EM_iter, abs_diff, rel_diff, 
-								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
-								penalized);
-	return var_est;
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -385,6 +309,124 @@ Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
+
+
+
+#include "include/functions_gen_VAR.hpp"
+
+//[[Rcpp::export]]
+Eigen::MatrixXd Var_contrast(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, 
+			const Eigen::MappedSparseMatrix<double> contrast,
+            const Eigen::Map<Eigen::VectorXd> our_dim_1,
+            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+            const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
+            double train_scale, double TE_scale, double TR_scale, 
+            const Eigen::Map<Eigen::VectorXd> &black_list, 
+	        int cg_maxiter = 50, double cg_tol = 1e-6, int penalized = 1, 
+            double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
+            
+
+	short our_dim_train[8];
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim_1[i];
+	}
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+	
+            
+	Eigen::MatrixXd var_est = Var_est_test_mat_contrast(W, Psi_inv, beta, 
+								TE_train, TR_train, sigma_train, train, MRF_obj_1,
+								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
+								cg_maxiter, cg_tol, // std::string preconditioner = "diagonal", 
+								"diagonal", 
+								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
+								penalized);
+	return var_est;
+}
+
+
+
+
+
+
+
+
+
+
+#include "include/2D/functions_VAR.hpp"
+
+//[[Rcpp::export]]
+Eigen::MatrixXd Var_contrast_boot_2D(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, 
+			const Eigen::MappedSparseMatrix<double> contrast,
+            const Eigen::Map<Eigen::VectorXd> our_dim_1,
+            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+            const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
+            double train_scale, double TE_scale, double TR_scale, 
+            const Eigen::Map<Eigen::VectorXd> &black_list, 
+	        int B = 15, int EM_iter = 10, double abs_diff = 1e-1, double rel_diff = 1e-4, int penalized = 1){
+            
+
+	short our_dim_train[8];
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim_1[i];
+	}
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+	
+            
+	Eigen::MatrixXd var_est = para_boot_test_mat_contrast_2D(W, Psi_inv, beta, 
+								TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, MRF_obj_1,
+								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
+								B, EM_iter, abs_diff, rel_diff, 
+								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
+								penalized);
+	return var_est;
+}
+
+
+
+
+
+
+
+#include "include/3D/functions_VAR.hpp"
+
+//[[Rcpp::export]]
+Eigen::MatrixXd Var_contrast_boot_3D(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, 
+			const Eigen::MappedSparseMatrix<double> contrast,
+            const Eigen::Map<Eigen::VectorXd> our_dim_1,
+            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+            const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
+            double train_scale, double TE_scale, double TR_scale, 
+            const Eigen::Map<Eigen::VectorXd> &black_list, 
+	        int B = 15, int EM_iter = 10, double abs_diff = 1e-1, double rel_diff = 1e-4, int penalized = 1){
+            
+
+	short our_dim_train[8];
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim_1[i];
+	}
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+	
+            
+	Eigen::MatrixXd var_est = para_boot_test_mat_contrast_3D(W, Psi_inv, beta, 
+								TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, MRF_obj_1,
+								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
+								B, EM_iter, abs_diff, rel_diff, 
+								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
+								penalized);
+	return var_est;
+}
 
 
 

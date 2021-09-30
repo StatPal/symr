@@ -35,4 +35,11 @@ grep -iR 'exit' src/include/
 
 
 
-## Ignore the read_file.hpp if possible. and read using other R functions.
+## Ignore the read_file.hpp if possible. and read using other R functions
+
+
+
+Wed Sep 29 07:37:13 PM CDT 2021
+
+Change the Header protector of the 3D var file.
+
