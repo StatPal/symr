@@ -18,7 +18,7 @@
 #' @param rel.diff Relative difference criteria to stop the EM algorithm
 #' @param verbose verbose outputs
 #' @param verbose2 More verbose outputs
-#' @return The final estimate of \code{W} after executing the method.
+#' @return The final estimate of \code{W} (and estimate of Psi inverse and beta whenever possible) after executing the method.
 #' @export
 #' @examples
 #' ## Basic 2D example:

@@ -262,14 +262,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // Var_contrast
-Eigen::MatrixXd Var_contrast(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, const Eigen::MappedSparseMatrix<double> contrast, const Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, const Eigen::Map<Eigen::VectorXd>& TE_test, const Eigen::Map<Eigen::VectorXd>& TR_test, const Eigen::Map<Eigen::VectorXd>& sigma_test, const Eigen::Map<Eigen::MatrixXd>& test, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int cg_maxiter, double cg_tol, int penalized, double abs_diff, double rel_diff, int verbose, int verbose2);
-RcppExport SEXP _symR_Var_contrast(SEXP WSEXP, SEXP Psi_invSEXP, SEXP betaSEXP, SEXP contrastSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP TE_testSEXP, SEXP TR_testSEXP, SEXP sigma_testSEXP, SEXP testSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP cg_maxiterSEXP, SEXP cg_tolSEXP, SEXP penalizedSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP verboseSEXP, SEXP verbose2SEXP) {
+Eigen::MatrixXd Var_contrast(const Eigen::Map<Eigen::MatrixXd>& W, const Eigen::Map<Eigen::MatrixXd>& Psi_inv, const Eigen::Map<Eigen::MatrixXd>& beta, const Eigen::MappedSparseMatrix<double> contrast, const Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, const Eigen::Map<Eigen::VectorXd>& TE_test, const Eigen::Map<Eigen::VectorXd>& TR_test, const Eigen::Map<Eigen::VectorXd>& sigma_test, const Eigen::Map<Eigen::MatrixXd>& test, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int cg_maxiter, double cg_tol, int penalized);
+RcppExport SEXP _symR_Var_contrast(SEXP WSEXP, SEXP Psi_invSEXP, SEXP betaSEXP, SEXP contrastSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP TE_testSEXP, SEXP TR_testSEXP, SEXP sigma_testSEXP, SEXP testSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP cg_maxiterSEXP, SEXP cg_tolSEXP, SEXP penalizedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type W(WSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type Psi_inv(Psi_invSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type Psi_inv(Psi_invSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< const Eigen::MappedSparseMatrix<double> >::type contrast(contrastSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd> >::type our_dim_1(our_dim_1SEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TE_train(TE_trainSEXP);
@@ -287,11 +287,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type cg_maxiter(cg_maxiterSEXP);
     Rcpp::traits::input_parameter< double >::type cg_tol(cg_tolSEXP);
     Rcpp::traits::input_parameter< int >::type penalized(penalizedSEXP);
-    Rcpp::traits::input_parameter< double >::type abs_diff(abs_diffSEXP);
-    Rcpp::traits::input_parameter< double >::type rel_diff(rel_diffSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose2(verbose2SEXP);
-    rcpp_result_gen = Rcpp::wrap(Var_contrast(W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, cg_maxiter, cg_tol, penalized, abs_diff, rel_diff, verbose, verbose2));
+    rcpp_result_gen = Rcpp::wrap(Var_contrast(W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, cg_maxiter, cg_tol, penalized));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -375,7 +371,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_symR_Performance_test_R", (DL_FUNC) &_symR_Performance_test_R, 10},
     {"_symR_AECM_R_3D", (DL_FUNC) &_symR_AECM_R_3D, 16},
     {"_symR_OSL_R_3D", (DL_FUNC) &_symR_OSL_R_3D, 16},
-    {"_symR_Var_contrast", (DL_FUNC) &_symR_Var_contrast, 24},
+    {"_symR_Var_contrast", (DL_FUNC) &_symR_Var_contrast, 20},
     {"_symR_Var_contrast_boot_2D", (DL_FUNC) &_symR_Var_contrast_boot_2D, 22},
     {"_symR_Var_contrast_boot_3D", (DL_FUNC) &_symR_Var_contrast_boot_3D, 22},
     {NULL, NULL, 0}

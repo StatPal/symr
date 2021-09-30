@@ -120,3 +120,17 @@ devtools::check()
 
 
 
+
+
+
+
+## TODO:
+Example of variance
+
+add sigma_j estimation code
+
+Update readme
+
+
+
+

@@ -61,7 +61,7 @@ symr(
 \item{verbose2}{More verbose outputs}
 }
 \value{
-The final estimate of \code{W} after executing the method.
+The final estimate of \code{W} (and estimate of Psi inverse and beta whenever possible) after executing the method.
 }
 \description{
 Synthetic Magnetic Resonance (symr)
