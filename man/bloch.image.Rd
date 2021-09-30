@@ -20,7 +20,7 @@ The matrix corresponding to the MR signal values Bloch equation predicts(i.e., \
 Forward Bloch Equation (for whole MR image):
 }
 \examples{
-## Sample row of parameters, w
+## Sample row of parameters, W
 W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04)) ## Two sample rows
 ## Design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)

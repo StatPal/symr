@@ -45,6 +45,10 @@ Var_contrast <- function(W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_tra
     .Call(`_symR_Var_contrast`, W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, cg_maxiter, cg_tol, penalized, abs_diff, rel_diff, verbose, verbose2)
 }
 
+Var_contrast_boot <- function(W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, B = 15L, EM_iter = 10L, abs_diff = 1e-1, rel_diff = 1e-4, penalized = 1L) {
+    .Call(`_symR_Var_contrast_boot`, W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, B, EM_iter, abs_diff, rel_diff, penalized)
+}
+
 OSL_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
     .Call(`_symR_OSL_R`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
 }

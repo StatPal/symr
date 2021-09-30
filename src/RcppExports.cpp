@@ -197,6 +197,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Var_contrast_boot
+Eigen::MatrixXd Var_contrast_boot(const Eigen::MatrixXd W, const Eigen::MatrixXd Psi_inv, const Eigen::VectorXd beta, const Eigen::MappedSparseMatrix<double> contrast, const Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, const Eigen::Map<Eigen::VectorXd>& TE_test, const Eigen::Map<Eigen::VectorXd>& TR_test, const Eigen::Map<Eigen::VectorXd>& sigma_test, const Eigen::Map<Eigen::MatrixXd>& test, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int B, int EM_iter, double abs_diff, double rel_diff, int penalized);
+RcppExport SEXP _symR_Var_contrast_boot(SEXP WSEXP, SEXP Psi_invSEXP, SEXP betaSEXP, SEXP contrastSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP TE_testSEXP, SEXP TR_testSEXP, SEXP sigma_testSEXP, SEXP testSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP BSEXP, SEXP EM_iterSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP penalizedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type Psi_inv(Psi_invSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MappedSparseMatrix<double> >::type contrast(contrastSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd> >::type our_dim_1(our_dim_1SEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TE_train(TE_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TR_train(TR_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type sigma_train(sigma_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type train(trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TE_test(TE_testSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TR_test(TR_testSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type sigma_test(sigma_testSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type test(testSEXP);
+    Rcpp::traits::input_parameter< double >::type train_scale(train_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TE_scale(TE_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TR_scale(TR_scaleSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type black_list(black_listSEXP);
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    Rcpp::traits::input_parameter< int >::type EM_iter(EM_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_diff(abs_diffSEXP);
+    Rcpp::traits::input_parameter< double >::type rel_diff(rel_diffSEXP);
+    Rcpp::traits::input_parameter< int >::type penalized(penalizedSEXP);
+    rcpp_result_gen = Rcpp::wrap(Var_contrast_boot(W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, B, EM_iter, abs_diff, rel_diff, penalized));
+    return rcpp_result_gen;
+END_RCPP
+}
 // OSL_R
 Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int maxiter, int penalized, double abs_diff, double rel_diff, int verbose, int verbose2);
 RcppExport SEXP _symR_OSL_R(SEXP WSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP maxiterSEXP, SEXP penalizedSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP verboseSEXP, SEXP verbose2SEXP) {
@@ -308,6 +340,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_symR_Init_val_least_sq_R", (DL_FUNC) &_symR_Init_val_least_sq_R, 10},
     {"_symR_AECM_R", (DL_FUNC) &_symR_AECM_R, 16},
     {"_symR_Var_contrast", (DL_FUNC) &_symR_Var_contrast, 24},
+    {"_symR_Var_contrast_boot", (DL_FUNC) &_symR_Var_contrast_boot, 22},
     {"_symR_OSL_R", (DL_FUNC) &_symR_OSL_R, 16},
     {"_symR_Performance_test_R", (DL_FUNC) &_symR_Performance_test_R, 10},
     {"_symR_AECM_R_3D", (DL_FUNC) &_symR_AECM_R_3D, 16},
