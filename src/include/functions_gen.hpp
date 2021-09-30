@@ -1824,6 +1824,7 @@ Matrix_eig to_grad_Cholesky(const Vector_eig &L){
 * Output: Generate a sample r matrix
 */
 
+#if 0
 Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_eig &sigma){
 	int nRow = our_v_mat.rows();	 //n
 	int nCol = our_v_mat.cols();	 //m
@@ -1843,6 +1844,27 @@ Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_ei
 	}
 	return(tmp3);
 }
+#endif
+
+#if 1
+Matrix_eig_row Gen_r_from_v_mat(const Matrix_eig_row &our_v_mat, const Vector_eig &sigma){
+	int nRow = our_v_mat.rows();	 //n
+	int nCol = our_v_mat.cols();	 //m
+	Matrix_eig_row tmp3 = our_v_mat;
+	double tmp1, tmp2;
+	
+	for(int i = 0; i < nRow; ++i){		//n
+		for(int j = 0; j < nCol; ++j){	//m
+			tmp1 = R::rnorm(0,1) * sigma(j);
+			tmp2 = R::rnorm(0,1) * sigma(j) + our_v_mat(i,j);		//R::rnorm(0.0, 1.0)
+			tmp3(i,j) = std::sqrt(SQ(tmp2)+SQ(tmp1));
+		}
+	}
+	return(tmp3);
+}
+#endif
+
+
 
 
 /*

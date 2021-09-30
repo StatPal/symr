@@ -131,6 +131,10 @@ add sigma_j estimation code
 
 Update readme
 
+Update the Random number generation to generate new observations. 
+
+
+
 
 
 
