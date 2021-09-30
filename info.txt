@@ -129,7 +129,7 @@ Example of variance
 
 add sigma_j estimation code -- Done
 
-Update readme
+Update readme  -- Updated, check
 
 Update the Random number generation to generate new observations. -- Done
 
