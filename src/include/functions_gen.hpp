@@ -119,7 +119,7 @@ const int IF_DEBUG = 1;
 
 
 
-#define DEBUG_LEVEL_0				//Minimal debugs
+//#define DEBUG_LEVEL_0				//Minimal debugs
 
 #ifdef DEBUG_LEVEL_0
 #define Debug0(x) {Rcpp::Rcout << "DEBUG 0: "<< x << "\n";}
@@ -128,7 +128,7 @@ const int IF_DEBUG = 1;
 #endif
 
 
-#define DEBUG_LEVEL_1				//Important ones.
+//#define DEBUG_LEVEL_1				//Important ones.
 
 #ifdef DEBUG_LEVEL_1
 #define Debug1(x) {Rcpp::Rcout << "DEBUG 1: "<< x << "\n";}

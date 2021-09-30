@@ -69,3 +69,7 @@ Var_contrast_boot_3D <- function(W, Psi_inv, beta, contrast, our_dim_1, TE_train
     .Call(`_symR_Var_contrast_boot_3D`, W, Psi_inv, beta, contrast, our_dim_1, TE_train, TR_train, sigma_train, train, TE_test, TR_test, sigma_test, test, train_scale, TE_scale, TR_scale, black_list, B, EM_iter, abs_diff, rel_diff, penalized)
 }
 
+est_sigma_j <- function(r_col, min_grp = 5L, max_grp = 15L, init_iter = 4L, EM_iter = 15L, eps = 0.0001) {
+    .Call(`_symR_est_sigma_j`, r_col, min_grp, max_grp, init_iter, EM_iter, eps)
+}
+

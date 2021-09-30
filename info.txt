@@ -127,12 +127,14 @@ devtools::check()
 ## TODO:
 Example of variance
 
-add sigma_j estimation code
+add sigma_j estimation code -- Done
 
 Update readme
 
 Update the Random number generation to generate new observations. -- Done
 
+
+Use donttest instead of dontrun as noted here: https://stackoverflow.com/a/44997778
 
 
 

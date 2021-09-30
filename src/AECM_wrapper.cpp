@@ -434,5 +434,23 @@ Eigen::MatrixXd Var_contrast_boot_3D(const Eigen::MatrixXd W, const Eigen::Matri
 
 
 
+/** 
+* sigma_j estimation 
+*/
+#include "include/sigma.hpp"
+
+
+//[[Rcpp::export]]
+double est_sigma_j(Eigen::VectorXd r_col, int min_grp = 5, int max_grp = 15, 
+				int init_iter = 4, int EM_iter = 15, double eps = 0.0001){
+				
+	return Est_var(r_col, min_grp, max_grp, init_iter, EM_iter, eps);
+}
+
+
+
+
+
+
 
 

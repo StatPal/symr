@@ -68,13 +68,13 @@
 #' TR_test <- TR_values[test_ind]
 #'
 #' dimen <- c(3, 256, 256, 1) ## First element correspond to dim+1
-#'
-#'
+#' \donttest{
 #' ## Get LS estimate:
 #' W_LS <- symr(NULL,
 #'   method = "LS", dimen, TE.train, TR.train, sigma.train, train,
 #'   r_scale, TE.scale, TR.scale, mask
 #' )
+#'
 #'
 #' ## Get AECM estimate starting from LS initial value:
 #' W_AECM <- symr(W_LS,
@@ -84,6 +84,7 @@
 #'
 #' # Overall performaces of LS
 #' mean(performance(W_LS, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
+#' }
 symr <- function(W = NULL,
                  method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM"),
                  dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter.LS = 50L, maxiter = 50L, abs.diff = 1e-1, rel.diff = 1e-5, verbose = 0L, verbose2 = 0L) {

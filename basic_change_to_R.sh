@@ -43,3 +43,16 @@ Wed Sep 29 07:37:13 PM CDT 2021
 
 Change the Header protector of the 3D var file.
 
+
+Copy the sigma.cpp file from examples/3D to src/include 
+-- convert it into an hpp file with no main and with protector
+
+
+
+Add a //[[Rcpp::export]] in that file and just include that header file in AECM_wrapper.cpp   -- This does not work. 
+Just do the usual way and replace a EXIT_FAILURE
+
+
+Close the Debug options
+
+

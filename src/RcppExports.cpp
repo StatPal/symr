@@ -355,6 +355,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// est_sigma_j
+double est_sigma_j(Eigen::VectorXd r_col, int min_grp, int max_grp, int init_iter, int EM_iter, double eps);
+RcppExport SEXP _symR_est_sigma_j(SEXP r_colSEXP, SEXP min_grpSEXP, SEXP max_grpSEXP, SEXP init_iterSEXP, SEXP EM_iterSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type r_col(r_colSEXP);
+    Rcpp::traits::input_parameter< int >::type min_grp(min_grpSEXP);
+    Rcpp::traits::input_parameter< int >::type max_grp(max_grpSEXP);
+    Rcpp::traits::input_parameter< int >::type init_iter(init_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type EM_iter(EM_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(est_sigma_j(r_col, min_grp, max_grp, init_iter, EM_iter, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_symR_mean_rice_R", (DL_FUNC) &_symR_mean_rice_R, 2},
@@ -374,6 +390,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_symR_Var_contrast", (DL_FUNC) &_symR_Var_contrast, 20},
     {"_symR_Var_contrast_boot_2D", (DL_FUNC) &_symR_Var_contrast_boot_2D, 22},
     {"_symR_Var_contrast_boot_3D", (DL_FUNC) &_symR_Var_contrast_boot_3D, 22},
+    {"_symR_est_sigma_j", (DL_FUNC) &_symR_est_sigma_j, 6},
     {NULL, NULL, 0}
 };
 
