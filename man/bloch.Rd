@@ -9,9 +9,9 @@ bloch(w, TE, TR)
 \arguments{
 \item{w}{A numeric Vector of size 3}
 
-\item{TE}{A numeric vector, TE values for the training set}
+\item{TE}{A numeric vector, TE values}
 
-\item{TR}{A numeric vector, TR values for the training set}
+\item{TR}{A numeric vector, TR values}
 }
 \value{
 The vector corresponding to the MR signal values Bloch equation predicts(i.e., \eqn{\hat{\nu}})
