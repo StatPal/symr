@@ -27,7 +27,7 @@ W <- rbind(c(50, 0.01, 0.003), c(36, 0.02, 0.04)) ## Two sample rows
 ## Design parameters
 TE <- c(0.01, 0.03, 0.04, 0.01)
 TR <- c(0.6, 0.6, 1, 0.8)
-sig <- c(1.2, 2.1, 1.8)
+sig <- c(1.2, 2.1, 1.8, 0.5)
 ## Forward transformed values:
-Generate.noisy.image(W, TE, TR, sigma)
+Generate.noisy.image(W, TE, TR, sig)
 }

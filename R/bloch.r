@@ -55,9 +55,9 @@ bloch.image <- function(W, TE, TR) {
 #' ## Design parameters
 #' TE <- c(0.01, 0.03, 0.04, 0.01)
 #' TR <- c(0.6, 0.6, 1, 0.8)
-#' sig <- c(1.2, 2.1, 1.8)
+#' sig <- c(1.2, 2.1, 1.8, 0.5)
 #' ## Forward transformed values:
-#' Generate.noisy.image(W, TE, TR, sigma)
+#' Generate.noisy.image(W, TE, TR, sig)
 Generate.noisy.image <- function(W, TE, TR, sigma) {
     .Call(`_symR_Generate_r`, W, TE, TR, sigma)
 }
