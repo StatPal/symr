@@ -22,7 +22,7 @@ We have used an **optimizer** in C++, which also uses Eigen, and recent versions
 
 ### Download:
 
-The simplest way to install this package in R is to use [devtools](https://cran.r-project.org/web/packages/devtools/index.html) package like:
+The simplest way to install this package in R is to use [devtools](https://CRAN.R-project.org/package=devtools) package like:
 ```R
 devtools::install_github("StatPal/symR@R")
 ```
