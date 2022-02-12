@@ -62,9 +62,9 @@ prediction.var(
 
 \item{black.list}{A numeric vector of size n signifying the background voxels}
 
-\item{cg_maxiter}{Maximum iteration number of cojugant-gradient method}
+\item{cg_maxiter}{Maximum iteration number of conjugate-gradient method}
 
-\item{cg_tol}{tolerance number of cojugant-gradient method}
+\item{cg_tol}{tolerance number of conjugate-gradient method}
 
 \item{penalized}{This is 1 if penalized methods are used(such as "AECM", "OSL").}
 }

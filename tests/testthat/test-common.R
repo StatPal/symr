@@ -7,6 +7,17 @@ Bloch_vec <- function(W_row, TE1, TR1) {
   W_row[1] * (1 - exp(TR1 * log(W_row[2]))) * exp(TE1 * log(W_row[3]))
 }
 
+Bloch_vec_all <- function(W, TE1, TR1) {
+  W_row <- as.numeric(W)
+  n = nrow(W)
+  final = array(dim=c(n, length(TE1)))
+  for (i in 1:n) {
+    final[i, ] <- Bloch_vec(W[i, ], TE1, TR1)
+  }
+  return(final)
+}
+
+
 ### dv_ij/dW_ik
 simple_dee_v_ij_dee_W_ik <- function(W, TE, TR, j, k) {
   if (k == 1) {
@@ -141,5 +152,5 @@ Performance_test <- function(W, test, TE_test, TR_test, sigma_test,
     }
   }
 
-  return(Performance_test_vec)
+  return(as.numeric(Performance_test_vec))
 }
