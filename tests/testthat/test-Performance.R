@@ -1,5 +1,8 @@
 source("test-common.R")
 
+## Implement and check the function with mask
+
+
 test_that("Performance measures are okay",{
     W <- rbind(c(40, 0.01, 0.003), c(36, 0.02, 0.04)) ## Two sample rows of parameters, W
     test <- rbind(c(56, 52, 57, 51), c(39, 37, 33, 34.4))
