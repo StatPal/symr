@@ -186,7 +186,7 @@ const int IF_DEBUG = 1;
 
 
 
-
+// TODO: Not necessary now
 const Matrix_eig G((Matrix_eig(6,9) << 
   1, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 0, 1, 0, 0, 0, 0, 0,
@@ -207,7 +207,7 @@ const Matrix_eig G((Matrix_eig(6,9) <<
 ******************** Bessel functions *******************
 ********************************************************/
 
-
+// TODO: Not necessary now
 /*
 * Modified Bessel Function of First Kind - Hand-written -  would be slow
 * Inputs: x, alpha

@@ -21,12 +21,10 @@
 
 
 
-
+// General Functioins
 #include "functions_gen.hpp"
-//#include "read_files.hpp"
 
-
-
+// Optimizer
 // #include "../CppNumericalSolvers/include/cppoptlib/meta.h"
 #include "../CppNumericalSolvers/include/cppoptlib/boundedproblem.h"
 #include "../CppNumericalSolvers/include/cppoptlib/solver/lbfgsbsolver.h"
@@ -59,22 +57,18 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	Least_Sq_est() : 
 		cppoptlib::BoundedProblem<T>(3){}
 	
-
-
 	TVector TE, TR, lb, ub, v_new;
-	int i;
+	int i, m;
 	
-	
+	// This is evoked after getting the data
 	void update_size(){
 		v_new = TVector::Zero(TE.size());
+		m = TE.size();
 	}
 	
-	
-
-	// Track the best:
+	// Track the best value:
 	Vector_eig current_best_param;
 	double current_best_val = 1.0e+15;
-
 
 	// Objective function, to be minimized:
 	T value(const TVector &x) {
@@ -87,8 +81,7 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 				current_best_param = x;
 				current_best_val = fx;
 			}
-		}
-				
+		}	
 		return (fx);
 	}
 
@@ -97,8 +90,6 @@ class Least_Sq_est : public cppoptlib::BoundedProblem<T> {
 	void gradient(const TVector &x, TVector &grad) {
 		Bloch_vec(x, TE, TR, v_new);
 		grad << 0,0,0;
-		int m = TR.size();
-		
 		
 		for(int j = 0; j < m; ++j){
 		
@@ -143,14 +134,15 @@ void least_sq_solve(Matrix_eig_row &W,
 	lb << 0.0001, exp(-1/(0.01*TR_scale)), exp(-1/(0.001*TE_scale));
 	ub << 450.0, exp(-1/(4.0*TR_scale)), exp(-1/(0.2*TE_scale));
 	for(int i = 1; i < 3; ++i){
-		if(lb[i]<1.0e-8){
+		if(lb[i] < 1.0e-8){
 			lb[i] = 1.0e-8;
 		}
 	}
-	Debug1("lb inside LS: " << lb.transpose());
-	Debug1("ub inside LS: " << ub.transpose() << "\n");
+	Debug0("Lower Bounds of W inside LS: " << lb.transpose());
+	Debug0("Upper Bounds of W inside LS: " << ub.transpose() << "\n");
 	
-	
+
+	// Fix the variables
 	f.TE.noalias() = TE_example;	f.TR.noalias() = TR_example;
 	f.setLowerBound(lb);	f.setUpperBound(ub);		f.lb.noalias() = lb; 	f.ub.noalias() = ub;
 	f.update_size();
@@ -173,7 +165,7 @@ void least_sq_solve(Matrix_eig_row &W,
 	
 	// See https://bisqwit.iki.fi/story/howto/openmp/#PrivateFirstprivateAndSharedClauses for modifications also
 	
-	// Loop of 
+	// Loop for LS
 	#pragma omp parallel for default(none) firstprivate(f, solver) private (x, old_val, fx)  shared(W, bad_count_o, nan_count, bad_count_o_2, r, TE_example, TR_example, n, Rcpp::Rcout)
 	for(int i = 0; i < n; ++i){
 	
@@ -237,7 +229,7 @@ void least_sq_solve(Matrix_eig_row &W,
 
 
 
-
+// TODO : CHECK necessity
 /**
 * Read the data and
 * replace the zeros by small number (0.5)
@@ -266,6 +258,9 @@ void least_sq_solve(Matrix_eig_row &W,
 * if do_least_sq is 1, 
 * 	it gives the least square solution.
 */
+// TODO : CHECK necessity
+// NOT USED IN R - It is at ../AECM_wrapper.cpp file with much smaller part
+// ALSO, the 'Matrix_eig_row' type not used directly
 Matrix_eig_row Init_val(const Matrix_eig_row &r, 
                         const Vector_eig &TE_example, const Vector_eig &TR_example, 
                         short our_dim[8], 
@@ -338,7 +333,8 @@ Matrix_eig_row Init_val(const Matrix_eig_row &r,
 		 Scaling factor is sd / MAD w.r.t. mean
 */
 Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test, 
-							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
+							const Vector_eig &TE_test, const Vector_eig &TR_test, const Vector_eig &sigma_test, 
+							const Eigen::Matrix<char, Eigen::Dynamic, 1> &black_list,
 							int v_type = 1, int measure_type = 1, int scale = 1, int verbose = 0){
 
 
@@ -346,7 +342,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	int n_test = TE_test.size(), n = W.rows();
 	assert(sigma_test.size() == n_test);
 	Vector_eig Performance_test = Vector_eig::Zero(n_test);
-	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(W.rows(), n_test);		// just testing 
+	Matrix_eig_row Perf_mat = Matrix_eig_row::Zero(n, n_test);		// just testing 
 	
 	Vector_eig tmp(n_test);
 	
@@ -356,8 +352,10 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 	int fg_num = 0;
 	
 	
-	// Not exactly correct: Subrata - Check
+	// TODO: Not exactly correct: Subrata - Check
 	
+
+	// TODO: CHeck why parallel is removed
 	// #pragma omp parallel for default(none) firstprivate(v_new, v_star, tmp) shared(W, n, test, n_test, TE_test, TR_test, sigma_test, v_type, measure_type, verbose, Rcpp::Rcout, Perf_mat)		// reduction(+:Performance_test)
 	for(int i = 0; i < n; ++i) {
 		if(black_list(i) == 0){
@@ -382,7 +380,8 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 					tmp(j) = SQ(tmp(j));
 				}
 			}
-			
+			// corresponding voxel performance done
+
 			
 			if(verbose){
 				if(i < 100){
@@ -392,6 +391,7 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 				}			
 			}
 			
+			// How many bad counts(NAN) are there. 
 			int bad_ct = 0;
 			for(int j = 0; j < tmp.size(); ++j){
 				if(std::isnan(tmp(j))){
@@ -405,31 +405,19 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 				}
 			}
 			
-			
 			Perf_mat.row(i) = tmp;
-			// Performance_test = Performance_test + tmp;				// This is main
 		}
-	}
-	
-	// Performance_test = Performance_test/W.rows();
+	}	
 	Performance_test = Perf_mat.array().colwise().sum()/fg_num;
 	
 	
 	
-	if(verbose){
-		 Debug0("Performance_test: " << Performance_test.transpose());
-	}
 	
 	if(measure_type == 2){
 		for(int j = 0; j < n_test; ++j){
 			Performance_test[j] = std::sqrt(Performance_test[j]);
 		}
 	}
-	
-	if(verbose){
-		 Debug0("Performance_test: " << Performance_test.transpose());
-	}
-	
 	
 	if(scale){
 		double scale_factor = 1.0;
@@ -442,7 +430,10 @@ Vector_eig Performance_test(const Matrix_eig_row &W, const Matrix_eig_row &test,
 			Performance_test[j] /= scale_factor;
 		}
 	}
-	
+
+	if(verbose){
+		 Debug0("Performance_test: " << Performance_test.transpose());
+	}
 	
 	return Performance_test;
 }
