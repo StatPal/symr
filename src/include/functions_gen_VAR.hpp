@@ -156,7 +156,7 @@ SpMat Hessian_mat(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Ve
 		if(black_list(i) == 0){
 		
 			if(i % 10000 == 0){
-				Rcpp::Rcout << "\n";
+				// Rcpp::Rcout << "\n";  // Creating unnecessary blank lines. 
 				Debug1("Hessian matrix, i: "<< i);
 			}
 			
@@ -455,7 +455,6 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	Matrix_eig Var_est(contrast.nonZeros(), TE_test.size());
 	Vector_eig Var_est_vec(TE_test.size());
 	
-	
 	SpMat A = Hessian_mat(W, Psi_inv, beta, TE_train, TR_train, sigma_train, train, MRF_obj, black_list, with_MRF);
 	assert(A.rows() == 3*n);
 	// save_sparse(A, "Hessian_Matrix.csv", 1);
@@ -489,19 +488,13 @@ Vector_eig Var_est_test_mat_contrast(const Matrix_eig_row &W, const Matrix3d_eig
 	//Eigen::ConjugateGradient<SpMat, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double>> cg;
 	//Debug0("IncompleteCholesky");
 	
-	
 	cg.setMaxIterations(cg_maxiter);
 	cg.setTolerance(cg_tol);
-	
 	cg.compute(A);
 	Debug1("CG compute part done");
 	
-	
-	
-	
 	Vector_eig tmp_soln(3*n);
 	SpVec b(3*n);
-	
 	
 	Vector_eig x = Vector_eig::Zero(3*n);
 	for(int j = 0; j < TE_test.size(); ++j){

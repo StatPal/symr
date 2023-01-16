@@ -314,9 +314,10 @@ Rcpp::List OSL_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 #include "include/functions_gen_VAR.hpp"
 
+//[[Rcpp::depends(RcppEigen)]]
 //[[Rcpp::export]]
 Eigen::MatrixXd Var_contrast(const Eigen::Map<Eigen::MatrixXd> &W, const Eigen::Map<Eigen::MatrixXd> &Psi_inv, const Eigen::Map<Eigen::MatrixXd> &beta, 
-			const Eigen::MappedSparseMatrix<double> contrast,
+                             const Eigen::Map<Eigen::MatrixXd> &contrast,
             const Eigen::Map<Eigen::VectorXd> our_dim_1,
             const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
             const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
@@ -324,22 +325,21 @@ Eigen::MatrixXd Var_contrast(const Eigen::Map<Eigen::MatrixXd> &W, const Eigen::
             const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
             double train_scale, double TE_scale, double TR_scale, 
             const Eigen::Map<Eigen::VectorXd> &black_list, 
-	        int cg_maxiter = 50, double cg_tol = 1e-6, int penalized = 1){
+	        int cg_maxiter = 100, double cg_tol = 1e-6, int penalized = 1){
             
 
-	short our_dim_train[8];
+  short our_dim_train[8];
 	for(int i = 0; i < 8; ++i){
 		our_dim_train[i] = our_dim_1[i];
 	}
 	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
-	
+	Eigen::SparseVector<double> contrast2 = contrast.sparseView();	
 	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
-	
 	Eigen::Matrix3d Psi_inv_2 = Psi_inv;
-            
+	
 	Eigen::MatrixXd var_est = Var_est_test_mat_contrast(W, Psi_inv_2, beta, 
 								TE_train, TR_train, sigma_train, train, MRF_obj_1,
-								TE_test, TR_test, sigma_test, test, contrast, black_list_2, 
+								TE_test, TR_test, sigma_test, test, contrast2, black_list_2, 
 								cg_maxiter, cg_tol, // std::string preconditioner = "diagonal", 
 								"diagonal", 
 								//auto preconditioner_2 = Eigen::DiagonalPreconditioner<double>, 
@@ -347,9 +347,72 @@ Eigen::MatrixXd Var_contrast(const Eigen::Map<Eigen::MatrixXd> &W, const Eigen::
 	return var_est;
 }
 
+Eigen::MatrixXd Check(const Eigen::Map<Eigen::MatrixXd> &W, int penalized = 1){
+  Eigen::MatrixXd var_est = W;
+  Rcpp::Rcout << "After the operation 4";
+  return var_est;
+}
 
 
 
+// 
+// // Okay, this const Eigen::MappedSparseMatrix<double> contrast has some problem. 
+// 
+// typedef Eigen::MappedSparseMatrix< double > mappedSparseMatrix ;
+// typedef Eigen::Map< Eigen::VectorXd > mappedVector ;
+// 
+// //[[Rcpp::export]]
+// Eigen::MatrixXd Check2(const Eigen::Map<Eigen::MatrixXd> &W, 
+//                        // const Eigen::Map<Eigen::MatrixXd> &Psi_inv, const Eigen::Map<Eigen::MatrixXd> &beta, 
+//                        // const Eigen::MappedSparseMatrix<double> contrast,
+//                        //const Eigen::Map<Eigen::MatrixXd> contrast,
+//                        // const Eigen::Map<Eigen::VectorXd> our_dim_1,
+//                        // const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+//                        // const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+//                        // const Eigen::Map<Eigen::VectorXd> &TE_test, const Eigen::Map<Eigen::VectorXd> &TR_test, 
+//                        // const Eigen::Map<Eigen::VectorXd> &sigma_test, const Eigen::Map<Eigen::MatrixXd> &test,
+//                        // double train_scale, double TE_scale, double TR_scale
+//                        int penalized){
+// // Using the typedef - ed name creates problem while creating the package, saying that the mappedSparseMatrix is not found in the Rcppexports.cpp
+// // We can take a dense input here and sparsify it inside C++ for now. 
+// 
+//   
+//   // Rcpp::Rcout << "After the operation 1";
+//   // short our_dim_train[8];
+//   // for(int i = 0; i < 8; ++i){
+//   //   our_dim_train[i] = our_dim_1[i];
+//   // }
+//   // MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+//   // Rcpp::Rcout << "After the operation 2";
+//   // 
+//   // // Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+//   // Rcpp::Rcout << "After the operation 3";
+//   // 
+//   // Debug1(" Check\n");
+//   // 
+//   // Eigen::Matrix3d Psi_inv_2 = Psi_inv;
+//   
+//   
+//   Eigen::MatrixXd var_est = W;
+//   Rcpp::Rcout << "After the operation 4";
+//   return var_est;
+// }
+
+
+
+
+// typedef Eigen::MappedSparseMatrix< double > mappedSparseMatrix ;
+// typedef Eigen::Map< Eigen::VectorXd > mappedVector ;
+// 
+// // [[Rcpp::depends(RcppEigen)]]
+// // [[Rcpp::export]]
+// Eigen::VectorXd cgSparse(
+//     const mappedSparseMatrix A,
+//     const mappedVector b
+// ) {
+//   Eigen::ConjugateGradient< mappedSparseMatrix, Eigen::Lower > cg( A ) ;
+//   return cg.solve( b ) ;
+// }
 
 
 

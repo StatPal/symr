@@ -94,7 +94,7 @@ Matrix_eig para_boot_test_mat_3D(const Matrix_eig_row &W, const Matrix3d_eig &Ps
 
 		
 		//Generate an image matrix:
-		// generated_r = Gen_r(W, TE_test, TR_test, sigma_test); // Sorry, this is a mistake
+		// generated_r = Gen_r(W, TE_test, TR_test, sigma_test); // Sorry, this is a mistake - check
 		generated_r = Gen_r(W, TE_train, TR_train, sigma_train);
 		// W_init.noalias() = W;		// Not needed? - numerical stabilty?
 		AECM_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, generated_r, 
