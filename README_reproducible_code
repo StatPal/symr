@@ -36,5 +36,5 @@ c) Run `image_SE_1.R`
 
 Options: DEEP_LEARNING_COMPARE <- TRUE will add the comparison of DL and AECM and other methods
 
-Step 3: Run 
+Step 3: Run `Variance.R`
 
