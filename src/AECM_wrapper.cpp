@@ -151,6 +151,43 @@ Rcpp::List AECM_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
 
 
 
+//[[Rcpp::export]]
+Rcpp::List LS_new_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
+            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+            double train_scale, double TE_scale, double TR_scale, 
+            const Eigen::Map<Eigen::VectorXd> &black_list, 
+	        int maxiter = 50, int penalized = 1, 
+            double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
+
+
+	// Matrix_eig_row W_init = Matrix_eig_row::Zero(train.rows(), 3);	// Change this format and take initial value as input
+	Matrix_eig_row W_init = W;
+	
+	short our_dim_train[8];
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim_1[i];
+	}
+
+	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
+	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);
+	
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+	
+	
+	LS_new_optim(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
+	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
+	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
+
+	return Rcpp::List::create(Named("W") = W_init,
+                          Named("Psi_inv") = Psi_inv_init,
+                          Named("beta") = beta_init);
+}
+
+
+
 
 
 
@@ -261,6 +298,41 @@ Rcpp::List AECM_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
                           Named("beta") = beta_init);
 }
 
+
+//[[Rcpp::export]]
+Rcpp::List LS_new_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1,
+            const Eigen::Map<Eigen::VectorXd> &TE_train, const Eigen::Map<Eigen::VectorXd> &TR_train, 
+            const Eigen::Map<Eigen::VectorXd> &sigma_train, const Eigen::Map<Eigen::MatrixXd> &train, 
+            double train_scale, double TE_scale, double TR_scale, 
+            const Eigen::Map<Eigen::VectorXd> &black_list, 
+	        int maxiter = 50, int penalized = 1, 
+            double abs_diff = 1e-1, double rel_diff = 1e-5, int verbose = 0, int verbose2 = 0){
+
+
+	// Matrix_eig_row W_init = Matrix_eig_row::Zero(train.rows(), 3);	// Change this format and take initial value as input
+	Matrix_eig_row W_init = W;
+	
+	short our_dim_train[8];
+	for(int i = 0; i < 8; ++i){
+		our_dim_train[i] = our_dim_1[i];
+	}
+
+	Eigen::Matrix3d Psi_inv_init = Eigen::Matrix3d::Identity();
+	Vector_eig beta_init = 1.0*Vector_eig::Ones(3);
+	
+	MRF_param MRF_obj_1(our_dim_train[1], our_dim_train[2], our_dim_train[3]);
+	
+	Eigen::Matrix<char, Eigen::Dynamic, 1> black_list_2 = black_list.cast<char>();
+	
+	
+	LS_new_optim_3D(W_init, Psi_inv_init, beta_init, TE_train, TR_train, sigma_train, train, 
+	          train_scale, TE_scale, TR_scale, MRF_obj_1, black_list_2, 
+	          maxiter, penalized, abs_diff, rel_diff, verbose, verbose2);
+
+	return Rcpp::List::create(Named("W") = W_init,
+                          Named("Psi_inv") = Psi_inv_init,
+                          Named("beta") = beta_init);
+}
 
 
 
