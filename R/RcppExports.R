@@ -41,6 +41,10 @@ AECM_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_s
     .Call(`_symR_AECM_R`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
 }
 
+LS_new_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+    .Call(`_symR_LS_new_R`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+}
+
 OSL_R <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
     .Call(`_symR_OSL_R`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
 }
@@ -51,6 +55,10 @@ Performance_test_R <- function(W, test, TE_test, TR_test, sigma_test, black_list
 
 AECM_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
     .Call(`_symR_AECM_R_3D`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
+}
+
+LS_new_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {
+    .Call(`_symR_LS_new_R_3D`, W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2)
 }
 
 OSL_R_3D <- function(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter = 50L, penalized = 1L, abs_diff = 1e-1, rel_diff = 1e-5, verbose = 0L, verbose2 = 0L) {

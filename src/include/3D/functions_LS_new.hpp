@@ -88,7 +88,7 @@ double l_star_LS(const Matrix_eig_row &W, const Matrix3d_eig &Psi_inv, const Vec
 * Optim template for MRF parameters
 */
 template<typename T>
-class MRF_optim_3D : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
+class MRF_optim_nnnew_3D : public cppoptlib::BoundedProblem<T> {		// I guess it inherits
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;	 // Inherit the Vector typedef
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -103,7 +103,7 @@ class MRF_optim_3D : public cppoptlib::BoundedProblem<T> {		// I guess it inheri
 
 
   public:	
-	MRF_optim_3D(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
+	MRF_optim_nnnew_3D(const TMatrix_row &W1_, MRF_param &MRF_obj_optim_) : 
 		cppoptlib::BoundedProblem<T>(1), 
 		W1(W1_),
 		MRF_obj_optim(MRF_obj_optim_), 
@@ -158,7 +158,7 @@ class MRF_optim_3D : public cppoptlib::BoundedProblem<T> {		// I guess it inheri
 * Optim template for rows of W.
 */
 template<typename T>
-class Likeli_optim_3D : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_3D is inheriting fn from cppoptlib::BoundedProblem
+class Likeli_optim_nnnew_3D : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_nnnew_3D is inheriting fn from cppoptlib::BoundedProblem
   public:
 	using typename cppoptlib::BoundedProblem<T>::TVector;
 	using TMatrix = typename cppoptlib::BoundedProblem<T>::THessian;
@@ -184,7 +184,7 @@ class Likeli_optim_3D : public cppoptlib::BoundedProblem<T> {			// Likeli_optim_
 
 	
   public:
-	Likeli_optim_3D(MRF_param &MRF_obj_optim_, const TMatrix_row& r_, TMatrix_row& Theta_, 
+	Likeli_optim_nnnew_3D(MRF_param &MRF_obj_optim_, const TMatrix_row& r_, TMatrix_row& Theta_, 
 				 TMatrix_row& W_, TMatrix_row& W_old_,
 				 int penalized_,
 				 const TVector& lb_, const TVector& ub_, 
@@ -478,8 +478,8 @@ void LS_new_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &
 	auto time_1_likeli = std::chrono::high_resolution_clock::now();
 	//if(penalized){
 		
-		MRF_optim_3D<double> f_2(W_init, MRF_obj);
-		cppoptlib::LbfgsbSolver<MRF_optim_3D<double>> solver_2;
+		MRF_optim_nnnew_3D<double> f_2(W_init, MRF_obj);
+		cppoptlib::LbfgsbSolver<MRF_optim_nnnew_3D<double>> solver_2;
 		
 		
 		// *MRF based initial values:* //
@@ -597,14 +597,14 @@ void LS_new_optim_3D(Matrix_eig_row &W_init, Matrix3d_eig &Psi_inv, Vector_eig &
 			// lb, ub, etc would be shared
 			// beta, Psi_inv would be Private???? -- no, they are not changed -- shared
 			// 
-			Likeli_optim_3D<double> f(MRF_obj, r, Theta, W_init, W_old, penalized, lb, ub,
+			Likeli_optim_nnnew_3D<double> f(MRF_obj, r, Theta, W_init, W_old, penalized, lb, ub,
 									sigma, TE_example, TR_example, beta, Psi_inv);
 			f.setLowerBound(lb);	f.setUpperBound(ub);
 			f.update_size();
 			
 			
 	
-			cppoptlib::LbfgsbSolver<Likeli_optim_3D<double>> solver;			// For MRF parameters!
+			cppoptlib::LbfgsbSolver<Likeli_optim_nnnew_3D<double>> solver;			// For MRF parameters!
 			cppoptlib::Criteria<double> crit_voxel = cppoptlib::Criteria<double>::defaults();
 			crit_voxel.iterations = 25;
 			solver.setStopCriteria(crit_voxel);

@@ -163,6 +163,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LS_new_R
+Rcpp::List LS_new_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int maxiter, int penalized, double abs_diff, double rel_diff, int verbose, int verbose2);
+RcppExport SEXP _symR_LS_new_R(SEXP WSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP maxiterSEXP, SEXP penalizedSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP verboseSEXP, SEXP verbose2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type W(WSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type our_dim_1(our_dim_1SEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TE_train(TE_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TR_train(TR_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type sigma_train(sigma_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type train(trainSEXP);
+    Rcpp::traits::input_parameter< double >::type train_scale(train_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TE_scale(TE_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TR_scale(TR_scaleSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type black_list(black_listSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< int >::type penalized(penalizedSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_diff(abs_diffSEXP);
+    Rcpp::traits::input_parameter< double >::type rel_diff(rel_diffSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose2(verbose2SEXP);
+    rcpp_result_gen = Rcpp::wrap(LS_new_R(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // OSL_R
 Rcpp::List OSL_R(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int maxiter, int penalized, double abs_diff, double rel_diff, int verbose, int verbose2);
 RcppExport SEXP _symR_OSL_R(SEXP WSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP maxiterSEXP, SEXP penalizedSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP verboseSEXP, SEXP verbose2SEXP) {
@@ -232,6 +258,32 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< int >::type verbose2(verbose2SEXP);
     rcpp_result_gen = Rcpp::wrap(AECM_R_3D(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LS_new_R_3D
+Rcpp::List LS_new_R_3D(Eigen::MatrixXd W, Eigen::Map<Eigen::VectorXd> our_dim_1, const Eigen::Map<Eigen::VectorXd>& TE_train, const Eigen::Map<Eigen::VectorXd>& TR_train, const Eigen::Map<Eigen::VectorXd>& sigma_train, const Eigen::Map<Eigen::MatrixXd>& train, double train_scale, double TE_scale, double TR_scale, const Eigen::Map<Eigen::VectorXd>& black_list, int maxiter, int penalized, double abs_diff, double rel_diff, int verbose, int verbose2);
+RcppExport SEXP _symR_LS_new_R_3D(SEXP WSEXP, SEXP our_dim_1SEXP, SEXP TE_trainSEXP, SEXP TR_trainSEXP, SEXP sigma_trainSEXP, SEXP trainSEXP, SEXP train_scaleSEXP, SEXP TE_scaleSEXP, SEXP TR_scaleSEXP, SEXP black_listSEXP, SEXP maxiterSEXP, SEXP penalizedSEXP, SEXP abs_diffSEXP, SEXP rel_diffSEXP, SEXP verboseSEXP, SEXP verbose2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type W(WSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type our_dim_1(our_dim_1SEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TE_train(TE_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type TR_train(TR_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type sigma_train(sigma_trainSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type train(trainSEXP);
+    Rcpp::traits::input_parameter< double >::type train_scale(train_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TE_scale(TE_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type TR_scale(TR_scaleSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type black_list(black_listSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< int >::type penalized(penalizedSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_diff(abs_diffSEXP);
+    Rcpp::traits::input_parameter< double >::type rel_diff(rel_diffSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose2(verbose2SEXP);
+    rcpp_result_gen = Rcpp::wrap(LS_new_R_3D(W, our_dim_1, TE_train, TR_train, sigma_train, train, train_scale, TE_scale, TR_scale, black_list, maxiter, penalized, abs_diff, rel_diff, verbose, verbose2));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -383,9 +435,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1", (DL_FUNC) &_symR_dee_2_v_ij_dee_W_ik_dee_W_ik1, 6},
     {"_symR_Init_val_least_sq_R", (DL_FUNC) &_symR_Init_val_least_sq_R, 10},
     {"_symR_AECM_R", (DL_FUNC) &_symR_AECM_R, 16},
+    {"_symR_LS_new_R", (DL_FUNC) &_symR_LS_new_R, 16},
     {"_symR_OSL_R", (DL_FUNC) &_symR_OSL_R, 16},
     {"_symR_Performance_test_R", (DL_FUNC) &_symR_Performance_test_R, 10},
     {"_symR_AECM_R_3D", (DL_FUNC) &_symR_AECM_R_3D, 16},
+    {"_symR_LS_new_R_3D", (DL_FUNC) &_symR_LS_new_R_3D, 16},
     {"_symR_OSL_R_3D", (DL_FUNC) &_symR_OSL_R_3D, 16},
     {"_symR_Var_contrast", (DL_FUNC) &_symR_Var_contrast, 20},
     {"_symR_Var_contrast_boot_2D", (DL_FUNC) &_symR_Var_contrast_boot_2D, 22},

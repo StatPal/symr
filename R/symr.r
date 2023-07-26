@@ -86,7 +86,7 @@
 #' mean(performance(W_LS, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 #' }
 symr <- function(W = NULL,
-                 method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM"),
+                 method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM", "LS-new"),
                  dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter.LS = 50L, maxiter = 50L, abs.diff = 1e-1, rel.diff = 1e-5, verbose = 0L, verbose2 = 0L) {
   if (method == "LS" | method == "Least Square") {
     W_1_init <- exp(-1 / (2.0 * TR.scale))
@@ -114,6 +114,8 @@ symr <- function(W = NULL,
         ## Or the AECM???? (Two step case - but more checked - Subrata)
       } else if (method == "OSL-EM" | method == "One Step Late EM") {
         .Call("_symR_OSL_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
+      } else if (method == "LS-new" | method == "New LS") {
+        .Call("_symR_LS_new_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       } else if (method == "EM" | method == "AECM") {
         .Call("_symR_AECM_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       }
@@ -124,6 +126,8 @@ symr <- function(W = NULL,
         ## Or the AECM???? (Two step case - but more checked - Subrata)
       } else if (method == "OSL-EM" | method == "One Step Late EM") {
         .Call("_symR_OSL_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
+      } else if (method == "LS-new" | method == "New LS") {
+        .Call("_symR_LS_new_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       } else if (method == "EM" | method == "AECM") {
         .Call("_symR_AECM_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       }
