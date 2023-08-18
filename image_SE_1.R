@@ -1,9 +1,11 @@
-DEEP_LEARNING_COMPARE <- FALSE
+DEEP_LEARNING_COMPARE <- TRUE
 
 # install.packages("reticulate")
 library(reticulate)
 # py_install("nibabel")
 # py_install("scikit-image")
+
+dir.create("W_values")
 
 nib <-  import("nibabel")
 skim <- import("skimage")
@@ -51,13 +53,14 @@ phantom[phantom == 0.0] <- 0.5 ## Pre-processing to remove the -Inf issue in lik
 ## Other input parameters:
 TE_values <- c(0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1)
 TR_values <- c(0.6,    0.6,  0.6,    1,    1,    1,    2,    2,    2,    3,    3,   3)
-# sigma_values <- c(1.99146, 1.81265, 1.82837, 2.30221, 1.63414, 1.71876, 3.13695, 1.77141, 1.55651, 2.72191, 1.63068, 1.4359)
-sigma_values <- array(dim=12)
-for (i in 1:3) {
-    print(i)
-    sigma_values[train_ind[i]] <- symR::estimate.sigma.j(phantom[,train_ind[i]])
+sigma_values <- c(1.99146, 1.81265, 1.82837, 2.30221, 1.63414, 1.71876, 3.13695, 1.77141, 1.55651, 2.72191, 1.63068, 1.4359)
+if(!exists("sigma_values")) {
+    sigma_values <- array(dim=12)
+    for (i in 1:3) {
+        print(i)
+        sigma_values[train_ind[i]] <- symR::estimate.sigma.j(phantom[,train_ind[i]])
+    }
 }
-
 
 
 TE.scale <- 2.01 / min(TE_values); TR.scale <- 2.01 / min(TR_values); r_scale <- 1.0
@@ -91,14 +94,16 @@ print("Methods will start")
 
 
 ## LS - C
-t1<- Sys.time()
-W_LS <- symr(NULL,
-            method = "LS", dimen, TE.train, TR.train, sigma.train, train,
-            r_scale, TE.scale, TR.scale, mask,
-            maxiter.LS = 100)
-saveRDS(W_LS, "W_values/W_LS_1.rds")
-t2 <-  Sys.time()
-print(t2-t1)
+if(!file.exists("W_values/W_LS_1.rds")){
+    t1<- Sys.time()
+    W_LS <- symr(NULL,
+                method = "LS", dimen, TE.train, TR.train, sigma.train, train,
+                r_scale, TE.scale, TR.scale, mask,
+                maxiter.LS = 100)
+    saveRDS(W_LS, "W_values/W_LS_1.rds")
+    t2 <-  Sys.time()
+    print(t2-t1)
+}
 W_LS <- readRDS("W_values/W_LS_1.rds")
 
 
@@ -112,7 +117,7 @@ pred_LS[mask==1,] <- 0
 for(i in 1:9){
     pred_3D = array(pred_LS[,i], shapes)   ## BUG shapes
     test_3D = array(test[,i], shapes)
-    SSIM_vals[i] = ssim(pred_3D, test_3D)
+    SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
 }
 print(SSIM_vals)
 tmp_diff <- abs(pred_LS - test)
@@ -122,15 +127,17 @@ tmp_pred_val <- cbind(colMeans(tmp_diff[mask_vec==1,])/apply(test[mask_vec==1,],
 
 
 ## OSL after usual LS
-t1 <- Sys.time()
-W_OSL <- symr(W_LS,
-  method = "OSL-EM", dimen, TE.train, TR.train, sigma.train, train,
-  r_scale, TE.scale, TR.scale, as.numeric(mask),
-            maxiter = 100
-)$W
-saveRDS(W_OSL, "W_values/W_OSL_1.rds")
-t2 <- Sys.time()
-print(t2-t1)
+if(!file.exists("W_values/W_OSL_1.rds")){
+    t1 <- Sys.time()
+    W_OSL <- symr(W_LS,
+    method = "OSL-EM", dimen, TE.train, TR.train, sigma.train, train,
+    r_scale, TE.scale, TR.scale, as.numeric(mask),
+                maxiter = 100
+    )$W
+    saveRDS(W_OSL, "W_values/W_OSL_1.rds")
+    t2 <- Sys.time()
+    print(t2-t1)
+}
 W_OSL <- readRDS("W_values/W_OSL_1.rds")
 
 
@@ -144,7 +151,7 @@ pred_OSL[mask==1,] <- 0
 for(i in 1:9){
     pred_3D = array(pred_OSL[,i], shapes)    ## Bug shapes
     test_3D = array(test[,i], shapes)
-    SSIM_vals[i] = ssim(pred_3D, test_3D)
+    SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
 }
 print(SSIM_vals)
 tmp_diff <- abs(pred_OSL - test)
@@ -154,15 +161,17 @@ tmp_pred_val_OSL <- cbind(colMeans(tmp_diff[mask_vec==1,])/apply(test[mask_vec==
 
 
 ## AECM after usual LS
-t1 <- Sys.time()
-W_AECM <- symr(W_LS,
-  method = "AECM", dimen, TE.train, TR.train, sigma.train, train,
-  r_scale, TE.scale, TR.scale, as.numeric(mask),
-            maxiter = 100
-)$W
-saveRDS(W_AECM, "W_values/W_AECM_1.rds")
-t2 <- Sys.time()
-print(t2-t1)
+if(!file.exists("W_values/W_AECM_1.rds")){
+    t1 <- Sys.time()
+    W_AECM <- symr(W_LS,
+    method = "AECM", dimen, TE.train, TR.train, sigma.train, train,
+    r_scale, TE.scale, TR.scale, as.numeric(mask),
+                maxiter = 100
+    )$W
+    saveRDS(W_AECM, "W_values/W_AECM_1.rds")
+    t2 <- Sys.time()
+    print(t2-t1)
+}
 W_AECM <- readRDS("W_values/W_AECM_1.rds")
 
 
@@ -176,7 +185,7 @@ pred_AECM[mask==1,] <- 0
 for(i in 1:9){
     pred_3D = array(pred_AECM[,i], shapes)   ## Bug shapes
     test_3D = array(test[,i], shapes)
-    SSIM_vals[i] = ssim(pred_3D, test_3D)
+    SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
 }
 print(SSIM_vals)
 tmp_diff <- abs(pred_AECM - test)
@@ -214,7 +223,7 @@ if(DEEP_LEARNING_COMPARE){
     for(i in 1:9){
         pred_3D = array(pred_LS_py[,i], shapes)
         test_3D = array(test[,i], shapes)
-        SSIM_vals[i] = ssim(pred_3D, test_3D)
+        SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
     }
     print(SSIM_vals)
     tmp_diff <- abs(pred_LS_py - test)
@@ -246,7 +255,7 @@ if(DEEP_LEARNING_COMPARE){
     for(i in 1:9){
         pred_3D = array(pred_OSL_py[,i], shapes)     ## Bug shapes
         test_3D = array(test[,i], shapes)
-        SSIM_vals[i] = ssim(pred_3D, test_3D)
+        SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
     }
     print(SSIM_vals)
     tmp_diff <- abs(pred_OSL_py - test)
@@ -278,7 +287,7 @@ if(DEEP_LEARNING_COMPARE){
     for(i in 1:9){
         pred_3D = array(pred_AECM_py[,i], shapes)
         test_3D = array(test[,i], shapes)
-        SSIM_vals[i] = ssim(pred_3D, test_3D)
+        SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
     }
     print(SSIM_vals)
     tmp_diff <- abs(pred_AECM_py - test)
@@ -307,7 +316,7 @@ if(DEEP_LEARNING_COMPARE){
     for(i in 1:9){
         pred_3D = array(pred_LS_DL_py[,i], shapes)
         test_3D = array(test[,i], shapes)
-        SSIM_vals[i] = ssim(pred_3D, test_3D)
+        SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
     }
     print(SSIM_vals)
     tmp_diff <- abs(pred_LS_DL_py - test)
