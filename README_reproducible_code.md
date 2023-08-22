@@ -15,15 +15,18 @@ a) Clone from git
 git clone https://github.com/StatPal/DeepSynMRI --depth 1
 ```
 
-b) Install reticulate and related packages with the virtual environment needed for the DL package, and create some necessary directories:
+b) Install reticulate and related packages with the virtual environment needed for the DL package, create some necessary directories, and run the file:
 
 ```R
 install.packages("reticulate")
 library(reticulate)
-virtualenv_create("r-reticulate")
+virtualenv_create("r-reticulate")SE_example_DL.py
 virtualenv_install("r-reticulate", c("torch", "torchvision", "torchaudio", "matplotlib", "scikit-image", "pandas", "joblib", "nibabel"))
 dir.create("DeepSynMRI/LS-py")
 dir.create("DeepSynMRI/DL_smooth")
+
+# Run and save values
+py_run_file('SE_example_DL.py')
 ```
 
 
