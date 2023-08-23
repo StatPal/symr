@@ -26,7 +26,7 @@ dir.create("DeepSynMRI/LS-py")
 dir.create("DeepSynMRI/DL_smooth")
 
 # Run and save values
-py_run_file('SE_example_DL.py')
+py_run_file('DeepSynMRI/SE_example_DL.py')
 ```
 
 
@@ -44,13 +44,13 @@ devtools::install_github("StatPal/symR@R")
 ```
 
 b) Clone files for symR and run them: 
-```{R}
+```sh
 git clone -b R https://github.com/StatPal/symR --depth 1
 ```
 
-c) Run `image_SE_1.R` 
+c) Run `symR/image_SE_1.R` 
 
 Options: DEEP_LEARNING_COMPARE <- TRUE will add the comparison of DL and AECM and other methods
 
-Step 3: Run `Variance.R`
+Step 3: Run `symR/Variance.R`
 
