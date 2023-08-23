@@ -95,27 +95,31 @@ if (!dir.exists('W_values')) {dir.create('W_values')}
 
 
 ## LS - C
-t1<- Sys.time()
-W_LS <- symr(NULL,
-            method = "LS", dimen, TE.train, TR.train, sigma.train, train,
-            r_scale, TE.scale, TR.scale, mask,
-            maxiter.LS = 100)
-saveRDS(W_LS, "W_values/W_LS_1.rds")
-t2 <-  Sys.time()
-print(t2-t1)
+if(!file.exists("W_values/W_LS_1.rds")){
+    t1<- Sys.time()
+    W_LS <- symr(NULL,
+                method = "LS", dimen, TE.train, TR.train, sigma.train, train,
+                r_scale, TE.scale, TR.scale, mask,
+                maxiter.LS = 100)
+    saveRDS(W_LS, "W_values/W_LS_1.rds")
+    t2 <-  Sys.time()
+    print(t2-t1)
+}
 W_LS <- readRDS("W_values/W_LS_1.rds")
 
 
 ## AECM after usual LS
-t1 <- Sys.time()
-W_AECM_all <- symr(W_LS,
-  method = "AECM", dimen, TE.train, TR.train, sigma.train, train,
-  r_scale, TE.scale, TR.scale, as.numeric(mask),
-            maxiter = 100
-)
-saveRDS(W_AECM_all, "W_values/W_AECM_1.rds")
-t2 <- Sys.time()
-print(t2-t1)
+if(!file.exists("W_values/W_AECM_1.rds")){
+    t1 <- Sys.time()
+    W_AECM_all <- symr(W_LS,
+    method = "AECM", dimen, TE.train, TR.train, sigma.train, train,
+    r_scale, TE.scale, TR.scale, as.numeric(mask),
+                maxiter = 100
+    )
+    saveRDS(W_AECM_all, "W_values/W_AECM_1.rds")
+    t2 <- Sys.time()
+    print(t2-t1)
+}
 W_AECM_all <- readRDS("W_values/W_AECM_1.rds")
 
 W_AECM <- W_AECM_all$W
@@ -129,7 +133,7 @@ W_AECM[mask==1,3] <- 0.975431
 
 
 # Contrast_GM
-Contrast_GM <- nib$load('phantom_1.0mm_msles1_gray_matter.mnc.gz')$get_fdata()
+Contrast_GM <- nib$load('symR/phantom_1.0mm_msles1_gray_matter.mnc.gz')$get_fdata()
 Contrast_GM <- Contrast_GM[(1:36)*5, (1:217)*1, (1:181)*1]
 Contrast_GM <- c(Contrast_GM)
 Contrast_GM <- Contrast_GM/sum(Contrast_GM)
