@@ -8,7 +8,7 @@ ssim <-  skim$metrics$structural_similarity
 mad_new <- function(x){mean(abs(x-median(x)))}
 
 # Mask
-mask_all <-  nib$load('./DeepSynMRI/data/mask/subject47_crisp_v.mnc.gz')
+mask_all <-  nib$load('../DeepSynMRI/data/mask/subject47_crisp_v.mnc.gz')
 mask_all <-  mask_all$get_fdata()
 mask <-  (mask_all == 0)
 mask_reshaped <-  mask[(1:36)*10, (1:217)*2, (1:181)*2]
@@ -19,7 +19,7 @@ mask_vec <- 1 - c(mask)
 
 
 
-img <-  nib$load(paste0('./DeepSynMRI/data/noise-1-INU-00/brainweb_0.mnc.gz'))
+img <-  nib$load(paste0('../DeepSynMRI/data/noise-1-INU-00/brainweb_0.mnc.gz'))
 shapes <-  unlist(img$shape)
 
 
@@ -31,13 +31,13 @@ phantom <- array(dim = c(n, 12))
 test_ind <- setdiff(1:ncol(phantom), train_ind)
 
 for (i in 1:3) {
-    img <-  nib$load(paste0('./DeepSynMRI/data/noise-1-INU-00/brainweb_', i-1, '.mnc.gz'))    ## BUG, this was 0, not i
+    img <-  nib$load(paste0('../DeepSynMRI/data/noise-1-INU-00/brainweb_', i-1, '.mnc.gz'))    ## BUG, this was 0, not i
     data <-  img$get_fdata()
     phantom[, train_ind[i]] <- c(data)
 }
 
 for (i in 1:9) {
-    img <-  nib$load(paste0('./DeepSynMRI/data/test-noise-0-INU-00/brainweb_', i-1, '.mnc.gz'))
+    img <-  nib$load(paste0('../DeepSynMRI/data/test-noise-0-INU-00/brainweb_', i-1, '.mnc.gz'))
     data <-  img$get_fdata()
     phantom[, test_ind[i]] <- c(data)
 }
@@ -120,20 +120,20 @@ if(!file.exists("W_values/W_AECM_1.rds")){
     t2 <- Sys.time()
     print(t2-t1)
 }
-W_AECM_all <- readRDS("W_values/W_AECM_1.rds")
 
+W_AECM_all <- readRDS("W_values/W_AECM_1.rds")
 W_AECM <- W_AECM_all$W
 
 
 W_AECM[mask==1,1] <- 0.597891
-W_AECM[mask==1,2] <- 1e-8        # controvertial
+W_AECM[mask==1,2] <- 1e-8      
 W_AECM[mask==1,3] <- 0.975431
 
 
 
 
 # Contrast_GM
-Contrast_GM <- nib$load('symR/phantom_1.0mm_msles1_gray_matter.mnc.gz')$get_fdata()
+Contrast_GM <- nib$load('phantom_1.0mm_msles1_gray_matter.mnc.gz')$get_fdata()
 Contrast_GM <- Contrast_GM[(1:36)*5, (1:217)*1, (1:181)*1]
 Contrast_GM <- c(Contrast_GM)
 Contrast_GM <- Contrast_GM/sum(Contrast_GM)

@@ -15,42 +15,17 @@ a) Clone from git
 git clone https://github.com/StatPal/DeepSynMRI --depth 1
 ```
 
-b) Install reticulate and related packages with the virtual environment needed for the DL package, create some necessary directories, and run the file:
-
-```R
-install.packages("reticulate")
-library(reticulate)
-virtualenv_create("r-reticulate")SE_example_DL.py
-virtualenv_install("r-reticulate", c("torch", "torchvision", "torchaudio", "matplotlib", "scikit-image", "pandas", "joblib", "nibabel"))
-dir.create("DeepSynMRI/LS-py")
-dir.create("DeepSynMRI/DL_smooth")
-
-# Run and save values
-py_run_file('DeepSynMRI/SE_example_DL.py')
-```
-
 
 Step 2: 
-a) In R, to install the package run
-```{R}
-install.packages("devtools")
-install.packages("RcppGSL") 
-# sudo apt install libgsl-dev
-# Or
-# sudo dnf install gsl-devel
-# possibly needed to run in the terminal to install gsl
 
-devtools::install_github("StatPal/symR@R")
-```
-
-b) Clone files for symR and run them: 
+a) Clone files for symR and run them: 
 ```sh
 git clone -b R https://github.com/StatPal/symR --depth 1
 ```
 
-c) Run `symR/image_SE_1.R` 
+b) Go to symR directory and run `image_SE_1.R`:
 
 Options: DEEP_LEARNING_COMPARE <- TRUE will add the comparison of DL and AECM and other methods
 
-Step 3: Run `symR/Variance.R`
+Step 3: Run `Variance.R`
 
