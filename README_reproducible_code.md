@@ -23,9 +23,9 @@ a) Clone files for symR and run them:
 git clone -b R https://github.com/StatPal/symR --depth 1
 ```
 
-b) Go to symR directory and run `image_SE_1.R`:
+b) Go to symR directory and run `image_SE_1.R`, which will run the brainweb data for noise 1%.
 
-Options: DEEP_LEARNING_COMPARE <- TRUE will add the comparison of DL and AECM and other methods
+Options: `DEEP_LEARNING_COMPARE <- TRUE` (near line 240) instead of `DEEP_LEARNING_COMPARE <- FALSE` will add the comparison of DL and AECM and other methods. 
 
 Step 3: Run `Variance.R`
 

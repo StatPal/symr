@@ -51,13 +51,16 @@ phantom[phantom == 0.0] <- 0.5 ## Pre-processing to remove the -Inf issue in lik
 ## Other input parameters:
 TE_values <- c(0.01, 0.015, 0.02, 0.01, 0.03, 0.04, 0.01, 0.04, 0.08, 0.01, 0.06, 0.1)
 TR_values <- c(0.6,    0.6,  0.6,    1,    1,    1,    2,    2,    2,    3,    3,   3)
-# sigma_values <- c(1.99146, 1.81265, 1.82837, 2.30221, 1.63414, 1.71876, 3.13695, 1.77141, 1.55651, 2.72191, 1.63068, 1.4359)
-sigma_values <- array(dim=12)
-# for (i in 1:3) {
-#     print(i)
-#     sigma_values[train_ind[i]] <- symR::estimate.sigma.j(phantom[,train_ind[i]])
-# }
-sigma_values[1] <- 5.708845; sigma_values[9] <- 3.225243; sigma_values[10] <- 5.619457;
+### sigma_values <- c(1.99146, 1.81265, 1.82837, 2.30221, 1.63414, 1.71876, 3.13695, 1.77141, 1.55651, 2.72191, 1.63068, 1.4359)
+if(!exists("sigma_values")) {
+    sigma_values <- array(dim=12)
+    for (i in 1:3) {
+        print(i)
+        sigma_values[train_ind[i]] <- symR::estimate.sigma.j(phantom[,train_ind[i]])
+    }
+}
+# sigma_values <- array(dim=12)
+# sigma_values[1] <- 5.688486; sigma_values[9] <- 3.451482; sigma_values[10] <- 6.014322; # pre computed values
 
 print(sigma_values)
 
