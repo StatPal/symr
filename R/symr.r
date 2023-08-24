@@ -2,7 +2,7 @@
 #'
 #' @rdname symr
 #' @param W A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Otherwise, if NULL, a basic estimate of W is used.
-#' @param method The method to be used, possible options are.
+#' @param method The method to be used, possible options are LS/Least Square, ML/Maximum Likelihood, OSL-EM/One Step Late EM, AECM/EM, PLS
 #' @param dimen The dimension of the train MR signals (possibly read from the nifti file, the format would be: )
 #' @param train A numeric matrix of size n x m of observed signals to be trained on, where m is the number of training MR images.
 #' @param TE.train A numeric vector, TE values for the training set
@@ -86,7 +86,7 @@
 #' mean(performance(W_LS, test, TE_test, TR_test, sigma_test, mask, 1, 1, 1))
 #' }
 symr <- function(W = NULL,
-                 method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM", "LS-new"),
+                 method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM", "One Step Late EM", "AECM", "EM", "PLS"),
                  dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter.LS = 50L, maxiter = 50L, abs.diff = 1e-1, rel.diff = 1e-5, verbose = 0L, verbose2 = 0L) {
   if (method == "LS" | method == "Least Square") {
     W_1_init <- exp(-1 / (2.0 * TR.scale))
@@ -114,7 +114,7 @@ symr <- function(W = NULL,
         ## Or the AECM???? (Two step case - but more checked - Subrata)
       } else if (method == "OSL-EM" | method == "One Step Late EM") {
         .Call("_symR_OSL_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
-      } else if (method == "LS-new" | method == "New LS") {
+      } else if (method == "PLS" | method == "New LS") {
         .Call("_symR_LS_new_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       } else if (method == "EM" | method == "AECM") {
         .Call("_symR_AECM_R", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
@@ -126,7 +126,7 @@ symr <- function(W = NULL,
         ## Or the AECM???? (Two step case - but more checked - Subrata)
       } else if (method == "OSL-EM" | method == "One Step Late EM") {
         .Call("_symR_OSL_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
-      } else if (method == "LS-new" | method == "New LS") {
+      } else if (method == "PLS" | method == "New LS") {
         .Call("_symR_LS_new_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)
       } else if (method == "EM" | method == "AECM") {
         .Call("_symR_AECM_R_3D", PACKAGE = "symR", W, dimen, TE.train, TR.train, sigma.train, train, train.scale, TE.scale, TR.scale, black.list, maxiter, 1L, abs.diff, rel.diff, verbose, verbose2)

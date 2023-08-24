@@ -7,7 +7,7 @@
 symr(
   W = NULL,
   method = c("LS", "Least Square", "ML", "Maximum Likelihood", "OSL-EM",
-    "One Step Late EM", "AECM", "EM"),
+    "One Step Late EM", "AECM", "EM", "PLS"),
   dimen,
   TE.train,
   TR.train,
@@ -28,7 +28,7 @@ symr(
 \arguments{
 \item{W}{A numeric Matrix of size n x 3, supplied as the initial value for the problem. One does not have to supply it for LS. Otherwise, if NULL, a basic estimate of W is used.}
 
-\item{method}{The method to be used, possible options are.}
+\item{method}{The method to be used, possible options are LS/Least Square, ML/Maximum Likelihood, OSL-EM/One Step Late EM, AECM/EM, PLS}
 
 \item{dimen}{The dimension of the train MR signals (possibly read from the nifti file, the format would be: )}
 

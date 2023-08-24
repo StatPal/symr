@@ -1,4 +1,4 @@
-Crequire("devtools")
+require("devtools")
 require("RcppGSL")
 
 devtools::install_github("StatPal/symR@R")
@@ -163,6 +163,41 @@ tmp_pred_val_OSL <- cbind(colMeans(tmp_diff[mask_vec==1,])/apply(test[mask_vec==
                         sqrt(colMeans(tmp_diff[mask_vec==1,]^2))/apply(test[mask_vec==1,], 2, sd), SSIM_vals)
 
 
+## PLS after usual LS
+if(!file.exists("W_values/W_PLS_1.rds")){
+    t1 <- Sys.time()
+    W_PLS <- symr(W_LS,
+    method = "PLS", dimen, TE.train, TR.train, sigma.train, train,
+    r_scale, TE.scale, TR.scale, as.numeric(mask),
+                maxiter = 100
+    )$W
+    saveRDS(W_PLS, "W_values/W_PLS_1.rds")
+    t2 <- Sys.time()
+    print(t2-t1)
+}
+W_PLS <- readRDS("W_values/W_PLS_1.rds")
+
+
+W_PLS[mask==1,1] <- 0.597891
+W_PLS[mask==1,2] <- 1e-8        # controvertial
+W_PLS[mask==1,3] <- 0.975431
+
+SSIM_vals <- array(dim=9)
+pred_PLS <- bloch.image(W_PLS, TE_test, TR_test)
+pred_PLS[mask==1,] <- 0
+for(i in 1:9){
+    pred_3D = array(pred_PLS[,i], shapes)    ## Bug shapes
+    test_3D = array(test[,i], shapes)
+    SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
+}
+print(SSIM_vals)
+tmp_diff <- abs(pred_PLS - test)
+tmp_pred_val_PLS <- cbind(colMeans(tmp_diff[mask_vec==1,])/apply(test[mask_vec==1,], 2, mad_new), 
+                        sqrt(colMeans(tmp_diff[mask_vec==1,]^2))/apply(test[mask_vec==1,], 2, sd), SSIM_vals)
+
+
+
+
 
 ## AECM after usual LS
 if(!file.exists("W_values/W_AECM_1.rds")){
@@ -281,6 +316,38 @@ if(DEEP_LEARNING_COMPARE){
 
 
 
+
+    ## PLS after py LS
+    t1 <- Sys.time()
+    W_PLS_py <- symr(W_LS_py,
+    method = "PLS", dimen, TE.train, TR.train, sigma.train, train,
+    r_scale, TE.scale, TR.scale, as.numeric(mask),
+                maxiter = 100
+    )$W
+    saveRDS(W_PLS_py, "W_values/W_PLS_py_1.rds")
+    t2 <- Sys.time()
+    print(t2-t1)
+    W_PLS_py <- readRDS("W_values/W_PLS_py_1.rds")
+
+    W_PLS_py[mask==1,1] <- 0.597891
+    W_PLS_py[mask==1,2] <- 1e-8        # controvertial
+    W_PLS_py[mask==1,3] <- 0.975431
+
+    print(SSIM_vals)
+    pred_PLS_py <- bloch.image(W_PLS_py, TE_test, TR_test)
+    pred_PLS_py[mask==1,] <- 0
+    for(i in 1:9){
+        pred_3D = array(pred_PLS_py[,i], shapes)     ## Bug shapes
+        test_3D = array(test[,i], shapes)
+        SSIM_vals[i] = ssim(pred_3D, test_3D, data_range = max(c(pred_3D, test_3D)))
+    }
+    print(SSIM_vals)
+    tmp_diff <- abs(pred_PLS_py - test)
+    tmp_pred_val_PLS_py <- cbind(colMeans(tmp_diff[mask_vec==1,])/apply(test[mask_vec==1,], 2, mad_new), 
+                            sqrt(colMeans(tmp_diff[mask_vec==1,]^2))/apply(test[mask_vec==1,], 2, sd), SSIM_vals)
+
+
+
     ## AECM after py LS
     t1 <- Sys.time()
     W_AECM_py <- symr(W_LS_py,
@@ -346,19 +413,23 @@ if(DEEP_LEARNING_COMPARE){
 
 # print(tmp_pred_val)
 # print(tmp_pred_val_OSL)
+# print(tmp_pred_val_PLS)
 # print(tmp_pred_val_AECM)
 # print(tmp_pred_val_py)
 # print(tmp_pred_val_OSL_py)
+# print(tmp_pred_val_PLS_py)
 # print(tmp_pred_val_AECM_py)
 # print(tmp_pred_val_DL_py)
 
 
 print(mean(tmp_pred_val))
 print(mean(tmp_pred_val_OSL))
+print(mean(tmp_pred_val_PLS))
 print(mean(tmp_pred_val_AECM))
 if(DEEP_LEARNING_COMPARE){
     print(mean(tmp_pred_val_py))
     print(mean(tmp_pred_val_OSL_py))
+    print(mean(tmp_pred_val_PLS_py))
     print(mean(tmp_pred_val_AECM_py))
     print(mean(tmp_pred_val_DL_py))
 }
@@ -366,10 +437,9 @@ if(DEEP_LEARNING_COMPARE){
 
 
 ## Having the results in a transposed format
-# tmp_all_1 <- rbind(tmp_pred_val[,1],tmp_pred_val_OSL[,1], tmp_pred_val_AECM[,1], tmp_pred_val_py[,1], tmp_pred_val_OSL_py[,1],tmp_pred_val_AECM_py[,1], tmp_pred_val_DL_py[,1])
-# tmp_all_2 <- rbind(tmp_pred_val[,2],tmp_pred_val_OSL[,2], tmp_pred_val_AECM[,2], tmp_pred_val_py[,2], tmp_pred_val_OSL_py[,2],tmp_pred_val_AECM_py[,2], tmp_pred_val_DL_py[,2])
-# tmp_all_3 <- 100 * rbind(tmp_pred_val[,3],tmp_pred_val_OSL[,3], tmp_pred_val_AECM[,3], tmp_pred_val_py[,3], tmp_pred_val_OSL_py[,3],tmp_pred_val_AECM_py[,3], tmp_pred_val_DL_py[,3])
-
+# tmp_all_1 <- rbind(tmp_pred_val[,1],tmp_pred_val_OSL[,1], tmp_pred_val_PLS[,1], tmp_pred_val_AECM[,1], tmp_pred_val_py[,1], tmp_pred_val_OSL_py[,1], tmp_pred_val_PLS_py[,1], tmp_pred_val_AECM_py[,1], tmp_pred_val_DL_py[,1])
+# tmp_all_2 <- rbind(tmp_pred_val[,2],tmp_pred_val_OSL[,2], tmp_pred_val_PLS[,2], tmp_pred_val_AECM[,2], tmp_pred_val_py[,2], tmp_pred_val_OSL_py[,2], tmp_pred_val_PLS_py[,2], tmp_pred_val_AECM_py[,2], tmp_pred_val_DL_py[,2])
+# tmp_all_3 <- 100 * rbind(tmp_pred_val[,3],tmp_pred_val_OSL[,3], tmp_pred_val_PLS[,3], tmp_pred_val_AECM[,3], tmp_pred_val_py[,3], tmp_pred_val_OSL_py[,3], tmp_pred_val_PLS_py[,3], tmp_pred_val_AECM_py[,3], tmp_pred_val_DL_py[,3])
 
 # rowMeans(tmp_all_1)
 # rowMeans(tmp_all_2)
@@ -379,14 +449,14 @@ if(DEEP_LEARNING_COMPARE){
 
 # all_val <- rbind(tmp_all_1, tmp_all_2, tmp_all_3)
 # colnames(all_val) <- paste("test", 1:9)
-# rownames(all_val) <- rep(c("MAPE", "RMSPE", "SSIM"), each=7)
+# rownames(all_val) <- rep(c("MAPE", "RMSPE", "SSIM"), each=9)
 # saveRDS(all_val, "values/SE_1.rds")
 
 # (ord_1 <- order(rowMeans(tmp_all_1)))
 # (ord_2 <- order(rowMeans(tmp_all_2)))
 # (ord_3 <- order(rowMeans(tmp_all_3)))
 
-# method <- c("LS-C", "OSL-C","AECM-C","LS-py","OSL-py","AECM-py", "DL")
+# method <- c("LS-C", "OSL-C", "PLS-C", "AECM-C","LS-py","OSL-py", "PLS-py", "AECM-py", "DL")
 
 # method[ord_1]
 # method[ord_2]
